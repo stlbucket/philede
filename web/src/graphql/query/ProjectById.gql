@@ -1,0 +1,38 @@
+query PdeProjectById(
+  $id: BigInt!
+) {
+  pdeProjectById(id: $id) {
+    id
+    name
+    schemas {
+      nodes {
+        id
+        name
+        artifacts: artifactsBySchemaId {
+          nodes {
+            id
+            name
+            artifactType: artifactTypeByArtifactTypeId {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  allArtifactTypes {
+    nodes {
+      id
+      name
+      children {
+        nodes {
+          id
+          name
+        }
+      }
+    }
+  }
+
+}

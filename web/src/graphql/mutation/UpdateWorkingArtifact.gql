@@ -1,0 +1,20 @@
+mutation UpdateWorkingArtifact(
+  $nodeId: ID!
+  $id: UUID!
+  $ddl: String!
+) {
+  updateWorkingArtifact(input: {
+    nodeId: $nodeId
+    workingArtifactPatch: {
+      id:	$id
+      ddl: $ddl
+    }
+  }) {
+    workingArtifact {
+      id
+      nodeId
+      name
+      ddl
+    }
+  }
+}

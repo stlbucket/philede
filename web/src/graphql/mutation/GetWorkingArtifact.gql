@@ -1,0 +1,25 @@
+mutation GetWorkingArtifact(
+  $artifactId: UUID!
+){
+  getWorkingArtifact(input: {
+    _artifactId: $artifactId
+  }) {
+    workingArtifact {
+      id
+      nodeId
+      name
+      ddl
+      artifact: artifactByArtifactId {
+        id
+        nodeId
+        name
+        ddl
+        artifactType: artifactTypeByArtifactTypeId {
+          id
+          nodeId
+          name
+        }
+      }
+    }
+  }
+}

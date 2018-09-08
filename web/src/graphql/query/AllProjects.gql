@@ -1,0 +1,8 @@
+query {
+  allPdeProjects {
+    nodes {
+      id
+      name
+    }
+  }
+}

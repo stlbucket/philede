@@ -1,0 +1,39 @@
+{
+  "name": "philede-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "apollo": "vue-cli-service apollo:watch",
+    "apollo:run": "vue-cli-service apollo:run"
+  },
+  "dependencies": {
+    "graphql-type-json": "^0.2.1",
+    "lowdb": "^1.0.0",
+    "mkdirp": "^0.5.1",
+    "shortid": "^2.2.8",
+    "stylus-loader": "^3.0.2",
+    "v-treeview": "^0.2.1",
+    "vue": "^2.5.17",
+    "vue-apollo": "^3.0.0-beta.10",
+    "vue-awesome": "^3.1.0",
+    "vue-codemirror": "^4.0.5",
+    "vue-router": "^3.0.1",
+    "vuetify": "^1.0.19"
+  },
+  "devDependencies": {
+    "@babel/polyfill": "^7.0.0-beta.49",
+    "@vue/cli-plugin-babel": "^3.0.1",
+    "@vue/cli-plugin-eslint": "^3.0.1",
+    "@vue/cli-service": "^3.0.1",
+    "eslint-config-prettier": "2.5.0",
+    "eslint-plugin-graphql": "^2.1.1",
+    "graphql-tag": "^2.9.0",
+    "stylus": "^0.54.5",
+    "vue-cli-plugin-apollo": "^0.16.3",
+    "vue-cli-plugin-vuetify": "^0.1.6",
+    "vue-template-compiler": "^2.5.17"
+  }
+}
