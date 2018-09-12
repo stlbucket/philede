@@ -19,9 +19,10 @@ export default new Router({
     //   component: Apollo
     // },
     {
-      path: "/artifact",
+      path: "/artifact/:id",
       name: "artifact",
-      component: Artifact
+      component: Artifact,
+      props: true
     },
     {
       path: "/about",

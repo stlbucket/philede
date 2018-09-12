@@ -24,8 +24,6 @@ BEGIN
 END;
 $$ LANGUAGE PLPGSQL;
 
-
-
 ------------------------------------------------
 -- pde schema
 ------------------------------------------------
@@ -82,10 +80,24 @@ CREATE TABLE pde.minor (
   major_id bigint NOT NULL,
   release_id bigint NOT NULL,
   revision integer,
-  CONSTRAINT pk_pde_minor PRIMARY KEY (id)
+  number text NOT NULL,
+  CONSTRAINT pk_pde_minor PRIMARY KEY (id),
+  CHECK (number <> '')
 );
 ALTER TABLE pde.minor ADD CONSTRAINT fk_minor_major FOREIGN KEY (major_id) REFERENCES pde.major (id);
 ALTER TABLE pde.minor ADD CONSTRAINT fk_minor_release FOREIGN KEY (release_id) REFERENCES pde.release (id);
+
+  --||--
+  CREATE FUNCTION pde.fn_timestamp_update_minor() RETURNS trigger AS $$
+  BEGIN
+    NEW.number = (select lpad(mj.revision::text,4,'0') || '.' || lpad(NEW.revision::text,4,'0') from pde.major mj where mj.id = NEW.major_id);
+    RETURN NEW;
+  END; $$ LANGUAGE plpgsql;
+  --||--
+  CREATE TRIGGER tg_timestamp_update_minor
+    BEFORE INSERT OR UPDATE ON pde.minor
+    FOR EACH ROW
+    EXECUTE PROCEDURE pde.fn_timestamp_update_minor();
 
 ------------------------------------------------
 -- artifact type
@@ -134,8 +146,10 @@ CREATE TABLE pde.artifact (
   created_at timestamp NOT NULL DEFAULT current_timestamp,
   updated_at timestamp NOT NULL,
   name text NOT NULL,
+  description text NOT NULL DEFAULT '',
   artifact_type_id bigint NOT NULL,
   schema_id bigint NOT NULL,
+  CHECK (name <> ''),
   CONSTRAINT pk_artifact PRIMARY KEY (id)
 );
 
@@ -175,11 +189,26 @@ CREATE TABLE pde.patch (
   minor_id bigint NOT NULL,
   artifact_id bigint NOT NULL,
   revision integer,
-  ddl text,
+  ddl text NOT NULL DEFAULT '<ddl>',
+  working_ddl text NOT NULL DEFAULT '<ddl>',
+  number text NOT NULL,
+  CHECK (number <> ''),
   CONSTRAINT pk_pde_patch PRIMARY KEY (id)
 );
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_minor FOREIGN KEY (minor_id) REFERENCES pde.minor (id);
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_artifact FOREIGN KEY (artifact_id) REFERENCES pde.artifact (id);
+--||--
+CREATE FUNCTION pde.fn_timestamp_update_patch() RETURNS trigger AS $$
+BEGIN
+  NEW.number = (select mi.number || '.' || lpad(NEW.revision::text,4,'0') from pde.minor mi where mi.id = NEW.minor_id);
+  RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+--||--
+CREATE TRIGGER tg_timestamp_update_patch
+  BEFORE INSERT OR UPDATE ON pde.patch
+  FOR EACH ROW
+  EXECUTE PROCEDURE pde.fn_timestamp_update_patch();
+
 
 ------------------------------------------------
 -- pde_project_schemas
@@ -280,33 +309,39 @@ SELECT
 INSERT INTO pde.artifact(  
   name
   ,artifact_type_id
+  ,description
   ,schema_id
 )
 SELECT
   'example_table'
   ,(select id from pde.artifact_type where name = 'table')
+  ,'a description of your mom''s table'
   ,(SELECT id from pde.schema where name = 'todo')
 ;
 
 INSERT INTO pde.artifact(  
   name
   ,artifact_type_id
+  ,description
   ,schema_id
 )
 SELECT
   'example_function'
   ,(select id from pde.artifact_type where name = 'function')
+  ,'a description of your mom''s function'
   ,(SELECT id from pde.schema where name = 'todo')
 ;
 
 INSERT INTO pde.artifact(  
   name
   ,artifact_type_id
+  ,description
   ,schema_id
 )
 SELECT
   'example_trigger'
   ,(select id from pde.artifact_type where name = 'trigger')
+  ,'a description of your mom''s trigger'
   ,(SELECT id from pde.schema where name = 'todo')
 ;
 
@@ -319,29 +354,24 @@ SELECT
   ,(select id from pde.artifact where name = 'example_trigger')
 ;
 
-INSERT INTO pde.patch(minor_id, revision, ddl, artifact_id) SELECT 
-  id, 1, 'select your_mom;' 
+INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
+  id 
+  ,1
+  ,'select your mom;'
+  ,'select your mom;'
   ,(select id from pde.artifact where name = 'example_table')
   from pde.minor where revision = 1;
-INSERT INTO pde.patch(minor_id, revision, ddl, artifact_id) SELECT 
-  id, 2, 'function your mom;' 
+INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
+  id
+  ,2 
+  ,'function your mom;'
+  ,'function your mom;'
   ,(select id from pde.artifact where name = 'example_function')
   from pde.minor where revision = 1;
-INSERT INTO pde.patch(minor_id, revision, ddl, artifact_id) SELECT 
-  id, 3, 'trigger your mom;' 
+INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
+  id
+  ,3
+  ,'trigger your mom;'
+  ,'trigger your mom;'
   ,(select id from pde.artifact where name = 'example_trigger')
   from pde.minor where revision = 1;
-
-
--- INSERT INTO pde.working_artifact(  
---   name
---   ,artifact_id
---   ,artifact_type_id
---   ,ddl
--- )
--- SELECT
---   'example_function'
---   ,(select id from pde.artifact where name = 'example_function')
---   ,(select id from pde.artifact_type where name = 'function')
---   ,'function your_mom in progress;'
--- ;

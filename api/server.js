@@ -5,7 +5,8 @@ const {postgraphile} = require("postgraphile");
 
 const plugins = [
   require('./src/graphile-extensions/pm2Status'),
-  require('./src/graphile-extensions/execSql')
+  require('./src/graphile-extensions/execSql'),
+  require('postgraphile-plugin-connection-filter')
 ]
 
 const port = process.env.PORT
@@ -33,7 +34,8 @@ app.use(postgraphile(
     // ,pgDefaultRole: pgDefaultRole
     // ,jwtSecret: jwtSecret
     // ,jwtPgTypeIdentifier: jwtPgTypeIdentifier
-    ,extendedErrors: "hint, detail, errcode"
+    ,showErrorStack: true
+    ,extendedErrors: ['severity', 'code', 'detail', 'hint', 'positon', 'internalPosition', 'internalQuery', 'where', 'schema', 'table', 'column', 'dataType', 'constraint', 'file', 'line', 'routine']
     ,disableDefaultMutations: disableDefaultMutations
     ,appendPlugins: plugins
     // ,classicIds: true

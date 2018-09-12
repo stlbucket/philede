@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div>SELECTED: {{ selectedItems }}</div>
     <v-treeview
       :items="items"
       caption-field="name"
@@ -13,23 +12,23 @@
 </template>
 
 <script>
-import ProjectById from '../../graphql/query/ProjectById.gql'
+import initQuery from './initQuery.gql'
 
 export default {
   name: "ArtifactTree",
   methods: {
-    parseArtifactTree (pdeProject, allArtifactTypes) {
+    parseArtifactTree () {
       this.items = [{
         id: 99999999999,
         title: 'schemas',
         name: 'schemas',
-        children: pdeProject.schemas.nodes.map(
+        children: this.pdeProject.schemas.nodes.map(
           schema => {
             return {
               id: schema.id,
               title: 'schema',
               name: schema.name,
-              children: allArtifactTypes.map(
+              children: this.allArtifactTypes.map(
                 artifactType => {
                   return {
                     id: artifactType.id,
@@ -52,11 +51,31 @@ export default {
           }
         )
       }]
+
+      this.allArtifacts = this.pdeProject.schemas.nodes.reduce(
+        (acc, schema) => {
+          return acc.concat(schema.artifacts.nodes)
+        }, []
+      )
+    },
+    findArtifact (id) {
+      // const artifact = this.pdeProject.schemas.nodes.
+    }
+  },
+  watch: {
+    selectedItems (sel) {
+      console.log('selected-id', sel)
+      const artifact = this.allArtifacts.find(a => a.id === sel[0])
+      if (sel[0] === 99999999999) {
+        this.$router.push({ name: 'home' })
+      } else if (artifact) {
+        this.$router.push({ name: 'artifact', params: { id: artifact.id }})
+      }
     }
   },
   apollo: {
-    pdeProjectById: {
-      query: ProjectById,
+    init: {
+      query: initQuery,
       variables () {
         return {
           id: `${this.pdeProjectId}`
@@ -67,9 +86,9 @@ export default {
         return this.pdeProjectId === ''
       },
       update (result) {
-        const pdeProject = result.pdeProjectById
-        const allArtifactTypes = result.allArtifactTypes.nodes
-        this.parseArtifactTree(pdeProject, allArtifactTypes)
+        this.pdeProject = result.pdeProjectById
+        this.allArtifactTypes = result.allArtifactTypes.nodes
+        this.parseArtifactTree()
       }
     }
   },
@@ -82,7 +101,10 @@ export default {
   data () {
     return {
       items:  [],
-      selectedItems: []
+      selectedItems: [],
+      pdeProject: null,
+      allArtifactTypes: [],
+      allArtifacts: []
     }
   },
 }

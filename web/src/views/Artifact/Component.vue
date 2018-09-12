@@ -1,128 +1,64 @@
 <template>
-  <div>
-    <div>
-      <button 
-        @click="commitWorkingArtifact"
-        :disabled="disableSave"
-      >Save
-      </button>
-      <button 
+  <v-container
+    justify-start
+  >
+    <v-toolbar>
+      <v-btn 
+        @click="captureWorkingDdl"
+        :disabled="disableCapture"
+      >Capture
+      </v-btn>
+      <v-btn 
+        @click="commitWorkingDdl"
+        :disabled="disableCommit"
+      >Commit
+      </v-btn>
+      <v-btn 
         @click="newArtifact"
         :disabled="disableNew"
       >New
-      </button>
-    </div>
-    <div>
-      <p :hidden="editName">{{ selectedArtifact.name }}</p>
-    </div>
-    <div id="codemirror">
-      <codemirror ref="myCm"
-        :value="ddl" 
-        :options="cmOptions"
-        @ready="onCmReady"
-        @focus="onCmFocus"
-        @input="onCmCodeChange">
-      </codemirror>
-    </div>
-  </div>
+      </v-btn>
+    </v-toolbar>
+    <v-container
+    >
+      <editor 
+        v-model="ddl" 
+        @init="editorInit" 
+        lang="pgsql" 
+        theme="tomorrow_night_bright"
+        width="100%" 
+        height="750"
+        readonly="readonly"
+      ></editor>
+    </v-container>
+  </v-container>
 </template>
 
 <script>
-import getAllArtifacts from '../../graphql/query/Artifacts.gql'
-import updateArtifact from '../../graphql/mutation/UpdateArtifact.gql'
-import updateWorkingArtifact from '../../graphql/mutation/UpdateWorkingArtifact.gql'
-import commitWorkingArtifact from '../../graphql/mutation/CommitWorkingArtifact.gql'
-import getWorkingArtifact from '../../graphql/mutation/GetWorkingArtifact.gql'
-import { codemirror } from 'vue-codemirror'
-import 'codemirror/lib/codemirror.css'
+import artifactById from './gql/query/artifactById.gql'
+import captureWorkingDdl from './gql/mutation/captureWorkingDdl.gql'
+import commitWorkingDdl from './gql/mutation/commitWorkingDdl.gql'
 import gql from 'graphql-tag'
-
-const defaultWorkingArtifact = {
-  artifact: {
-  }
-}
+import ace from 'brace'
 
 export default {
   name: "Artifact",
   components: {
-    codemirror
+    editor: require('vue2-ace-editor'),
   },
   props: {
-    sql: String
+    id: String
   },
   methods: {
-    onCmReady(cm) {
-      // console.log('the editor is readied!', cm)
-    },
-    onCmFocus(cm) {
-      // console.log('the editor is focus!', cm)
-    },
-    onCmCodeChange(newCode) {
-      this.workingArtifact.ddl = newCode
-      this.captureWorkingArtifact()
-    },
-    commitWorkingArtifact() {
-      console.log('commit')
-      // this.$apollo.mutate({
-      //   mutation: commitWorkingArtifact,
-      //   variables: {
-      //     id: this.workingArtifact.id
-      //   }
-      // })
-      // .then(result => {
-      //   this.workingArtifact = defaultWorkingArtifact
-      //   this.loadArtifacts()
-      // })
-      // .catch(error => {
-      //   alert('ERROR')
-      //   console.log('ERROR', error)
-      // })
-    },
-    captureWorkingArtifact() {
-      console.log('capture')
-      // this.$apollo.mutate({
-      //   mutation: updateWorkingArtifact,
-      //   variables: {
-      //     nodeId: this.workingArtifact.nodeId,
-      //     id: this.workingArtifact.id,
-      //     ddl: this.workingArtifact.ddl
-      //   }
-      // })
-      // .catch(error => {
-      //   alert ('ERROR')
-      //   console.log('ERROR', error)
-      // })
-    },
-    selected(node) {
-      switch(node.model.type){
-        case 'ARTIFACT':
-          this.selectedArtifact = Object.assign({}, this.artifacts.reduce(
-            (acc, artifactType) => {
-              return acc.concat(artifactType.artifacts.nodes)
-            }, []
-          )
-          .find(a => a.id === node.model.id))
-
-          console.log('sel', this.selectedArtifact)
-          this.$apollo.mutate({
-            mutation: getWorkingArtifact,
-            variables: {
-              artifactId: this.selectedArtifact.id
-            }
-          })
-          .then(result => {
-            this.workingArtifact = result.data.getWorkingArtifact.workingArtifact
-            this.ddl = this.workingArtifact.ddl
-          })
-          .catch(error => {
-            alert('ERROR')
-            console.log('ERROR', error)
-          })
-          break
-        case 'ARTIFACT_TYPE':
-          this.selectedArtifactType = this.artifacts.find(a => a.id === node.model.id)
-          break
-      }
+    editorInit: function () {
+        require('brace/ext/language_tools') //language extension prerequsite...
+        require('brace/mode/html')                
+        require('brace/mode/javascript')    //language
+        require('brace/mode/less')
+        require('brace/theme/chrome')
+        require('brace/snippets/javascript') //snippet
+        require('brace/mode/pgsql')
+        require('brace/theme/tomorrow_night_bright')
     },
     newArtifact() {
       alert('new')
@@ -130,74 +66,104 @@ export default {
     editName () {
       return true
     },
-    loadArtifacts () {
-      this.$apollo.query({
-        query: getAllArtifacts,
-        networkPolicy: 'fetch-only'
+    captureWorkingDdl () {
+      if (this.ddl !== this.currentPatch.workingDdl){
+        return this.$apollo.mutate({
+          mutation: captureWorkingDdl,
+          variables: {
+            patchId: this.currentPatch.id,
+            workingDdl: this.ddl
+          },
+          fetchPolicy: 'no-cache'
+        })
+        .then(result => {
+          console.log('captureWorkingDdl result', result)
+          this.currentPatch = result.data.updatePatchById.patch
+        })
+        .catch(error => {
+          alert('ERROR')
+          console.log('error', error)
+        })
+      } else {
+        return Promise.resolve()
+      }
+
+    },
+    commitWorkingDdl () {
+      return this.$apollo.mutate({
+        mutation: commitWorkingDdl,
+        variables: {
+          patchId: this.currentPatch.id,
+          ddl: this.ddl
+        },
+        fetchPolicy: 'no-cache'
       })
       .then(result => {
-        this.artifacts = result.data.allArtifactTypes.nodes
-        console.log('selected', this.$refs.myTreeview.selected)
-        console.log('clearSelected', this.$refs.myTreeview.clearSelected)
+        console.log('commitWorkingDdl result', result)
+        this.currentPatch = result.data.updatePatchById.patch
       })
       .catch(error => {
         alert('ERROR')
-        console.log('ERROR', error)
+        console.log('error', error)
       })
     }
   },
+  apollo: {
+    loadArtifact: {
+      fetchPolicy: 'network-only',
+      query: artifactById,
+      variables () {
+        return {id: this.id}
+      },
+      update (data) {
+        this.artifact = data.artifactById
+        this.currentPatch = this.artifact.patches.nodes[0] || {ddl: null}
+        this.ddl = this.currentPatch.workingDdl
+      }
+    }
+
+  },
   computed: {
-    disableSave () {
-      console.log(this.workingArtifact.ddl, this.workingArtifact.artifact.ddl, this.workingArtifact.ddl === this.workingArtifact.artifact.ddl)
-      return this.workingArtifact.ddl === this.workingArtifact.artifact.ddl
+    disableCapture () {
+      return this.ddl === this.currentPatch.workingDdl
+    },
+    disableCommit () {
+      return this.disableCapture ? this.currentPatch.ddl === this.currentPatch.workingDdl : true
     },
     disableNew () {
       return false
       // return this.workingArtifactType.id === null
+    },
+    readonly () {
+      return false  // Todo: this
+    },
+    isDirty () {
+      return this.currentPatch.ddl !== this.currentPatch.workingDdl
     }
+  },
+  beforeRouteUpdate (to, from, next) {
+    this.captureWorkingDdl()
+    .then(result => {
+      next()
+    })
+  },
+  beforeRouteLeave (to, from, next) {
+    this.captureWorkingDdl()
   },
   data () {
     return {
       ddl: 'ddl',
       cmOptions: {
         // codemirror options
-        tabSize: 4,
-        mode: 'text/javascript',
+        tabSize: 2,
+        mode: 'text/x-pgsql',
         theme: 'base16-dark',
         lineNumbers: true,
         line: true,
         // more codemirror options, 更多 codemirror 的高级配置...
       },
-      treeOptions: {
-
-      },
-      artifacts: [],
-            openAll: true,
-      treeTypes: [
-        {
-          type: "#",
-          max_children: 6,
-          max_depth: 4,
-          valid_children: [
-            "ARTIFACT_TYPE",
-            "ARTIFACT"
-          ]
-        },
-        {
-          type: "ARTIFACT_TYPE",
-          icon: "far fa-user",
-          valid_children: ["ARTIFACT"]
-        },
-        {
-          type: "ARTIFACT",
-          icon: "far fa-hospital",
-          valid_children: []
-        }
-      ],
-      contextItems: [],
-      selectedArtifact: {id: null},
-      workingArtifact: defaultWorkingArtifact,
-      selectedArtifactType: {id: null}
+      artifact: {},
+      currentPatch: {}
     }
   },
 }
@@ -206,7 +172,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 #codemirror {
-  height: 1000px;
+  height: 100%;
 }
 
 #tree {

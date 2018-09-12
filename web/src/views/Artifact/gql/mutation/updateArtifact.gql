@@ -1,0 +1,19 @@
+mutation UpdateArtifact(
+  $id: BigInt!
+  $name: String
+  $description: String
+) {
+  updateArtifactById(input: {
+    id:	$id
+    artifactPatch: {
+      name: $name
+      description: $description
+    }
+  }) {
+    artifact {
+      id
+      name
+      description
+    }
+  }
+}

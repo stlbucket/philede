@@ -43,7 +43,6 @@
 				<defo>shard_1.id_generator()</defo>
 			</column>
 			<column name="name" type="text" decimal="0" jt="12" mandatory="y" />
-			<column name="display_order" type="integer" length="10" decimal="0" jt="4" mandatory="y" />
 			<column name="execution_order" type="integer" length="10" decimal="0" jt="4" mandatory="y" />
 			<column name="properties" type="jsonb" decimal="0" jt="1111" mandatory="y" >
 				<defo>&#039;{}&#039;::jsonb</defo>

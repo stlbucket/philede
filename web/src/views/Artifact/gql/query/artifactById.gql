@@ -1,0 +1,33 @@
+query ArtifactById(
+  $id: BigInt!
+) {
+  artifactById (id: $id){
+    id
+    name
+    description
+    artifactType: artifactTypeByArtifactTypeId {
+      id
+      name
+    }
+    patches: patchesByArtifactId {
+      nodes {
+        id
+        number
+        ddl
+        workingDdl
+        minor: minorByMinorId {
+          id
+          number
+          major: majorByMajorId {
+            id
+            revision
+          }
+          release: releaseByReleaseId {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}

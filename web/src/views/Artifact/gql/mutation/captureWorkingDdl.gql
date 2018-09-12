@@ -1,0 +1,19 @@
+mutation CaptureWorkingDdl(
+  $patchId: BigInt!
+  $workingDdl: String!
+) {
+  updatePatchById(input: {
+    id: $patchId
+    patchPatch: {
+      workingDdl: $workingDdl
+    }
+  }) {
+    patch {
+      id
+      number
+      ddl
+      workingDdl
+      revision
+    }
+  }
+}

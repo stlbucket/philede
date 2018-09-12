@@ -12,6 +12,8 @@
 			<column name="name" type="text" decimal="0" jt="12" mandatory="y" />
 			<column name="artifact_type_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<column name="schema_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="description" type="text" decimal="0" jt="12" />
+			<column name="working_ddl" type="text" decimal="0" jt="12" />
 			<index name="pk_artifact" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
@@ -87,9 +89,13 @@
 			<column name="major_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<column name="revision" type="integer" length="10" decimal="0" jt="4" />
 			<column name="release_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="number" type="text" decimal="0" jt="12" mandatory="y" />
 			<index name="pk_pde_minor" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<constraint name="minor_number_check" >
+				<string>number &lt;&gt; &#039;&#039;::text</string>
+			</constraint>
 			<fk name="fk_minor_major" to_schema="pde" to_table="major" >
 				<fk_column name="major_id" pk="id" />
 			</fk>
@@ -105,9 +111,13 @@
 			<column name="revision" type="integer" length="10" decimal="0" jt="4" />
 			<column name="ddl" type="text" decimal="0" jt="12" />
 			<column name="artifact_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="number" type="text" decimal="0" jt="12" mandatory="y" />
 			<index name="pk_pde_patch" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<constraint name="patch_number_check" >
+				<string>number &lt;&gt; &#039;&#039;::text</string>
+			</constraint>
 			<fk name="fk_patch_minor" to_schema="pde" to_table="minor" >
 				<fk_column name="minor_id" pk="id" />
 			</fk>
@@ -170,8 +180,6 @@
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<layout name="Default Layout" id="Layout_2d3ef4c" show_relation="columns" >
-		<entity schema="pde" name="artifact_type_relationship" color="c1d8ee" x="45" y="525" />
-		<entity schema="pde" name="artifact_type" color="bfd4f5" x="285" y="510" />
 		<entity schema="pde" name="minor" color="bfd4f5" x="930" y="255" />
 		<entity schema="pde" name="artifact" color="bfd4f5" x="300" y="255" />
 		<entity schema="pde" name="artifact_relationship" color="c1d8ee" x="45" y="270" />
@@ -180,5 +188,7 @@
 		<entity schema="pde" name="major" color="bfd4f5" x="1260" y="270" />
 		<entity schema="pde" name="pde_project" color="bfd4f5" x="1245" y="60" />
 		<entity schema="pde" name="schema" color="c1d8ee" x="300" y="45" />
+		<entity schema="pde" name="artifact_type" color="bfd4f5" x="315" y="525" />
+		<entity schema="pde" name="artifact_type_relationship" color="c1d8ee" x="45" y="540" />
 	</layout>
 </project>

@@ -1,0 +1,19 @@
+mutation CommitWorkingDdl(
+  $patchId: BigInt!
+  $ddl: String!
+) {
+  updatePatchById(input: {
+    id: $patchId
+    patchPatch: {
+      ddl: $ddl
+    }
+  }) {
+    patch {
+      id
+      number
+      ddl
+      workingDdl
+      revision
+    }
+  }
+}

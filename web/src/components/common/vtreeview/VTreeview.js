@@ -7,6 +7,7 @@ import VBtn from '../../../../node_modules/vuetify/es5/components/VBtn'
 import VIcon from '../../../../node_modules/vuetify/es5/components/VIcon'
 // import ExpandTransitionGenerator from '~/node_modules/vuetify/es5/components/transitions/expand-transition'
 
+
 export default {
   name: 'v-treeview',
 
@@ -117,44 +118,44 @@ export default {
     this.checkExpandChildren()
   },
 
-  computed: {
-    allDescendantLeafs () {
-      let leafs = []
-      let searchTree = items => {
-        let children = this.getChildrenArray(items)
-        if (children.length > 0) {
-          // children.forEach(child => searchTree(child))
-          for (let i = 0; i < children.length; i++) {
-            searchTree(children[i])
-          }
-        } else {
-          leafs.push(items)
-        }
-      }
-      searchTree(this.items)
-      return leafs
-    },
-    allDescendantLeafsSelected () {
-      return this.value.includes(this.items[this.keyField]) || this.parentSelected ||
-        (this.hasChildren && this.hasSelection &&
-          (this.children.every(child => this.value.some(sel => sel === child[this.keyField])) ||
-            this.allDescendantLeafs.every(leaf => this.value.some(sel => sel === leaf[this.keyField]))))
-    },
-    allDescendantParents () {
-      let parents = []
-      let searchTree = items => {
-        let children = this.getChildrenArray(items)
-        if (children.length > 0) {
-          parents.push(items)
-          // children.forEach(child => searchTree(child))
-          for (let i = 0; i < children.length; i++) {
-            searchTree(children[i])
-          }
-        }
-      }
-      searchTree(this.items)
-      return parents
-    },
+    computed: {
+    // allDescendantLeafs () {
+    //   let leafs = []
+    //   let searchTree = items => {
+    //     let children = this.getChildrenArray(items)
+    //     if (children.length > 0) {
+    //       // children.forEach(child => searchTree(child))
+    //       for (let i = 0; i < children.length; i++) {
+    //         searchTree(children[i])
+    //       }
+    //     } else {
+    //       leafs.push(items)
+    //     }
+    //   }
+    //   searchTree(this.items)
+    //   return leafs
+    // },
+    // allDescendantLeafsSelected () {
+    //   return this.value.includes(this.items[this.keyField]) || this.parentSelected ||
+    //     (this.hasChildren && this.hasSelection &&
+    //       (this.children.every(child => this.value.some(sel => sel === child[this.keyField])) ||
+    //         this.allDescendantLeafs.every(leaf => this.value.some(sel => sel === leaf[this.keyField]))))
+    // },
+    // allDescendantParents () {
+    //   let parents = []
+    //   let searchTree = items => {
+    //     let children = this.getChildrenArray(items)
+    //     if (children.length > 0) {
+    //       parents.push(items)
+    //       // children.forEach(child => searchTree(child))
+    //       for (let i = 0; i < children.length; i++) {
+    //         searchTree(children[i])
+    //       }
+    //     }
+    //   }
+    //   searchTree(this.items)
+    //   return parents
+    // },
     caption () {
       return this.items[this.captionField]
     },
@@ -173,10 +174,10 @@ export default {
     hasSelection () {
       return !!this.value && this.value.length > 0
     },
-    indeterminate () {
-      return this.hasSelection && this.hasChildren &&
-        this.someDescendantLeafsSelected && !this.allDescendantLeafsSelected
-    },
+    // indeterminate () {
+    //   return this.hasSelection && this.hasChildren &&
+    //     this.someDescendantLeafsSelected && !this.allDescendantLeafsSelected
+    // },
     isExpanded () {
       return this.expandedItems.indexOf(this.items[this.keyField]) > -1
     },
@@ -186,27 +187,27 @@ export default {
         (this.expandable && this.level > 0 && !(this.hasChildren || this.hasDynamicChildren) ? this.level * 24 - 24 : 0) -
         (this.root ? 0 : 16)
     },
-    someDescendantLeafsSelected () {
-      return this.hasSelection &&
-        (this.children.some(child => this.value.some(sel => sel === child[this.keyField])) ||
-          this.allDescendantLeafs.some(leaf => this.value.some(sel => sel === leaf[this.keyField])))
-    },
+    // someDescendantLeafsSelected () {
+    //   return this.hasSelection &&
+    //     (this.children.some(child => this.value.some(sel => sel === child[this.keyField])) ||
+    //       this.allDescendantLeafs.some(leaf => this.value.some(sel => sel === leaf[this.keyField])))
+    // },
     selected () {
       return this.select && this.hasSelection && this.value[this.value.length - 1] === this.items[this.keyField]
     }
   },
 
-  watch: {
-    allDescendantLeafsSelected (newVal) {
-      // we monitor if children are being clicked one-by-one
-      // (prop is true but item.id is not in the list)
-      // -> deselect children and push parent
-      if (newVal && !this.value.includes(this.items[this.keyField]) && this.hasChildren && !this.parentSelected) {
-        this.uncheckAllChildren()
-        this.value.push(this.items[this.keyField])
-      }
-    }
-  },
+  // watch: {
+  //   allDescendantLeafsSelected (newVal) {
+  //     // we monitor if children are being clicked one-by-one
+  //     // (prop is true but item.id is not in the list)
+  //     // -> deselect children and push parent
+  //     if (newVal && !this.value.includes(this.items[this.keyField]) && this.hasChildren && !this.parentSelected) {
+  //       this.uncheckAllChildren()
+  //       this.value.push(this.items[this.keyField])
+  //     }
+  //   }
+  // },
 
   methods: {
     checkExpandChildren () {
@@ -272,9 +273,11 @@ export default {
             }
             if (this.parentSelected || this.hasChildren) {
               // nothing more to do
+              console.log('dum', this.value)
               this.$emit('input', this.value)
             } else {
               if (selection) {
+                console.log('dee', selection)
                 this.$emit('input', selection)
               }
             }
@@ -348,11 +351,20 @@ export default {
         this.genExpandButton(),
         this.$createElement('label', {
           on: {
-            click: () => this.toggleSelected()
+            // click: () => this.toggleSelected()
+            click: () => this.booya()
           },
           class: 'treeview-label'
         }, [this.genItemIcon(), this.caption])
       ])
+    },
+    booya () {
+      // console.log('booya', this.items)
+      // console.log('booya', this.items[this.captionField])
+      // console.log('booya', this.items[this.keyField])
+      // this.$emit('itemSelected', this.items[this.keyField])
+      this.value.pop()
+      this.value.push(this.items[this.keyField])
     },
     genToolbar () {
       if (!this.toolbar) {
@@ -391,6 +403,7 @@ export default {
       return this.$createElement(VTreeview, {
         on: {
           input: selection => {
+            console.log('byo', this.value)
             this.$emit('input', selection)
           },
           uncheck: childId => {
@@ -536,11 +549,13 @@ export default {
     },
     toggleSelected () {
       if (this.select) {
+        // console.log(this.items[this.keyField])
         let ix = this.value.indexOf(this.items[this.keyField])
         this.value.splice(0, this.value.length)
         if (ix === -1) {
           this.value.push(this.items[this.keyField])
         }
+        console.log('yo', this.value)
         this.$emit('input', this.value)
       }
     },
@@ -571,4 +586,4 @@ export default {
     }, [this.genRoot(), this.genChildren()])
   }
 
-}
+};
