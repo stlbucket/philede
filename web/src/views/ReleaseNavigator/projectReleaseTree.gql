@@ -1,0 +1,40 @@
+query PdeProjectById(
+  $id: BigInt!
+) {
+  pdeProjectById(id: $id) {
+    id    
+    name
+    releases: releasesByProjectId {
+      nodes {
+        id
+        name
+        minors: minorsByReleaseId(
+          orderBy: NUMBER_ASC
+        ) {
+          nodes {
+            id
+            number
+            revision
+            major: majorByMajorId {
+              id
+              revision
+            }
+            patches: patchesByMinorId(
+              orderBy: NUMBER_ASC
+            ) {
+              nodes {
+                id
+                number
+                revision
+                artifact: artifactByArtifactId {
+                  id
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,11 +1,5 @@
 <template>
   <div>
-    <p>FOCUS: {{ focusArtifactId }}</p>
-    <v-btn 
-      @click="newArtifact"
-      :disabled="disableNew"
-    >New
-    </v-btn>
     <v-treeview
       :items="items"
       caption-field="name"
@@ -18,32 +12,39 @@
 </template>
 
 <script>
-import initQuery from './initQuery.gql'
-
 export default {
-  name: "ArtifactTree",
+  name: "MinorArtifactTree",
   methods: {
     newArtifact() {
       alert('new')
     },
-    parseArtifactTree () {
-      this.items = [{
+    findArtifact (id) {
+      // const artifact = this.pdeProject.schemas.nodes.
+    }
+  },
+  computed: {
+    items () {
+      return [{
         id: 99999999999,
-        title: 'schemas',
         name: 'schemas',
-        children: this.pdeProject.schemas.nodes.map(
+        children: this.schemas.map(
           schema => {
             return {
               id: schema.id,
-              title: 'schema',
               name: schema.name,
               children: this.allArtifactTypes.map(
                 artifactType => {
+                  const typeChildren = this.minor.patches.nodes.reduce(
+                    (acc, patch) => {
+                        return patch.artifact.artifactType.id === artifactType.id ? acc.concat([patch.artifact]) : acc
+                      }, []   
+                  )
+
                   return {
                     id: artifactType.id,
                     title: 'artifact_type',
                     name: artifactType.name,
-                    children: schema.artifacts.nodes.filter(a => a.artifactType.id === artifactType.id).map(
+                    children: typeChildren.map(
                       artifact => {
                         return {
                           id: artifact.id,
@@ -60,21 +61,22 @@ export default {
           }
         )
       }]
-
-      this.allArtifacts = this.pdeProject.schemas.nodes.reduce(
-        (acc, schema) => {
-          return acc.concat(schema.artifacts.nodes)
+    },
+    schemas () {
+      return this.minor.patches.nodes.reduce(
+        (acc, patch) => {
+          const schema = patch.artifact.schema
+          return acc.find(s => s.id === schema.id) ? acc : acc.concat([schema])
         }, []
       )
     },
-    findArtifact (id) {
-      // const artifact = this.pdeProject.schemas.nodes.
-    }
-  },
-  computed: {
-    disableNew () {
-      return false
-      // return this.workingArtifactType.id === null
+    allArtifacts () {
+      return this.minor.patches.nodes.reduce(
+        (acc, patch) => {
+          const artifact = patch.artifact
+          return acc.find(a => a.id === artifact.id) ? acc : acc.concat([artifact])
+        }, []
+      )
     }
   },
   watch: {
@@ -87,42 +89,24 @@ export default {
       }
     },
     focusArtifactId () {
+      console.log('sminor', this.minor)
       this.selectedItems = [this.focusArtifactId]
     }
   },
-  apollo: {
-    init: {
-      query: initQuery,
-      variables () {
-        return {
-          id: `${this.pdeProjectId}`
-        }
-      },
-      networkPolicy: 'fetch-only',
-      skip () {
-        return this.pdeProjectId === ''
-      },
-      update (result) {
-        this.pdeProject = result.pdeProjectById
-        this.allArtifactTypes = result.allArtifactTypes.nodes
-        this.parseArtifactTree()
-      }
-    }
-  },
   props: {
-    pdeProjectId: {
-      type: String,
+    minor: {
+      type: Object,
       required: true
     },
-    focusArtifactId: String
+    focusArtifactId: String,
+    allArtifactTypes: {
+      type: Array,
+      required: true
+    }
   },
   data () {
     return {
-      items:  [],
       selectedItems: [],
-      pdeProject: null,
-      allArtifactTypes: [],
-      allArtifacts: []
     }
   },
 }

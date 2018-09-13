@@ -234,6 +234,28 @@ returns setof pde.artifact_type as $$
   ;
 $$ language sql stable;
 
+------------------------------------------------
+-- release_display_name
+------------------------------------------------
+create or replace function pde.release_display_name(release pde.release)
+returns text as $$
+  select r.name || ' - ' || r.status::text
+  from pde.release r
+  ;
+$$ language sql stable;
+
+------------------------------------------------
+-- minor_schemas
+------------------------------------------------
+create or replace function pde.minor_schemas(minor pde.minor)
+returns setof pde.schema as $$
+  select s.*
+  from pde.schema s
+  join pde.artifact a on a.schema_id = s.id
+  join pde.patch p on p.artifact_id = a.id and p.minor_id = minor.id
+  ;
+$$ language sql stable;
+
 
 
 ------------------------------------------------
@@ -286,15 +308,21 @@ INSERT INTO pde.release(
 )
 SELECT
   id
-  ,'0001.0001.0002'
+  ,'0001.0002.0001'
   ,'Planned'
 FROM pde.pde_project where name = 'Todo';
 
 INSERT INTO pde.major(project_id, revision) SELECT id, 1 from pde.pde_project where name = 'Todo';
+
 INSERT INTO pde.minor(major_id, revision, release_id) SELECT
   (SELECT id from pde.major where revision = 1)
   ,1
-  ,(SELECT id from pde.release where name = '0001.0001.0002')
+  ,(SELECT id from pde.release where name = '0001.0002.0001')
+;
+INSERT INTO pde.minor(major_id, revision, release_id) SELECT
+  (SELECT id from pde.major where revision = 1)
+  ,2
+  ,(SELECT id from pde.release where name = '0001.0002.0001')
 ;
 
 INSERT INTO pde.schema(  
@@ -303,7 +331,7 @@ INSERT INTO pde.schema(
 )
 SELECT
   'todo'
-  ,(SELECT id from pde.release where name = '0001.0001.0002')
+  ,(SELECT id from pde.release where name = '0001.0002.0001')
 ;
 
 INSERT INTO pde.artifact(  
@@ -345,6 +373,19 @@ SELECT
   ,(SELECT id from pde.schema where name = 'todo')
 ;
 
+INSERT INTO pde.artifact(  
+  name
+  ,artifact_type_id
+  ,description
+  ,schema_id
+)
+SELECT
+  'second_function'
+  ,(select id from pde.artifact_type where name = 'function')
+  ,'a description of another function'
+  ,(SELECT id from pde.schema where name = 'todo')
+;
+
 INSERT INTO pde.artifact_relationship(
   parent_artifact_id
   ,child_artifact_id
@@ -375,3 +416,10 @@ INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT
   ,'trigger your mom;'
   ,(select id from pde.artifact where name = 'example_trigger')
   from pde.minor where revision = 1;
+INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
+  id
+  ,1
+  ,'second function;'
+  ,'second function;'
+  ,(select id from pde.artifact where name = 'second_function')
+  from pde.minor where revision = 2;

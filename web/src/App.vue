@@ -9,24 +9,16 @@
       fixed
       app
     >
-      <artifact-tree
-        :pdeProjectId="pdeProjectId"
-      ></artifact-tree>
+    <release-navigator 
+      :pdeProjectId="pdeProjectId"
+      :focusArtifactId="focusArtifactId" 
+    ></release-navigator>
     </v-navigation-drawer>
     <v-toolbar
       app
       :clipped-left="clipped"
     >
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <!-- <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon v-html="miniVariant ? 'chevron_right' : 'chevron_left'"></v-icon>
-      </v-btn> -->
-      <!-- <v-btn icon @click.stop="clipped = !clipped">
-        <v-icon>web</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="fixed = !fixed">
-        <v-icon>remove</v-icon>
-      </v-btn> -->
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
       <v-select 
@@ -46,7 +38,7 @@
         fluid
         justify-start
       >
-        <router-view/>
+        <router-view @artifact-route="artifactRoute" ></router-view>
       </v-container>
     </v-content>
     <v-navigation-drawer
@@ -72,13 +64,13 @@
 </template>
 
 <script>
-import ArtifactTree from './views/ArtifactTree/Component'
 import AllProjects from './graphql/query/AllProjects.gql'
+import ReleaseNavigator from './views/ReleaseNavigator/Component'
 
 export default {
   name: 'App',
   components: { 
-    ArtifactTree
+    ReleaseNavigator
   },
   data () {
     return {
@@ -92,7 +84,13 @@ export default {
       rightDrawer: false,
       title: 'phile-de',
       projects: [],
-      selectedProject: null
+      selectedProject: null,
+      focusArtifactId: null,
+    }
+  },
+  methods: {
+    artifactRoute (id) {
+      this.focusArtifactId = id
     }
   },
   watch: {

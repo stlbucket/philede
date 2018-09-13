@@ -21,7 +21,7 @@
 import initQuery from './initQuery.gql'
 
 export default {
-  name: "ArtifactTree",
+  name: "ProjectTree",
   methods: {
     newArtifact() {
       alert('new')

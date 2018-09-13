@@ -1,0 +1,34 @@
+query ReleaseById(
+  $id: BigInt!
+) {
+  release: releaseById(id: $id) {
+    id
+    name
+    minors: minorsByReleaseId(
+      orderBy: NUMBER_ASC
+    ) {
+      nodes {
+        id
+        number
+        revision
+        major: majorByMajorId {
+          id
+          revision
+        }
+        patches: patchesByMinorId(
+          orderBy: NUMBER_ASC
+        ) {
+          nodes {
+            id
+            number
+            revision
+            artifact: artifactByArtifactId {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}

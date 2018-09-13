@@ -1,0 +1,43 @@
+
+query ProjectArtifactTree(
+  $id: BigInt!
+) {
+  pdeProjectById(id: $id) {
+    id    
+    name
+    schemas {
+      nodes {
+        id        
+        name
+        artifacts: artifactsBySchemaId {
+          nodes {
+            id
+            name
+            artifactType: artifactTypeByArtifactTypeId {
+              id
+              name
+            }
+            schema: schemaBySchemaId {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  allArtifactTypes {
+    nodes {
+      id
+      name
+      children {
+        nodes {
+          id
+          name
+        }
+      }
+    }
+  }
+
+}

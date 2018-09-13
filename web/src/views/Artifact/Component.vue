@@ -1,27 +1,21 @@
 <template>
-  <v-container
+  <div
     justify-start
   >
-    <v-toolbar>
-      <v-btn 
-        @click="captureWorkingDdl"
-        :disabled="disableCapture"
-      >Capture
-      </v-btn>
-      <v-btn 
-        @click="commitWorkingDdl"
-        :disabled="disableCommit"
-      >Commit
-      </v-btn>
-      <v-btn 
-        @click="newArtifact"
-        :disabled="disableNew"
-      >New
-      </v-btn>
-    </v-toolbar>
-    <v-container
+    <v-btn 
+      @click="captureWorkingDdl"
+      :disabled="disableCapture"
+    >Capture
+    </v-btn>
+    <v-btn 
+      @click="commitWorkingDdl"
+      :disabled="disableCommit"
+    >Commit
+    </v-btn>
+    <div
     >
-      <editor 
+      <editor
+        ref="editor" 
         v-model="ddl" 
         @init="editorInit" 
         lang="pgsql" 
@@ -30,8 +24,8 @@
         height="750"
         readonly="readonly"
       ></editor>
-    </v-container>
-  </v-container>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -60,9 +54,6 @@ export default {
         require('brace/mode/pgsql')
         require('brace/theme/tomorrow_night_bright')
     },
-    newArtifact() {
-      alert('new')
-    },
     editName () {
       return true
     },
@@ -77,8 +68,8 @@ export default {
           fetchPolicy: 'no-cache'
         })
         .then(result => {
-          console.log('captureWorkingDdl result', result)
           this.currentPatch = result.data.updatePatchById.patch
+          this.$refs.editor.focus()
         })
         .catch(error => {
           alert('ERROR')
@@ -99,8 +90,8 @@ export default {
         fetchPolicy: 'no-cache'
       })
       .then(result => {
-        console.log('commitWorkingDdl result', result)
         this.currentPatch = result.data.updatePatchById.patch
+        this.$refs.editor.focus()
       })
       .catch(error => {
         alert('ERROR')
@@ -130,10 +121,6 @@ export default {
     disableCommit () {
       return this.disableCapture ? this.currentPatch.ddl === this.currentPatch.workingDdl : true
     },
-    disableNew () {
-      return false
-      // return this.workingArtifactType.id === null
-    },
     readonly () {
       return false  // Todo: this
     },
@@ -142,6 +129,7 @@ export default {
     }
   },
   beforeRouteUpdate (to, from, next) {
+    this.$emit('artifact-route', to.params.id)
     this.captureWorkingDdl()
     .then(result => {
       next()
@@ -149,6 +137,9 @@ export default {
   },
   beforeRouteLeave (to, from, next) {
     this.captureWorkingDdl()
+    .then(result => {
+      next()
+    })
   },
   data () {
     return {
