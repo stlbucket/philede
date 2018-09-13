@@ -7,56 +7,21 @@
       item-value="id"
       v-model="selectedReleaseId"
     ></v-select>
-    <patch-tree
+    <minor
       :releaseId="selectedReleaseId"
       :focusArtifactId="focusArtifactId" 
-    ></patch-tree>
-    <!-- <v-tabs
-      dark
-      slider-color="yellow"
-    >
-      <v-tab
-        key="Artifacts"
-        ripple
-      >
-        Artifacts
-      </v-tab>
-      <v-tab-item
-        key="Artifacts"
-      >
-        <artifact-tree
-          :pdeProjectId="pdeProjectId"
-          :focusArtifactId="focusArtifactId"
-        ></artifact-tree>
-      </v-tab-item>
-      <v-tab
-        key="Patches"
-        ripple
-      >
-        Patches
-      </v-tab>
-      <v-tab-item
-        key="Patches"
-      >
-        <patch-tree
-          :releaseId="selectedReleaseId"
-          :focusArtifactId="focusArtifactId" 
-        ></patch-tree>
-      </v-tab-item>
-    </v-tabs> -->
+    ></minor>
   </div>
 </template>
 
 <script>
-import ArtifactTree from '../ArtifactTree/Component'
-import PatchTree from '../PatchTree/Component'
+import Minor from '../Minor/Component'
 import projectReleaseTree from './projectReleaseTree.gql'
 
 export default {
   name: "ReleaseNavigator",
   components: {
-    ArtifactTree,
-    PatchTree
+    Minor
   },
   apollo: {
     init: {

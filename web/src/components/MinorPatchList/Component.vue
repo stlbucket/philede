@@ -24,13 +24,10 @@
 </template>
 
 <script>
-import releasePatchTree from './releasePatchTree.gql'
-
 export default {
   name: "PatchList",
   methods: {
     patchSelected (patch) {
-      console.log('patch', patch)
       this.$router.push({ name: 'artifact', params: { id: patch.artifact.id }})
     }
   },

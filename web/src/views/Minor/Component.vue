@@ -22,10 +22,10 @@
         <v-tab-item
           key="Patches"
         >
-          <patch-list
+          <minor-patch-list
             :minor="minor"
             :focusArtifactId="focusArtifactId"
-          ></patch-list>
+          ></minor-patch-list>
         </v-tab-item>
         <v-tab
           key="Artifacts"
@@ -49,13 +49,13 @@
 
 <script>
 import releasePatchTree from './releasePatchTree.gql'
-import PatchList from '../PatchList/Component'
-import MinorArtifactTree from '../MinorArtifactTree/Component'
+import MinorPatchList from '../../components/MinorPatchList/Component'
+import MinorArtifactTree from '../../components/MinorArtifactTree/Component'
 
 export default {
   name: "PatchTree",
   components: {
-    PatchList,
+    MinorPatchList,
     MinorArtifactTree
   },
   methods: {
