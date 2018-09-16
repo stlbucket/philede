@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-toolbar>
-      <v-btn @click="newProject">New</v-btn>
       <v-select 
         label="Project"
         :items="projects"
@@ -10,6 +9,7 @@
         v-model="selectedProjectId"
         @change="projectSelected"
       ></v-select>
+      <v-btn @click="newProject">New</v-btn>
     </v-toolbar>
     <release-navigator 
       :pdeProjectId="pdeProjectId"

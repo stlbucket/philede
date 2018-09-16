@@ -1,0 +1,187 @@
+<template>
+  <div
+    justify-start
+  >
+    <h1>{{ artifact.name }}</h1>
+    <v-btn 
+      @click="captureWorkingDdl"
+      :disabled="disableCapture"
+    >Capture
+    </v-btn>
+    <v-btn 
+      @click="commitWorkingDdl"
+      :disabled="disableCommit"
+    >Commit
+    </v-btn>
+    <v-btn 
+      @click="revertWorkingDdl"
+      :disabled="disableRevert"
+    >Revert
+    </v-btn>
+    <div
+    >
+      <editor
+        ref="editor" 
+        v-model="ddl" 
+        @init="editorInit" 
+        lang="pgsql" 
+        theme="tomorrow_night_bright"
+        width="100%" 
+        height="750"
+        readonly="readonly"
+      ></editor>
+    </div>
+  </div>
+</template>
+
+<script>
+import artifactById from '../gql/query/artifactById.gql'
+import captureWorkingDdl from '../gql/mutation/captureWorkingDdl.gql'
+import commitWorkingDdl from '../gql/mutation/commitWorkingDdl.gql'
+import gql from 'graphql-tag'
+import ace from 'brace'
+
+export default {
+  name: "Artifact",
+  components: {
+    editor: require('vue2-ace-editor'),
+  },
+  props: {
+    id: String
+  },
+  methods: {
+    editorInit: function () {
+        require('brace/ext/language_tools') //language extension prerequsite...
+        require('brace/mode/html')                
+        require('brace/mode/javascript')    //language
+        require('brace/mode/less')
+        require('brace/theme/chrome')
+        require('brace/snippets/javascript') //snippet
+        require('brace/mode/pgsql')
+        require('brace/theme/tomorrow_night_bright')
+    },
+    editName () {
+      return true
+    },
+    captureWorkingDdl () {
+      if (this.ddl !== this.currentPatch.workingDdl && this.currentPatch.id){
+        console.log('this.currentPatch', this.currentPatch)
+        return this.$apollo.mutate({
+          mutation: captureWorkingDdl,
+          variables: {
+            patchId: this.currentPatch.id,
+            workingDdl: this.ddl
+          },
+          fetchPolicy: 'no-cache'
+        })
+        .then(result => {
+          this.currentPatch = result.data.updatePatchById.patch
+          this.$refs.editor.focus()
+        })
+        .catch(error => {
+          alert('ERROR')
+          console.log('error', error)
+        })
+      } else {
+        return Promise.resolve()
+      }
+
+    },
+    commitWorkingDdl () {
+      return this.$apollo.mutate({
+        mutation: commitWorkingDdl,
+        variables: {
+          patchId: this.currentPatch.id,
+          ddl: this.ddl
+        },
+        fetchPolicy: 'no-cache'
+      })
+      .then(result => {
+        this.currentPatch = result.data.updatePatchById.patch
+        this.$refs.editor.focus()
+      })
+      .catch(error => {
+        alert('ERROR')
+        console.log('error', error)
+      })
+    },
+    revertWorkingDdl () {
+
+    }
+  },
+  apollo: {
+    loadArtifact: {
+      fetchPolicy: 'network-only',
+      query: artifactById,
+      variables () {
+        return {id: this.id}
+      },
+      update (data) {
+        this.artifact = data.artifactById
+        this.currentPatch = this.artifact.patches.nodes[0] || {ddl: null}
+        this.ddl = this.currentPatch.workingDdl
+      }
+    }
+
+  },
+  computed: {
+    disableCapture () {
+      return this.ddl === this.currentPatch.workingDdl
+    },
+    disableCommit () {
+      return this.disableCapture ? this.currentPatch.ddl === this.currentPatch.workingDdl : true
+    },
+    disableRevert () {
+      return false
+    },
+    readonly () {
+      return false  // Todo: this
+    },
+    isDirty () {
+      return this.currentPatch.ddl !== this.currentPatch.workingDdl
+    }
+  },
+  beforeRouteUpdate (to, from, next) {
+    this.$emit('artifact-route', to.params.id)
+    this.captureWorkingDdl()
+    .then(result => {
+      next()
+    })
+  },
+  beforeRouteLeave (to, from, next) {
+    this.captureWorkingDdl()
+    .then(result => {
+      next()
+    })
+  },
+  data () {
+    return {
+      ddl: 'ddl',
+      cmOptions: {
+        // codemirror options
+        tabSize: 2,
+        mode: 'text/x-pgsql',
+        theme: 'base16-dark',
+        lineNumbers: true,
+        line: true,
+        // more codemirror options, 更多 codemirror 的高级配置...
+      },
+      artifact: {},
+      currentPatch: {}
+    }
+  },
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+#codemirror {
+  height: 100%;
+}
+
+#tree {
+  width: 20%;
+  float: left;
+}
+
+</style>

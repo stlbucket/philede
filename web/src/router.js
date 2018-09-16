@@ -2,7 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import Home from "./views/Home.vue";
 // import Apollo from "./views/Apollo.vue";
-import Artifact from "./views/Artifact.vue"
+import Artifact from "./components/Artifact.vue"
 import ProjectNew from "./components/ProjectNew.vue"
 import ProjectDetail from "./components/ProjectDetail.vue"
 import NewRelease from "./views/NewRelease/Component.vue"

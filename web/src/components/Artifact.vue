@@ -1,12 +1,77 @@
 <template>
-  <div
+  <v-layout justify-center>
+    <v-flex xs12 sm12>
+      <v-toolbar color="indigo" dark>
+        <v-toolbar-side-icon></v-toolbar-side-icon>
+        <v-toolbar-title>{{ artifact.name }}</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn 
+          @click="captureWorkingDdl"
+          :disabled="disableCapture"
+        >Capture
+        </v-btn>
+        <v-btn 
+          @click="commitWorkingDdl"
+          :disabled="disableCommit"
+        >Commit
+        </v-btn>
+        <v-btn 
+          @click="revertWorkingDdl"
+          :disabled="disableRevert"
+        >Revert
+        </v-btn>
+      </v-toolbar>
+
+      <v-card>
+        <v-container
+          fluid
+          grid-list-md
+        >
+          <v-layout row wrap>
+            <v-flex
+              v-bind="{ [`xs12`]: true }"
+              key="editor"
+            >
+              <v-card>
+                <editor
+                  ref="editor" 
+                  v-model="ddl" 
+                  @init="editorInit" 
+                  lang="pgsql" 
+                  theme="tomorrow_night_bright"
+                  width="100%" 
+                  height="750"
+                  readonly="readonly"
+                ></editor>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn icon>
+                    <v-icon>favorite</v-icon>
+                  </v-btn>
+                  <v-btn icon>
+                    <v-icon>bookmark</v-icon>
+                  </v-btn>
+                  <v-btn icon>
+                    <v-icon>share</v-icon>
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card>
+    </v-flex>
+  </v-layout>
+  <!-- <div
     justify-start
   >
-    <!-- <v-btn 
+    <h1>{{ artifact.name }}</h1>
+    <v-btn 
       @click="captureWorkingDdl"
       :disabled="disableCapture"
     >Capture
-    </v-btn> -->
+    </v-btn>
     <v-btn 
       @click="commitWorkingDdl"
       :disabled="disableCommit"
@@ -30,7 +95,7 @@
         readonly="readonly"
       ></editor>
     </div>
-  </div>
+  </div> -->
 </template>
 
 <script>
