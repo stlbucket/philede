@@ -322,15 +322,16 @@ $$ language sql stable;
 -- dummy data
 ------------------------------------------------
 INSERT INTO pde.artifact_type(name, execution_order) SELECT 'extension', 1; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'type', 2; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'table', 3; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'foreign key', 4; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'index', 5; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'trigger', 6; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'function', 7; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'view', 8; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'comment', 9; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'permission', 10; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'schema', 2; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'type', 3; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'table', 4; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'foreign key', 5; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'index', 6; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'trigger', 7; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'function', 8; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'view', 9; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'comment', 10; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'permission', 11; 
 
 -- table children
 INSERT INTO pde.artifact_type_relationship(parent_artifact_type_id, child_artifact_type_id) SELECT 
@@ -380,6 +381,12 @@ INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
   (SELECT id from pde.major where revision = 1)
   ,1
   ,(SELECT id from pde.release where number = 'DUNNO')
+  ,'Todo Schema'
+;
+INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
+  (SELECT id from pde.major where revision = 1)
+  ,2
+  ,(SELECT id from pde.release where number = 'DUNNO')
   ,'First Feature'
 ;
 INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
@@ -405,9 +412,22 @@ INSERT INTO pde.artifact(
   ,schema_id
 )
 SELECT
+  'todo schema'
+  ,(select id from pde.artifact_type where name = 'schema')
+  ,'the todo schema'
+  ,(SELECT id from pde.schema where name = 'todo')
+;
+
+INSERT INTO pde.artifact(  
+  name
+  ,artifact_type_id
+  ,description
+  ,schema_id
+)
+SELECT
   'example_table'
   ,(select id from pde.artifact_type where name = 'table')
-  ,'a description of your mom''s table'
+  ,'a description of your table'
   ,(SELECT id from pde.schema where name = 'todo')
 ;
 
@@ -420,7 +440,7 @@ INSERT INTO pde.artifact(
 SELECT
   'example_function'
   ,(select id from pde.artifact_type where name = 'function')
-  ,'a description of your mom''s function'
+  ,'a description of your function'
   ,(SELECT id from pde.schema where name = 'todo')
 ;
 
@@ -433,7 +453,7 @@ INSERT INTO pde.artifact(
 SELECT
   'example_trigger'
   ,(select id from pde.artifact_type where name = 'trigger')
-  ,'a description of your mom''s trigger'
+  ,'a description of your trigger'
   ,(SELECT id from pde.schema where name = 'todo')
 ;
 
@@ -462,37 +482,40 @@ SELECT
 INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
   id 
   ,1
-  ,'select your mom;'
-  ,'select your mom;'
-  ,(select id from pde.artifact where name = 'example_table')
+  ,'CREATE SCHEMA todo;'
+  ,'CREATE SCHEMA todo;'
+  ,(select id from pde.artifact where name = 'todo schema')
   from pde.minor where revision = 1;
+INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
+  id 
+  ,1
+  ,'CREATE TABLE STATEMENT;'
+  ,'CREATE TABLE STATEMENT;'
+  ,(select id from pde.artifact where name = 'example_table')
+  from pde.minor where revision = 2;
 INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
   id
   ,2 
-  ,'function your mom;'
-  ,'function your mom;'
+  ,'CREATE FUNCTION STATEMENT;'
+  ,'CREATE FUNCTION STATEMENT;'
   ,(select id from pde.artifact where name = 'example_function')
-  from pde.minor where revision = 1;
+  from pde.minor where revision = 2;
 INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
   id
   ,3
-  ,'trigger your mom;'
-  ,'trigger your mom;'
+  ,'CREATE TRIGGER STATEMENT;'
+  ,'CREATE TRIGGER STATEMENT;'
   ,(select id from pde.artifact where name = 'example_trigger')
-  from pde.minor where revision = 1;
+  from pde.minor where revision = 2;
 INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
   id
   ,1
   ,'second function;'
   ,'second function;'
   ,(select id from pde.artifact where name = 'second_function')
-  from pde.minor where revision = 2;
+  from pde.minor where revision = 3;
 
-INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-1', (select id from pde.minor where revision = 1), 'GraphQL';
-INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-2', (select id from pde.minor where revision = 1), 'GraphQL';
-INSERT INTO pde.test(name, minor_id, type) SELECT 'PGT-1', (select id from pde.minor where revision = 1), 'PgTap';
-INSERT INTO pde.test(name, minor_id, type) SELECT 'PGT-2', (select id from pde.minor where revision = 1), 'PgTap';
-INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-1', (select id from pde.minor where revision = 2), 'GraphQL';
-INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-2', (select id from pde.minor where revision = 2), 'GraphQL';
-INSERT INTO pde.test(name, minor_id, type) SELECT 'PGT-1', (select id from pde.minor where revision = 2), 'PgTap';
-INSERT INTO pde.test(name, minor_id, type) SELECT 'PGT-2', (select id from pde.minor where revision = 2), 'PgTap';
+INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-1', id, 'GraphQL' FROM pde.minor;
+INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-2', id, 'GraphQL' FROM pde.minor;
+INSERT INTO pde.test(name, minor_id, type) SELECT 'PGT-1', id, 'PgTap' FROM pde.minor;
+INSERT INTO pde.test(name, minor_id, type) SELECT 'PGT-2', id, 'PgTap' FROM pde.minor;

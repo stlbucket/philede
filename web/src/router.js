@@ -9,6 +9,7 @@ import NewRelease from "./views/NewRelease/Component.vue"
 import TestGraphQL from "./components/TestGraphQL.vue"
 import TestPgTap from "./components/TestPgTap.vue"
 import PatchNew from "./components/PatchNew.vue"
+import SchemaNew from "./components/SchemaNew.vue"
 
 Vue.use(Router);
 
@@ -53,6 +54,12 @@ export default new Router({
       path: "/newPatch/:minorId",
       name: "newPatch",
       component: PatchNew,
+      props: true
+    },
+    {
+      path: "/newSchema/:releaseId",
+      name: "newSchema",
+      component: SchemaNew,
       props: true
     },
     {

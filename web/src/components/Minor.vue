@@ -29,7 +29,7 @@
         key="Artifacts"
         ripple
       >
-        Artifacts
+        Schemas
       </v-tab>
       <v-tab-item
         key="Artifacts"

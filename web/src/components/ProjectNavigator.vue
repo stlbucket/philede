@@ -9,7 +9,7 @@
         v-model="selectedProjectId"
         @change="projectSelected"
       ></v-select>
-      <v-btn @click="newProject">New</v-btn>
+      <v-btn @click="newProject">New Project</v-btn>
     </v-toolbar>
     <release-navigator 
       :pdeProjectId="pdeProjectId"
@@ -45,6 +45,13 @@ export default {
     newProject () {
       this.$router.push({ name: 'newProject' })
     },
+    schemaSelected (schema) {
+      this.$eventHub.$emit('focusItem', schema)
+    },
+    newSchema (release) {
+      console.log('newSchema', release)
+      this.$router.push({ name: 'newSchema', params: { releaseId: release.id }})
+    },
     artifactTypeSelected (artifactType) {
       this.$eventHub.$emit('focusItem', artifactType)
     },
@@ -78,20 +85,24 @@ export default {
     }
   },
   created () {
-    this.$eventHub.$on('pgtTestSelected', this.pgtTestSelected);
-    this.$eventHub.$on('gqlTestSelected', this.gqlTestSelected);
-    this.$eventHub.$on('artifactSelected', this.artifactSelected);
-    this.$eventHub.$on('artifactTypeSelected', this.artifactTypeSelected);  
-    this.$eventHub.$on('patchSelected', this.patchSelected);  
-    this.$eventHub.$on('newPatch', this.newPatch);  
+    this.$eventHub.$on('pgtTestSelected', this.pgtTestSelected)
+    this.$eventHub.$on('gqlTestSelected', this.gqlTestSelected)
+    this.$eventHub.$on('schemaSelected', this.schemaSelected)
+    this.$eventHub.$on('artifactSelected', this.artifactSelected)
+    this.$eventHub.$on('artifactTypeSelected', this.artifactTypeSelected)  
+    this.$eventHub.$on('patchSelected', this.patchSelected)  
+    this.$eventHub.$on('newPatch', this.newPatch)  
+    this.$eventHub.$on('newSchema', this.newSchema)  
   },
   beforeDestroy() {
-    this.$eventHub.$off('pgtTestSelected');
-    this.$eventHub.$off('gqlTestSelected');
-    this.$eventHub.$off('artifactSelected');
-    this.$eventHub.$off('artifactTypeSelected');
-    this.$eventHub.$off('patchSelected');
-    this.$eventHub.$off('newPatch');
+    this.$eventHub.$off('pgtTestSelected')
+    this.$eventHub.$off('gqlTestSelected')
+    this.$eventHub.$off('artifactSelected')
+    this.$eventHub.$off('artifactTypeSelected')
+    this.$eventHub.$off('patchSelected')
+    this.$eventHub.$off('newPatch')
+    this.$eventHub.$off('schemaSelected')
+    this.$eventHub.$off('newSchema')
   }
 }
 </script>

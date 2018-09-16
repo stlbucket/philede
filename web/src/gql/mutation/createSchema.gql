@@ -1,0 +1,14 @@
+mutation CreateSchema(
+  $name: String!
+	$releaseId: BigInt!
+) {
+  createSchema (input: {
+    name:	$name
+    releaseId: $releaseId
+  }) {
+    schema {
+      id
+      name
+    }
+  }
+}

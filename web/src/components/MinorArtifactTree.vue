@@ -28,6 +28,9 @@ export default {
       // console.log('FOCUS DANIELSON', focusItem)
       this.focusItem = focusItem
       switch (focusItem.__typename) {
+        case 'Schema':
+          this.selectedItems = [ focusItem.id ]
+        break
         case 'Artifact':
           this.selectedItems = [ focusItem.id ]
         break
@@ -42,11 +45,12 @@ export default {
       }
     },
     treeSelect (id) {
-      // console.log('tree', id)
+      // console.log('treeSelect', id)
+      const schema = this.schemas.find(s => s.id === id)
       const artifact = this.allArtifacts.find(a => a.id === id)
       const artifactType = this.allArtifactTypes.find(at => at.id === id)
-      if (id === 99999999999) {
-        this.$eventHub.$emit('schemaRootSelected')
+      if (schema) {
+        this.$eventHub.$emit('schemaSelected', schema)
       } else if (artifact) {
         this.$eventHub.$emit('artifactSelected', artifact)
       } else if (artifactType) {
@@ -57,15 +61,12 @@ export default {
   },
   computed: {
     items () {
-      return [{
-        id: 99999999999,
-        name: 'schemas',
-        children: this.schemas.map(
+      return this.schemas.map(
           schema => {
             return {
               id: schema.id,
               name: schema.name,
-              children: this.allArtifactTypes.map(
+              children: this.allArtifactTypes.filter(at => at.name !== 'schema').map(
                 artifactType => {
                   const typeChildren = this.minor.patches.nodes.reduce(
                     (acc, patch) => {
@@ -75,13 +76,11 @@ export default {
 
                   return {
                     id: artifactType.id,
-                    title: 'artifact_type',
                     name: artifactType.name,
                     children: typeChildren.map(
                       artifact => {
                         return {
                           id: artifact.id,
-                          title: 'artifact',
                           name: `*-${artifact.name}`,
                           children: []
                         }
@@ -93,8 +92,46 @@ export default {
             }
           }
         )
-      }]
     },
+    // items () {
+    //   return [{
+    //     id: 99999999999,
+    //     name: 'schemas',
+    //     children: this.schemas.map(
+    //       schema => {
+    //         return {
+    //           id: schema.id,
+    //           name: schema.name,
+    //           children: this.allArtifactTypes.map(
+    //             artifactType => {
+    //               const typeChildren = this.minor.patches.nodes.reduce(
+    //                 (acc, patch) => {
+    //                     return patch.artifact.artifactType.id === artifactType.id ? acc.concat([patch.artifact]) : acc
+    //                   }, []   
+    //               )
+
+    //               return {
+    //                 id: artifactType.id,
+    //                 title: 'artifact_type',
+    //                 name: artifactType.name,
+    //                 children: typeChildren.map(
+    //                   artifact => {
+    //                     return {
+    //                       id: artifact.id,
+    //                       title: 'artifact',
+    //                       name: `*-${artifact.name}`,
+    //                       children: []
+    //                     }
+    //                   }
+    //                 )
+    //               }
+    //             }
+    //           )
+    //         }
+    //       }
+    //     )
+    //   }]
+    // },
     schemas () {
       return this.minor.patches.nodes.reduce(
         (acc, patch) => {

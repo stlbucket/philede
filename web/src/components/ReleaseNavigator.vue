@@ -8,6 +8,7 @@
         item-value="id"
         v-model="selectedReleaseId"
       ></v-select>
+      <v-btn @click="newSchema">New Schema</v-btn>
     </v-toolbar>
     <minor-list
       :releaseId="selectedReleaseId"
@@ -25,6 +26,9 @@ export default {
     MinorList
   },
   methods: {
+    newSchema () {
+      this.$eventHub.$emit('newSchema', this.selectedRelease)
+    }
   },
   computed: {
     selectedRelease () {
