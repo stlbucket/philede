@@ -21,7 +21,6 @@
       >
         <minor-patch-list
           :minor="minor"
-          :focusItem="focusItem"
         ></minor-patch-list>
       </v-tab-item>
       <v-tab
@@ -36,7 +35,6 @@
         <minor-artifact-tree
           :minor="minor"
           :allArtifactTypes="allArtifactTypes"
-          :focusItem="focusItem"
         ></minor-artifact-tree>
       </v-tab-item>
       <v-tab
@@ -89,7 +87,6 @@ export default {
       selectedItems: [],
       panel: [],
       expand: true,
-      focusItem: {},
       hidden: false
     }
   },

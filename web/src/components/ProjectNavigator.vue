@@ -46,20 +46,20 @@ export default {
       this.$router.push({ name: 'newProject' })
     },
     artifactTypeSelected (artifactType) {
-      console.log('artifact', artifactType)
+      this.$eventHub.$emit('focusItem', artifactType)
     },
     artifactSelected (artifact) {
       this.$router.push({ name: 'artifact', params: { id: artifact.id }})
+      this.$eventHub.$emit('focusItem', artifact)
     },
     patchSelected (patch) {
       this.$router.push({ name: 'artifact', params: { id: patch.artifact.id }})
+      this.$eventHub.$emit('focusItem', patch)
     },
     pgtTestSelected (test) {
-     console.log('pgts', test)
        this.$router.push({ name: 'test-pg-tap', params: { id: test.id }})
     },
     gqlTestSelected (test) {
-      console.log('gqlts', test)
       this.$router.push({ name: 'test-graph-ql', params: { id: test.id }})
     },
     boom (sha) {

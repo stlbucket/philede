@@ -6,7 +6,7 @@
           :key="patch.id"
           ripple
           @click="selected(patch)"
-          :class="patch.artifact.id === focusItem.id ? 'v-list__tile--active' : 'v-list__tile'"
+          :class="getCssClass(patch)"
         >
           <v-list-tile-content>
             <v-list-tile-sub-title class="text--primary">{{ `${patch.number.split('.')[2]} - ${patch.artifact.name}` }}</v-list-tile-sub-title>
@@ -30,14 +30,22 @@ export default {
   methods: {
     selected (patch) {
       this.$eventHub.$emit('patchSelected', patch)
+    },
+    focusItemChanged (focusItem) {
+      this.focusItem = focusItem
+    },
+    getCssClass(patch) {
+      return (patch.artifact.id === this.focusItem.id) || patch.id === this.focusItem.id ? 'v-list__tile--active' : 'v-list__tile'
     }
+  },
+  calculated: {
+
   },
   props: {
     minor: {
       type: Object,
       required: true
-    },
-    focusItem: Object
+    }
   },
   data () {
     return {
@@ -45,8 +53,17 @@ export default {
       selectedItems: [],
       panel: [],
       expand: true,
-      pdeProject: null
+      pdeProject: null,
+      focusItem: {
+        artifact: {}
+      }
     }
   },
+  created () {
+    this.$eventHub.$on('focusItem', this.focusItemChanged);
+  },
+  beforeDestroy() {
+    this.$eventHub.$off('focusItem');
+  }
 }
 </script>

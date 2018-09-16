@@ -363,8 +363,10 @@ export default {
       // console.log('booya', this.items[this.captionField])
       // console.log('booya', this.items[this.keyField])
       // this.$emit('itemSelected', this.items[this.keyField])
-      this.value.pop()
-      this.value.push(this.items[this.keyField])
+
+      this.$eventHub.$emit('treeSelect', this.items[this.keyField])
+      // this.value.pop()
+      // this.value.push(this.items[this.keyField])
     },
     genToolbar () {
       if (!this.toolbar) {

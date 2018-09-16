@@ -3,10 +3,12 @@
     <v-btn :disabled="newArtifactDisabled">New</v-btn>
     <v-treeview
       :items="items"
+      key-field="id"
       caption-field="name"
       children-field="children"
       expand-all
       select
+      @treeSelect="treeSelect"
       v-model="selectedItems"
     />
   </div>
@@ -21,6 +23,36 @@ export default {
     },
     findArtifact (id) {
       // const artifact = this.pdeProject.schemas.nodes.
+    },
+    focusItemChanged (focusItem) {
+      // console.log('FOCUS DANIELSON', focusItem)
+      this.focusItem = focusItem
+      switch (focusItem.__typename) {
+        case 'Artifact':
+          this.selectedItems = [ focusItem.id ]
+        break
+        case 'ArtifactType':
+          this.selectedItems = [ focusItem.id ]
+        break
+        case 'Patch':
+          this.selectedItems = [ focusItem.artifact.id ]
+        break
+        default:
+          this.selectedItems = []
+      }
+    },
+    treeSelect (id) {
+      // console.log('tree', id)
+      const artifact = this.allArtifacts.find(a => a.id === id)
+      const artifactType = this.allArtifactTypes.find(at => at.id === id)
+      if (id === 99999999999) {
+        this.$eventHub.$emit('schemaRootSelected')
+      } else if (artifact) {
+        this.$eventHub.$emit('artifactSelected', artifact)
+      } else if (artifactType) {
+        this.$eventHub.$emit('artifactTypeSelected', artifactType)
+      } else {
+      }
     }
   },
   computed: {
@@ -85,16 +117,17 @@ export default {
   },
   watch: {
     selectedItems (sel) {
-      const artifact = this.allArtifacts.find(a => a.id === sel[0])
-      const artifactType = this.allArtifactTypes.find(at => at.id === sel[0])
-      if (sel[0] === 99999999999) {
-        this.$eventHub.$emit('schemaRootSelected')
-      } else if (artifact) {
-        this.$eventHub.$emit('artifactSelected', artifact)
-      } else if (artifactType) {
-        this.$eventHub.$emit('artifactTypeSelected', artifactType)
-      } else {
-      }
+      // console.log('SELEIEJFJ', sel, this.selectedItems)
+      // const artifact = this.allArtifacts.find(a => a.id === sel[0])
+      // const artifactType = this.allArtifactTypes.find(at => at.id === sel[0])
+      // if (sel[0] === 99999999999) {
+      //   this.$eventHub.$emit('schemaRootSelected')
+      // } else if (artifact) {
+      //   this.$eventHub.$emit('artifactSelected', artifact)
+      // } else if (artifactType) {
+      //   this.$eventHub.$emit('artifactTypeSelected', artifactType)
+      // } else {
+      // }
     }
   },
   props: {
@@ -114,5 +147,13 @@ export default {
       focusItem: {}
     }
   },
+  created () {
+    this.$eventHub.$on('focusItem', this.focusItemChanged);
+    this.$eventHub.$on('treeSelect', this.treeSelect);
+  },
+  beforeDestroy() {
+    this.$eventHub.$off('focusItem');
+    this.$eventHub.$off('treeSelect');
+  }
 }
 </script>
