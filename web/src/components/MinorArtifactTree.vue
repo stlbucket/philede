@@ -1,5 +1,6 @@
 <template>
   <div>
+    <v-btn :disabled="newArtifactDisabled">New</v-btn>
     <v-treeview
       :items="items"
       caption-field="name"
@@ -77,19 +78,23 @@ export default {
           return acc.find(a => a.id === artifact.id) ? acc : acc.concat([artifact])
         }, []
       )
+    },
+    newArtifactDisabled () {
+      return (this.focusItem.__typename || 'NONE') !== 'ArtifactType'
     }
   },
   watch: {
     selectedItems (sel) {
       const artifact = this.allArtifacts.find(a => a.id === sel[0])
+      const artifactType = this.allArtifactTypes.find(at => at.id === sel[0])
       if (sel[0] === 99999999999) {
-        this.$router.push({ name: 'home' })
+        this.$eventHub.$emit('schemaRootSelected')
       } else if (artifact) {
-        this.$router.push({ name: 'artifact', params: { id: artifact.id }})
+        this.$eventHub.$emit('artifactSelected', artifact)
+      } else if (artifactType) {
+        this.$eventHub.$emit('artifactTypeSelected', artifactType)
+      } else {
       }
-    },
-    focusArtifactId () {
-      this.selectedItems = [this.focusArtifactId]
     }
   },
   props: {
@@ -97,7 +102,7 @@ export default {
       type: Object,
       required: true
     },
-    focusArtifactId: String,
+    // focusArtifactId: String,
     allArtifactTypes: {
       type: Array,
       required: true
@@ -106,6 +111,7 @@ export default {
   data () {
     return {
       selectedItems: [],
+      focusItem: {}
     }
   },
 }

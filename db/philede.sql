@@ -45,15 +45,18 @@ CREATE TABLE pde.pde_project (
 -- release
 ------------------------------------------------
 CREATE TYPE pde.release_status AS ENUM
-   ('Planned',
-    'Working',
-    'Released');
+   (
+    'Past',
+    'Next',
+    'Future'
+    );
 
 CREATE TABLE pde.release (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   project_id bigint NOT NULL,
   name text NOT NULL,
-  status pde.release_status NOT NULL DEFAULT 'Planned',
+  number text NOT NULL,
+  status pde.release_status NOT NULL DEFAULT 'Next',
   ddl text,
   CONSTRAINT pk_pde_release PRIMARY KEY (id),
   CHECK (name <> '')
@@ -105,6 +108,7 @@ ALTER TABLE pde.minor ADD CONSTRAINT fk_minor_release FOREIGN KEY (release_id) R
 CREATE TABLE pde.artifact_type (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   name text NOT NULL,
+  ddl_template text,
   execution_order integer NOT NULL,
   properties jsonb NOT NULL DEFAULT '{}'::jsonb,
   CONSTRAINT pk_pde_artifact_ype PRIMARY KEY (id)
@@ -209,6 +213,25 @@ CREATE TRIGGER tg_timestamp_update_patch
   FOR EACH ROW
   EXECUTE PROCEDURE pde.fn_timestamp_update_patch();
 
+------------------------------------------------
+-- test
+------------------------------------------------
+CREATE TYPE pde.test_type AS ENUM
+   (
+    'PgTap',
+    'GraphQL'
+    );
+
+CREATE TABLE pde.test (
+  id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
+  type pde.test_type NOT NULL DEFAULT 'GraphQL',
+  name text,
+  ddl text NOT NULL DEFAULT '<test ddl>',
+  working_ddl text NOT NULL DEFAULT '<test ddl>',
+  minor_id bigint NOT NULL,
+  CONSTRAINT pk_pde_test PRIMARY KEY (id)
+);
+ALTER TABLE pde.test ADD CONSTRAINT fk_test_minor FOREIGN KEY (minor_id) REFERENCES pde.minor (id);
 
 ------------------------------------------------
 -- pde_project_schemas
@@ -304,12 +327,14 @@ INSERT INTO pde.pde_project(name) SELECT 'Todo';
 INSERT INTO pde.release(  
   project_id,
   name,
+  number,
   status
 )
 SELECT
   id
+  ,'Example Release'
   ,'0001.0002.0001'
-  ,'Planned'
+  ,'Next'
 FROM pde.pde_project where name = 'Todo';
 
 INSERT INTO pde.major(project_id, revision) SELECT id, 1 from pde.pde_project where name = 'Todo';
@@ -317,12 +342,12 @@ INSERT INTO pde.major(project_id, revision) SELECT id, 1 from pde.pde_project wh
 INSERT INTO pde.minor(major_id, revision, release_id) SELECT
   (SELECT id from pde.major where revision = 1)
   ,1
-  ,(SELECT id from pde.release where name = '0001.0002.0001')
+  ,(SELECT id from pde.release where number = '0001.0002.0001')
 ;
 INSERT INTO pde.minor(major_id, revision, release_id) SELECT
   (SELECT id from pde.major where revision = 1)
   ,2
-  ,(SELECT id from pde.release where name = '0001.0002.0001')
+  ,(SELECT id from pde.release where number = '0001.0002.0001')
 ;
 
 INSERT INTO pde.schema(  
@@ -331,7 +356,7 @@ INSERT INTO pde.schema(
 )
 SELECT
   'todo'
-  ,(SELECT id from pde.release where name = '0001.0002.0001')
+  ,(SELECT id from pde.release where number = '0001.0002.0001')
 ;
 
 INSERT INTO pde.artifact(  
@@ -423,3 +448,12 @@ INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT
   ,'second function;'
   ,(select id from pde.artifact where name = 'second_function')
   from pde.minor where revision = 2;
+
+INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-1', (select id from pde.minor where revision = 1), 'GraphQL';
+INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-2', (select id from pde.minor where revision = 1), 'GraphQL';
+INSERT INTO pde.test(name, minor_id, type) SELECT 'PGT-1', (select id from pde.minor where revision = 1), 'PgTap';
+INSERT INTO pde.test(name, minor_id, type) SELECT 'PGT-2', (select id from pde.minor where revision = 1), 'PgTap';
+INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-1', (select id from pde.minor where revision = 2), 'GraphQL';
+INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-2', (select id from pde.minor where revision = 2), 'GraphQL';
+INSERT INTO pde.test(name, minor_id, type) SELECT 'PGT-1', (select id from pde.minor where revision = 2), 'PgTap';
+INSERT INTO pde.test(name, minor_id, type) SELECT 'PGT-2', (select id from pde.minor where revision = 2), 'PgTap';

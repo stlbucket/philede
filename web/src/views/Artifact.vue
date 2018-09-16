@@ -2,15 +2,20 @@
   <div
     justify-start
   >
-    <v-btn 
+    <!-- <v-btn 
       @click="captureWorkingDdl"
       :disabled="disableCapture"
     >Capture
-    </v-btn>
+    </v-btn> -->
     <v-btn 
       @click="commitWorkingDdl"
       :disabled="disableCommit"
     >Commit
+    </v-btn>
+    <v-btn 
+      @click="revertWorkingDdl"
+      :disabled="disableRevert"
+    >Revert
     </v-btn>
     <div
     >
@@ -29,9 +34,9 @@
 </template>
 
 <script>
-import artifactById from './gql/query/artifactById.gql'
-import captureWorkingDdl from './gql/mutation/captureWorkingDdl.gql'
-import commitWorkingDdl from './gql/mutation/commitWorkingDdl.gql'
+import artifactById from '../gql/query/artifactById.gql'
+import captureWorkingDdl from '../gql/mutation/captureWorkingDdl.gql'
+import commitWorkingDdl from '../gql/mutation/commitWorkingDdl.gql'
 import gql from 'graphql-tag'
 import ace from 'brace'
 
@@ -58,7 +63,8 @@ export default {
       return true
     },
     captureWorkingDdl () {
-      if (this.ddl !== this.currentPatch.workingDdl){
+      if (this.ddl !== this.currentPatch.workingDdl && this.currentPatch.id){
+        console.log('this.currentPatch', this.currentPatch)
         return this.$apollo.mutate({
           mutation: captureWorkingDdl,
           variables: {
@@ -97,6 +103,9 @@ export default {
         alert('ERROR')
         console.log('error', error)
       })
+    },
+    revertWorkingDdl () {
+
     }
   },
   apollo: {
@@ -120,6 +129,9 @@ export default {
     },
     disableCommit () {
       return this.disableCapture ? this.currentPatch.ddl === this.currentPatch.workingDdl : true
+    },
+    disableRevert () {
+      return false
     },
     readonly () {
       return false  // Todo: this

@@ -36,6 +36,28 @@ query ReleaseById(
             }
           }
         }
+        gqlTests: testsByMinorId(filter: {
+          type: {equalTo: GRAPH_QL}
+        }) {
+          nodes {
+            id
+            name
+            ddl
+            workingDdl
+            type
+          }
+        }
+        pgtTests: testsByMinorId(filter: {
+          type: {equalTo: PG_TAP}
+        }) {
+          nodes {
+            id
+            name
+            ddl
+            workingDdl
+            type
+          }
+        }
       }
     }
   }

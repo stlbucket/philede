@@ -6,13 +6,10 @@
       :clipped="clipped"
       v-model="drawer"
       enable-resize-watcher
-      fixed
+      width="400"
       app
     >
-    <release-navigator 
-      :pdeProjectId="pdeProjectId"
-      :focusArtifactId="focusArtifactId" 
-    ></release-navigator>
+    <project-navigator></project-navigator>
     </v-navigation-drawer>
     <v-toolbar
       app
@@ -20,14 +17,6 @@
     >
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title v-text="title"></v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-select 
-        label="Project"
-        :items="projects"
-        item-text="name"
-        item-value="id"
-        v-model="selectedProject"
-      ></v-select>
       <v-spacer></v-spacer>
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>menu</v-icon>
@@ -38,7 +27,7 @@
         fluid
         justify-start
       >
-        <router-view @artifact-route="artifactRoute" ></router-view>
+        <router-view></router-view>
       </v-container>
     </v-content>
     <v-navigation-drawer
@@ -64,17 +53,15 @@
 </template>
 
 <script>
-import AllProjects from './graphql/query/AllProjects.gql'
-import ReleaseNavigator from './views/ReleaseNavigator/Component'
+import ProjectNavigator from './components/ProjectNavigator'
 
 export default {
   name: 'App',
   components: { 
-    ReleaseNavigator
+    ProjectNavigator
   },
   data () {
     return {
-      pdeProjectId: "",
       clipped: true,
       drawer: true,
       fixed: false,
@@ -82,29 +69,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'phile-de',
-      projects: [],
-      selectedProject: null,
-      focusArtifactId: null,
-    }
-  },
-  methods: {
-    artifactRoute (id) {
-      this.focusArtifactId = id
-    }
-  },
-  watch: {
-    selectedProject () {
-      this.pdeProjectId = this.selectedProject
-    }
-  },
-  apollo: {
-    allProjects: {
-      query: AllProjects,
-      update (result) {
-        this.projects = result.allPdeProjects.nodes
-        this.selectedProject = (this.projects[0] || {id: ""}).id
-      }
+      title: 'phile-de'
     }
   }
 }

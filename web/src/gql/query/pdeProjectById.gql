@@ -1,3 +1,5 @@
+
+
 query PdeProjectById(
   $id: BigInt!
 ) {
@@ -8,6 +10,7 @@ query PdeProjectById(
       nodes {
         id
         name
+        status
         minors: minorsByReleaseId(
           orderBy: NUMBER_ASC
         ) {

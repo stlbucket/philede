@@ -5,12 +5,11 @@
         <v-list-tile
           :key="patch.id"
           ripple
-          @click="patchSelected(patch)"
-          :class="patch.artifact.id === focusArtifactId ? 'v-list__tile--active' : 'v-list__tile'"
-
+          @click="selected(patch)"
+          :class="patch.artifact.id === focusItem.id ? 'v-list__tile--active' : 'v-list__tile'"
         >
           <v-list-tile-content>
-            <v-list-tile-sub-title class="text--primary">{{ `${patch.number} - ${patch.artifact.name}` }}</v-list-tile-sub-title>
+            <v-list-tile-sub-title class="text--primary">{{ `${patch.number.split('.')[2]} - ${patch.artifact.name}` }}</v-list-tile-sub-title>
           </v-list-tile-content>
 
         </v-list-tile>
@@ -25,10 +24,12 @@
 
 <script>
 export default {
-  name: "PatchList",
+  name: "MinorPatchList",
+  computed: {
+  },
   methods: {
-    patchSelected (patch) {
-      this.$router.push({ name: 'artifact', params: { id: patch.artifact.id }})
+    selected (patch) {
+      this.$eventHub.$emit('patchSelected', patch)
     }
   },
   props: {
@@ -36,7 +37,7 @@ export default {
       type: Object,
       required: true
     },
-    focusArtifactId: String
+    focusItem: Object
   },
   data () {
     return {
