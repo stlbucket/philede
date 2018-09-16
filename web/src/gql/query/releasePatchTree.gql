@@ -4,16 +4,19 @@ query ReleaseById(
   release: releaseById(id: $id) {
     id
     name
+    number
     minors: minorsByReleaseId(
       orderBy: NUMBER_ASC
     ) {
       nodes {
         id
         number
+        name
         revision
         major: majorByMajorId {
           id
           revision
+          name
         }
         patches: patchesByMinorId(
           orderBy: NUMBER_ASC

@@ -69,9 +69,11 @@ ALTER TABLE pde.release ADD CONSTRAINT fk_release_project FOREIGN KEY (project_i
 ------------------------------------------------
 CREATE TABLE pde.major (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
+  name text NOT NULL,
   project_id bigint NOT NULL,
   revision integer,
-  CONSTRAINT pk_pde_major PRIMARY KEY (id)
+  CONSTRAINT pk_pde_major PRIMARY KEY (id),
+  CHECK (name <> '')
 );
 ALTER TABLE pde.major ADD CONSTRAINT fk_major_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
 
@@ -80,12 +82,14 @@ ALTER TABLE pde.major ADD CONSTRAINT fk_major_project FOREIGN KEY (project_id) R
 ------------------------------------------------
 CREATE TABLE pde.minor (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
+  name text NOT NULL,
   major_id bigint NOT NULL,
   release_id bigint NOT NULL,
   revision integer,
   number text NOT NULL,
   CONSTRAINT pk_pde_minor PRIMARY KEY (id),
-  CHECK (number <> '')
+  CHECK (number <> ''),
+  CHECK (name <> '')
 );
 ALTER TABLE pde.minor ADD CONSTRAINT fk_minor_major FOREIGN KEY (major_id) REFERENCES pde.major (id);
 ALTER TABLE pde.minor ADD CONSTRAINT fk_minor_release FOREIGN KEY (release_id) REFERENCES pde.release (id);
@@ -208,10 +212,43 @@ BEGIN
   RETURN NEW;
 END; $$ LANGUAGE plpgsql;
 --||--
-CREATE TRIGGER tg_timestamp_update_patch
+CREATE TRIGGER tg_timestamp_before_update_patch
   BEFORE INSERT OR UPDATE ON pde.patch
   FOR EACH ROW
   EXECUTE PROCEDURE pde.fn_timestamp_update_patch();
+--||--
+CREATE FUNCTION pde.fn_update_release_number() RETURNS trigger AS $$
+BEGIN
+  WITH max_patch_info AS (
+    SELECT 
+      max(p.id) max_patch_id
+      ,r.id release_id
+    FROM pde.patch p
+    JOIN pde.minor m ON p.minor_id = m.id
+    JOIN pde.release r ON r.id = m.release_id
+    WHERE r.id = (SELECT release_id FROM pde.minor WHERE id = NEW.minor_id)
+    GROUP BY r.id
+  )
+  UPDATE pde.release
+  SET number = (
+    SELECT 
+      lpad(ma.revision::text,4,'0') || '.' || lpad(mi.revision::text,4,'0') || '.' || lpad(pa.revision::text,4,'0')
+    FROM max_patch_info mpi
+    JOIN pde.patch pa ON mpi.max_patch_id = pa.id
+    JOIN pde.minor mi ON pa.minor_id = mi.id
+    JOIN pde.major ma ON mi.major_id = ma.id
+  )
+  FROM max_patch_info mpi
+  WHERE id = mpi.release_id
+  ;
+
+  RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+--||--
+CREATE TRIGGER tg_timestamp_after_update_patch
+  AFTER INSERT OR UPDATE ON pde.patch
+  FOR EACH ROW
+  EXECUTE PROCEDURE pde.fn_update_release_number();
 
 ------------------------------------------------
 -- test
@@ -333,21 +370,23 @@ INSERT INTO pde.release(
 SELECT
   id
   ,'Example Release'
-  ,'0001.0002.0001'
+  ,'DUNNO'
   ,'Next'
 FROM pde.pde_project where name = 'Todo';
 
-INSERT INTO pde.major(project_id, revision) SELECT id, 1 from pde.pde_project where name = 'Todo';
+INSERT INTO pde.major(project_id, revision, name) SELECT id, 1, 'Major Name' from pde.pde_project where name = 'Todo';
 
-INSERT INTO pde.minor(major_id, revision, release_id) SELECT
+INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
   (SELECT id from pde.major where revision = 1)
   ,1
-  ,(SELECT id from pde.release where number = '0001.0002.0001')
+  ,(SELECT id from pde.release where number = 'DUNNO')
+  ,'First Feature'
 ;
-INSERT INTO pde.minor(major_id, revision, release_id) SELECT
+INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
   (SELECT id from pde.major where revision = 1)
   ,2
-  ,(SELECT id from pde.release where number = '0001.0002.0001')
+  ,(SELECT id from pde.release where number = 'DUNNO')
+  ,'Second Feature'
 ;
 
 INSERT INTO pde.schema(  
@@ -356,7 +395,7 @@ INSERT INTO pde.schema(
 )
 SELECT
   'todo'
-  ,(SELECT id from pde.release where number = '0001.0002.0001')
+  ,(SELECT id from pde.release where number = 'DUNNO')
 ;
 
 INSERT INTO pde.artifact(  

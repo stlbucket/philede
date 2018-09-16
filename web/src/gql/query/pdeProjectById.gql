@@ -10,6 +10,7 @@ query PdeProjectById(
       nodes {
         id
         name
+        number
         status
         minors: minorsByReleaseId(
           orderBy: NUMBER_ASC
@@ -17,9 +18,11 @@ query PdeProjectById(
           nodes {
             id
             number
+            name
             revision
             major: majorByMajorId {
               id
+              name
               revision
             }
             patches: patchesByMinorId(

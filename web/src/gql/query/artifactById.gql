@@ -18,13 +18,16 @@ query ArtifactById(
         minor: minorByMinorId {
           id
           number
+          name
           major: majorByMajorId {
             id
+            name
             revision
           }
           release: releaseByReleaseId {
             id
             name
+            number
           }
         }
       }

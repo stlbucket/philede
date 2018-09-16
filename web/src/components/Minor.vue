@@ -2,7 +2,7 @@
   <div>
     <v-toolbar dark>
       <v-toolbar-side-icon @click="toggleMinorHidden()"></v-toolbar-side-icon>
-      <v-toolbar-title>{{ `minor-${minor.number}` }}</v-toolbar-title>
+      <v-toolbar-title>{{ `${minor.number.split('.')[1]}-${minor.name}` }}</v-toolbar-title>
       <v-btn>New Patch</v-btn>
     </v-toolbar>
     <v-tabs

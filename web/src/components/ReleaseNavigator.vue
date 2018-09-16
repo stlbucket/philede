@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-toolbar>
-      <v-btn @click="newRelease">New</v-btn>
       <v-select 
         :label="`Release - ${releaseStatus}`"
         :items="releases"
@@ -26,9 +25,6 @@ export default {
     MinorList
   },
   methods: {
-    newRelease () {
-      this.$router.push({ name: 'newRelease' })
-    }
   },
   computed: {
     selectedRelease () {
@@ -55,7 +51,7 @@ export default {
         this.releases = this.pdeProject.releases.nodes.map(
           release => {
             return Object.assign({
-              displayName: `${release.name}`
+              displayName: `${release.number} - ${release.name}`
             }, release)
           }
         )
