@@ -1,0 +1,29 @@
+mutation CreatePatch(
+  $minorId: BigInt!
+  $artifactId: BigInt!
+  $revision: Int
+  $ddl: String
+  $workingDdl: String
+  $number: String!
+) {
+  createPatch(input: {
+    patch: {
+      minorId: $minorId
+      artifactId: $artifactId
+      revision: $revision
+      ddl: $ddl
+      workingDdl: $workingDdl
+      number: $number
+    }
+  }) {
+    patch {
+      id
+      minorId
+      artifactId
+      revision
+      ddl
+      workingDdl
+      number
+    }
+  }
+}

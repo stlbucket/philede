@@ -8,6 +8,7 @@ import ProjectDetail from "./components/ProjectDetail.vue"
 import NewRelease from "./views/NewRelease/Component.vue"
 import TestGraphQL from "./components/TestGraphQL.vue"
 import TestPgTap from "./components/TestPgTap.vue"
+import PatchNew from "./components/PatchNew.vue"
 
 Vue.use(Router);
 
@@ -46,6 +47,12 @@ export default new Router({
       path: "/test-pg-tap/:id",
       name: "test-pg-tap",
       component: TestPgTap,
+      props: true
+    },
+    {
+      path: "/newPatch/:minorId",
+      name: "newPatch",
+      component: PatchNew,
       props: true
     },
     {

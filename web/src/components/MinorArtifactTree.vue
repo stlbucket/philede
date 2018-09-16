@@ -116,19 +116,6 @@ export default {
     }
   },
   watch: {
-    selectedItems (sel) {
-      // console.log('SELEIEJFJ', sel, this.selectedItems)
-      // const artifact = this.allArtifacts.find(a => a.id === sel[0])
-      // const artifactType = this.allArtifactTypes.find(at => at.id === sel[0])
-      // if (sel[0] === 99999999999) {
-      //   this.$eventHub.$emit('schemaRootSelected')
-      // } else if (artifact) {
-      //   this.$eventHub.$emit('artifactSelected', artifact)
-      // } else if (artifactType) {
-      //   this.$eventHub.$emit('artifactTypeSelected', artifactType)
-      // } else {
-      // }
-    }
   },
   props: {
     minor: {

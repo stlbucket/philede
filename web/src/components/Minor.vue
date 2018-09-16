@@ -3,7 +3,9 @@
     <v-toolbar dark>
       <v-toolbar-side-icon @click="toggleMinorHidden()"></v-toolbar-side-icon>
       <v-toolbar-title>{{ `${minor.number.split('.')[1]}-${minor.name}` }}</v-toolbar-title>
-      <v-btn>New Patch</v-btn>
+      <v-btn
+        @click="newPatch"
+      >New Patch</v-btn>
     </v-toolbar>
     <v-tabs
       dark
@@ -69,6 +71,9 @@ export default {
   methods: {
     toggleMinorHidden (minorId) {
       this.hidden = !this.hidden
+    },
+    newPatch () {
+      this.$eventHub.$emit('newPatch', this.minor)
     }
   },
   props: {

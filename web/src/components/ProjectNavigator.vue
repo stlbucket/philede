@@ -56,6 +56,10 @@ export default {
       this.$router.push({ name: 'artifact', params: { id: patch.artifact.id }})
       this.$eventHub.$emit('focusItem', patch)
     },
+    newPatch (minor) {
+      console.log('newPatch', minor)
+      this.$router.push({ name: 'newPatch', params: { minorId: minor.id }})
+    },
     pgtTestSelected (test) {
        this.$router.push({ name: 'test-pg-tap', params: { id: test.id }})
     },
@@ -79,6 +83,7 @@ export default {
     this.$eventHub.$on('artifactSelected', this.artifactSelected);
     this.$eventHub.$on('artifactTypeSelected', this.artifactTypeSelected);  
     this.$eventHub.$on('patchSelected', this.patchSelected);  
+    this.$eventHub.$on('newPatch', this.newPatch);  
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected');
@@ -86,6 +91,7 @@ export default {
     this.$eventHub.$off('artifactSelected');
     this.$eventHub.$off('artifactTypeSelected');
     this.$eventHub.$off('patchSelected');
+    this.$eventHub.$off('newPatch');
   }
 }
 </script>
