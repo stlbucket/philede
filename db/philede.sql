@@ -41,13 +41,46 @@ CREATE TABLE pde.pde_project (
   CHECK (name <> '')
 );
 
+--||--
+CREATE FUNCTION pde.fn_create_project_releases() RETURNS trigger AS $$
+BEGIN
+  INSERT INTO pde.release(
+    project_id
+    ,name
+    ,number
+    ,status
+  )
+  VALUES
+    (
+      NEW.id
+      ,'Future'
+      ,'9999.9999.9999'
+      ,'Future'
+    ),
+    (
+      NEW.id
+      ,'Development'
+      ,'Development'
+      ,'Development'
+    )
+  ;
+  RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+--||--
+CREATE TRIGGER tg_after_insert_pde_project
+  AFTER INSERT ON pde.pde_project
+  FOR EACH ROW
+  EXECUTE PROCEDURE pde.fn_create_project_releases();
+
+
 ------------------------------------------------
 -- release
 ------------------------------------------------
 CREATE TYPE pde.release_status AS ENUM
    (
-    'Past',
-    'Next',
+    'Production',
+    'Staging',
+    'Development',
     'Future'
     );
 
@@ -56,13 +89,12 @@ CREATE TABLE pde.release (
   project_id bigint NOT NULL,
   name text NOT NULL,
   number text NOT NULL,
-  status pde.release_status NOT NULL DEFAULT 'Next',
+  status pde.release_status NOT NULL DEFAULT 'Development',
   ddl text,
   CONSTRAINT pk_pde_release PRIMARY KEY (id),
   CHECK (name <> '')
 );
 ALTER TABLE pde.release ADD CONSTRAINT fk_release_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
-
 
 ------------------------------------------------
 -- major
@@ -94,17 +126,17 @@ CREATE TABLE pde.minor (
 ALTER TABLE pde.minor ADD CONSTRAINT fk_minor_major FOREIGN KEY (major_id) REFERENCES pde.major (id);
 ALTER TABLE pde.minor ADD CONSTRAINT fk_minor_release FOREIGN KEY (release_id) REFERENCES pde.release (id);
 
-  --||--
-  CREATE FUNCTION pde.fn_timestamp_update_minor() RETURNS trigger AS $$
-  BEGIN
-    NEW.number = (select lpad(mj.revision::text,4,'0') || '.' || lpad(NEW.revision::text,4,'0') from pde.major mj where mj.id = NEW.major_id);
-    RETURN NEW;
-  END; $$ LANGUAGE plpgsql;
-  --||--
-  CREATE TRIGGER tg_timestamp_update_minor
-    BEFORE INSERT OR UPDATE ON pde.minor
-    FOR EACH ROW
-    EXECUTE PROCEDURE pde.fn_timestamp_update_minor();
+--||--
+CREATE FUNCTION pde.fn_timestamp_update_minor() RETURNS trigger AS $$
+BEGIN
+  NEW.number = (select lpad(mj.revision::text,4,'0') || '.' || lpad(NEW.revision::text,4,'0') from pde.major mj where mj.id = NEW.major_id);
+  RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+--||--
+CREATE TRIGGER tg_timestamp_update_minor
+  BEFORE INSERT OR UPDATE ON pde.minor
+  FOR EACH ROW
+  EXECUTE PROCEDURE pde.fn_timestamp_update_minor();
 
 ------------------------------------------------
 -- artifact type
@@ -316,8 +348,6 @@ returns setof pde.schema as $$
   ;
 $$ language sql stable;
 
-
-
 ------------------------------------------------
 -- dummy data
 ------------------------------------------------
@@ -362,37 +392,25 @@ INSERT INTO pde.artifact_type_relationship(parent_artifact_type_id, child_artifa
 
 
 INSERT INTO pde.pde_project(name) SELECT 'Todo';
-INSERT INTO pde.release(  
-  project_id,
-  name,
-  number,
-  status
-)
-SELECT
-  id
-  ,'Example Release'
-  ,'DUNNO'
-  ,'Next'
-FROM pde.pde_project where name = 'Todo';
 
 INSERT INTO pde.major(project_id, revision, name) SELECT id, 1, 'Major Name' from pde.pde_project where name = 'Todo';
 
 INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
   (SELECT id from pde.major where revision = 1)
   ,1
-  ,(SELECT id from pde.release where number = 'DUNNO')
+  ,(SELECT id from pde.release where status = 'Development')
   ,'Todo Schema'
 ;
 INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
   (SELECT id from pde.major where revision = 1)
   ,2
-  ,(SELECT id from pde.release where number = 'DUNNO')
+  ,(SELECT id from pde.release where status = 'Development')
   ,'First Feature'
 ;
 INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
   (SELECT id from pde.major where revision = 1)
   ,2
-  ,(SELECT id from pde.release where number = 'DUNNO')
+  ,(SELECT id from pde.release where status = 'Development')
   ,'Second Feature'
 ;
 
@@ -402,7 +420,7 @@ INSERT INTO pde.schema(
 )
 SELECT
   'todo'
-  ,(SELECT id from pde.release where number = 'DUNNO')
+  ,(SELECT id from pde.release where status = 'Development')
 ;
 
 INSERT INTO pde.artifact(  

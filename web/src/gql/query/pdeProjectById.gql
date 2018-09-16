@@ -1,12 +1,10 @@
-
-
 query PdeProjectById(
   $id: BigInt!
 ) {
   pdeProjectById(id: $id) {
     id    
     name
-    releases: releasesByProjectId {
+    releases: releasesByProjectId(orderBy: NUMBER_ASC) {
       nodes {
         id
         name

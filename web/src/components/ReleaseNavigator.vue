@@ -59,7 +59,7 @@ export default {
             }, release)
           }
         )
-        this.selectedReleaseId = (this.releases[0] || {id: ''}).id
+        this.selectedReleaseId = (this.releases.find(r => r.status === 'DEVELOPMENT') || {id: ''}).id
       }
     }
   },
