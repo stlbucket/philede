@@ -287,26 +287,6 @@ CREATE TRIGGER tg_timestamp_after_update_patch
   EXECUTE PROCEDURE pde.fn_update_release_number();
 
 ------------------------------------------------
--- query
-------------------------------------------------
--- CREATE TYPE pde.test_type AS ENUM
---    (
---     'PgTap',
---     'GraphQL'
---     );
-
--- CREATE TABLE pde.test (
---   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
---   type pde.test_type NOT NULL DEFAULT 'GraphQL',
---   name text,
---   script text NOT NULL DEFAULT '<test ddl>',
---   script_working text NOT NULL DEFAULT '<test ddl>',
---   minor_id bigint NOT NULL,
---   CONSTRAINT pk_pde_test PRIMARY KEY (id)
--- );
--- ALTER TABLE pde.test ADD CONSTRAINT fk_test_minor FOREIGN KEY (minor_id) REFERENCES pde.minor (id);
-
-------------------------------------------------
 -- test
 ------------------------------------------------
 CREATE TYPE pde.test_type AS ENUM

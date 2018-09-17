@@ -41,6 +41,19 @@
         ></minor-artifact-tree>
       </v-tab-item>
       <v-tab
+        key="Queries"
+        ripple
+      >
+        Queries
+      </v-tab>
+      <v-tab-item
+        key="Queries"
+      >
+        <minor-query-suite
+          :minor="minor"
+        ></minor-query-suite>
+      </v-tab-item>
+      <v-tab
         key="Tests"
         ripple
       >
@@ -61,6 +74,7 @@
 import MinorPatchList from './MinorPatchList'
 import MinorArtifactTree from './MinorArtifactTree'
 import MinorTestSuite from './MinorTestSuite'
+import MinorQuerySuite from './MinorQuerySuite'
 import deferMinor from '../gql/mutation/deferMinor.gql'
 import promoteMinor from '../gql/mutation/promoteMinor.gql'
 
@@ -69,7 +83,8 @@ export default {
   components: {
     MinorPatchList,
     MinorArtifactTree,
-    MinorTestSuite
+    MinorTestSuite,
+    MinorQuerySuite
   },
   methods: {
     toggleMinorHidden (minorId) {
