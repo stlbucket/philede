@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-btn :disabled="newArtifactDisabled">New</v-btn>
+    <v-btn :disabled="newArtifactDisabled">New Patch</v-btn>
     <v-treeview
       :items="items"
       key-field="id"

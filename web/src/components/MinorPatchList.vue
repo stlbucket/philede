@@ -1,6 +1,9 @@
 <template>
   <div>
-     <v-list>
+    <v-btn
+      @click="newPatch"
+    >New Patch</v-btn>
+    <v-list>
       <template v-for="(patch, index) in minor.patches.nodes">
         <v-list-tile
           :key="patch.id"
@@ -30,6 +33,9 @@ export default {
   methods: {
     selected (patch) {
       this.$eventHub.$emit('patchSelected', patch)
+    },
+    newPatch () {
+      this.$eventHub.$emit('newPatch', this.minor)
     },
     focusItemChanged (focusItem) {
       this.focusItem = focusItem

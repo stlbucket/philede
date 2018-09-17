@@ -59,7 +59,8 @@ export default {
             }, release)
           }
         )
-        this.selectedReleaseId = (this.releases.find(r => r.status === 'DEVELOPMENT') || {id: ''}).id
+        console.log('blshiw')
+        this.selectedReleaseId = this.selectedReleaseId !== '' ? this.selectedReleaseId : (this.releases.find(r => r.status === 'DEVELOPMENT') || {id: ''}).id
       }
     }
   },

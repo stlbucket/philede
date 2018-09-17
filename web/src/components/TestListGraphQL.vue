@@ -1,5 +1,6 @@
 <template>
   <div>
+    <v-btn>New GraphQL Test</v-btn>
      <v-list>
       <template v-for="(test, index) in tests">
         <v-list-tile

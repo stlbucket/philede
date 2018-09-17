@@ -1,6 +1,7 @@
 <template>
   <div>
-     <v-list>
+    <v-btn>New PgTap Test</v-btn>
+    <v-list>
       <template v-for="(test, index) in tests">
         <v-list-tile
           :key="test.id"
