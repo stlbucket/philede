@@ -35,7 +35,7 @@
               <v-card>
                 <editor
                   ref="editor" 
-                  v-model="ddl" 
+                  v-model="ddlUp" 
                   @init="editorInit" 
                   lang="pgsql" 
                   theme="tomorrow_night_bright"
@@ -86,7 +86,7 @@
     >
       <editor
         ref="editor" 
-        v-model="ddl" 
+        v-model="ddlUp" 
         @init="editorInit" 
         lang="pgsql" 
         theme="tomorrow_night_bright"
@@ -128,13 +128,13 @@ export default {
       return true
     },
     captureWorkingDdl () {
-      if (this.ddl !== this.currentPatch.workingDdl && this.currentPatch.id){
+      if (this.ddlUp !== this.currentPatch.ddlUpWorking && this.currentPatch.id){
         console.log('this.currentPatch', this.currentPatch)
         return this.$apollo.mutate({
           mutation: captureWorkingDdl,
           variables: {
             patchId: this.currentPatch.id,
-            workingDdl: this.ddl
+            ddlUpWorking: this.ddlUp
           },
           fetchPolicy: 'no-cache'
         })
@@ -156,7 +156,7 @@ export default {
         mutation: commitWorkingDdl,
         variables: {
           patchId: this.currentPatch.id,
-          ddl: this.ddl
+          ddlUp: this.ddlUp
         },
         fetchPolicy: 'no-cache'
       })
@@ -182,18 +182,18 @@ export default {
       },
       update (data) {
         this.artifact = data.artifactById
-        this.currentPatch = this.artifact.patches.nodes[0] || {ddl: null}
-        this.ddl = this.currentPatch.workingDdl
+        this.currentPatch = this.artifact.patches.nodes[0] || {ddlUp: null}
+        this.ddlUp = this.currentPatch.ddlUpWorking
       }
     }
 
   },
   computed: {
     disableCapture () {
-      return this.ddl === this.currentPatch.workingDdl
+      return this.ddlUp === this.currentPatch.ddlUpWorking
     },
     disableCommit () {
-      return this.disableCapture ? this.currentPatch.ddl === this.currentPatch.workingDdl : true
+      return this.disableCapture ? this.currentPatch.ddlUp === this.currentPatch.ddlUpWorking : true
     },
     disableRevert () {
       return false
@@ -202,7 +202,7 @@ export default {
       return false  // Todo: this
     },
     isDirty () {
-      return this.currentPatch.ddl !== this.currentPatch.workingDdl
+      return this.currentPatch.ddlUp !== this.currentPatch.ddlUpWorking
     }
   },
   beforeRouteUpdate (to, from, next) {
@@ -220,7 +220,7 @@ export default {
   },
   data () {
     return {
-      ddl: 'ddl',
+      ddlUp: 'ddlUp',
       cmOptions: {
         // codemirror options
         tabSize: 2,

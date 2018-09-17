@@ -1,0 +1,18 @@
+mutation PromoteMinor(
+  $minorId: BigInt!
+){
+  promoteMinor(input: {
+    minorId: $minorId
+  }) {
+    minor {
+      id
+      name
+      release: releaseByReleaseId {
+        id
+        name
+        number
+        status
+      }
+    }
+  }
+}

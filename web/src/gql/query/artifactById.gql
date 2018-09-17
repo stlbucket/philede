@@ -13,8 +13,8 @@ query ArtifactById(
       nodes {
         id
         number
-        ddl
-        workingDdl
+        ddlUp
+        ddlUpWorking
         minor: minorByMinorId {
           id
           number

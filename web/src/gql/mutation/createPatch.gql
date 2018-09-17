@@ -2,8 +2,8 @@ mutation CreatePatch(
   $minorId: BigInt!
   $artifactId: BigInt!
   $revision: Int
-  $ddl: String
-  $workingDdl: String
+  $ddlUp: String
+  $ddlUpWorking: String
   $number: String!
 ) {
   createPatch(input: {
@@ -11,8 +11,8 @@ mutation CreatePatch(
       minorId: $minorId
       artifactId: $artifactId
       revision: $revision
-      ddl: $ddl
-      workingDdl: $workingDdl
+      ddlUp: $ddlUp
+      ddlUpWorking: $ddlUpWorking
       number: $number
     }
   }) {
@@ -21,8 +21,8 @@ mutation CreatePatch(
       minorId
       artifactId
       revision
-      ddl
-      workingDdl
+      ddlUp
+      ddlUpWorking
       number
     }
   }

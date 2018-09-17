@@ -22,6 +22,19 @@ export default {
     Minor
   },
   methods: {
+    queryRelease () {
+      this.$apollo.query({
+        query: releasePatchTree,
+        variables: {
+          id: this.releaseId
+        },
+        fetchPolicy: 'network-only'
+      })
+      .then(result => {
+        this.release = result.data.release
+        this.allArtifactTypes = result.data.allArtifactTypes.nodes
+      })
+    }
   },
   computed: {
     minors () {
@@ -31,16 +44,7 @@ export default {
   watch: {
     releaseId () {
       if (this.releaseId !== '') {
-        this.$apollo.query({
-          query: releasePatchTree,
-          variables: {
-            id: this.releaseId
-          },
-        })
-        .then(result => {
-          this.release = result.data.release
-          this.allArtifactTypes = result.data.allArtifactTypes.nodes
-        })
+        this.queryRelease()
       }
     }
   },
@@ -68,5 +72,11 @@ export default {
       focusItem: {}
     }
   },
+  created () {
+    this.$eventHub.$on('minorDeferredToggled', this.queryRelease)
+  },
+  beforeDestroy() {
+    this.$eventHub.$off('minorDeferredToggled')
+  }
 }
 </script>

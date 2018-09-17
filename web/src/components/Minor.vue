@@ -6,6 +6,9 @@
       <v-btn
         @click="newPatch"
       >New Patch</v-btn>
+      <v-btn
+        @click="toggleDefer"
+      >{{ toggleDeferText }}</v-btn>
     </v-toolbar>
     <v-tabs
       dark
@@ -60,6 +63,8 @@
 import MinorPatchList from './MinorPatchList'
 import MinorArtifactTree from './MinorArtifactTree'
 import MinorTestSuite from './MinorTestSuite'
+import deferMinor from '../gql/mutation/deferMinor.gql'
+import promoteMinor from '../gql/mutation/promoteMinor.gql'
 
 export default {
   name: "Minor",
@@ -74,6 +79,39 @@ export default {
     },
     newPatch () {
       this.$eventHub.$emit('newPatch', this.minor)
+    },
+    toggleDefer() {
+      console.log('this.minor', this.minor)
+      this.$apollo.mutate({
+        mutation: this.toggleDeferMutation,
+        variables: {
+          minorId:  this.minor.id
+        }
+      })
+      .then(result => {
+        console.log('result', result)
+        this.$eventHub.$emit('minorDeferredToggled', this.minor)
+      })
+      .catch(error => {
+        alert('ERROR')
+        console.log('error', error)
+      })
+    }
+  },
+  computed: {
+    toggleDeferText () {
+      switch (this.minor.release.status) {
+        case 'DEVELOPMENT':
+          this.toggleDeferMutation = deferMinor
+          return 'Defer'
+        break;
+        case 'FUTURE':
+          this.toggleDeferMutation = promoteMinor
+          return 'Promote'
+        break;
+        default:
+          return ''
+      }
     }
   },
   props: {

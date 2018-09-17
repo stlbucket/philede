@@ -93,45 +93,6 @@ export default {
           }
         )
     },
-    // items () {
-    //   return [{
-    //     id: 99999999999,
-    //     name: 'schemas',
-    //     children: this.schemas.map(
-    //       schema => {
-    //         return {
-    //           id: schema.id,
-    //           name: schema.name,
-    //           children: this.allArtifactTypes.map(
-    //             artifactType => {
-    //               const typeChildren = this.minor.patches.nodes.reduce(
-    //                 (acc, patch) => {
-    //                     return patch.artifact.artifactType.id === artifactType.id ? acc.concat([patch.artifact]) : acc
-    //                   }, []   
-    //               )
-
-    //               return {
-    //                 id: artifactType.id,
-    //                 title: 'artifact_type',
-    //                 name: artifactType.name,
-    //                 children: typeChildren.map(
-    //                   artifact => {
-    //                     return {
-    //                       id: artifact.id,
-    //                       title: 'artifact',
-    //                       name: `*-${artifact.name}`,
-    //                       children: []
-    //                     }
-    //                   }
-    //                 )
-    //               }
-    //             }
-    //           )
-    //         }
-    //       }
-    //     )
-    //   }]
-    // },
     schemas () {
       return this.minor.patches.nodes.reduce(
         (acc, patch) => {

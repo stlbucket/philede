@@ -1,18 +1,18 @@
 mutation CommitWorkingDdl(
   $patchId: BigInt!
-  $ddl: String!
+  $ddlUp: String!
 ) {
   updatePatchById(input: {
     id: $patchId
     patchPatch: {
-      ddl: $ddl
+      ddlUp: $ddlUp
     }
   }) {
     patch {
       id
       number
-      ddl
-      workingDdl
+      ddlUp
+      ddlUpWorking
       revision
     }
   }

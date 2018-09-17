@@ -90,7 +90,8 @@ CREATE TABLE pde.release (
   name text NOT NULL,
   number text NOT NULL,
   status pde.release_status NOT NULL DEFAULT 'Development',
-  ddl text,
+  ddl_up text NOT NULL DEFAULT '<ddl>',
+  ddl_down text NOT NULL DEFAULT '<ddl>',
   CONSTRAINT pk_pde_release PRIMARY KEY (id),
   CHECK (name <> '')
 );
@@ -144,7 +145,8 @@ CREATE TRIGGER tg_timestamp_update_minor
 CREATE TABLE pde.artifact_type (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   name text NOT NULL,
-  ddl_template text,
+  ddl_up_template text,
+  ddl_down_template text,
   execution_order integer NOT NULL,
   properties jsonb NOT NULL DEFAULT '{}'::jsonb,
   CONSTRAINT pk_pde_artifact_ype PRIMARY KEY (id)
@@ -229,8 +231,10 @@ CREATE TABLE pde.patch (
   minor_id bigint NOT NULL,
   artifact_id bigint NOT NULL,
   revision integer,
-  ddl text NOT NULL DEFAULT '<ddl>',
-  working_ddl text NOT NULL DEFAULT '<ddl>',
+  ddl_up text NOT NULL DEFAULT '<ddl>',
+  ddl_up_working text NOT NULL DEFAULT '<ddl>',
+  ddl_down text NOT NULL DEFAULT '<ddl>',
+  ddl_down_working text NOT NULL DEFAULT '<ddl>',
   number text NOT NULL,
   CHECK (number <> ''),
   CONSTRAINT pk_pde_patch PRIMARY KEY (id)
@@ -295,8 +299,8 @@ CREATE TABLE pde.test (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   type pde.test_type NOT NULL DEFAULT 'GraphQL',
   name text,
-  ddl text NOT NULL DEFAULT '<test ddl>',
-  working_ddl text NOT NULL DEFAULT '<test ddl>',
+  script text NOT NULL DEFAULT '<test ddl>',
+  script_working text NOT NULL DEFAULT '<test ddl>',
   minor_id bigint NOT NULL,
   CONSTRAINT pk_pde_test PRIMARY KEY (id)
 );
@@ -347,6 +351,104 @@ returns setof pde.schema as $$
   join pde.patch p on p.artifact_id = a.id and p.minor_id = minor.id
   ;
 $$ language sql stable;
+
+------------------------------------------------
+-- defer_minor
+------------------------------------------------
+CREATE OR REPLACE FUNCTION pde.defer_minor(minor_id bigint)
+  RETURNS pde.minor AS
+$BODY$
+DECLARE
+  _minor pde.minor;
+  _release pde.release;
+BEGIN
+  SELECT *
+  INTO _minor
+  FROM pde.minor
+  WHERE id = minor_id
+  ;
+
+  IF _minor.id IS NULL THEN
+    RAISE EXCEPTION 'Cannot defer because minor does not exist: %', minor_id;
+  END IF;
+
+  SELECT *
+  INTO _release
+  FROM pde.release
+  WHERE id = _minor.release_id
+  ;
+
+  IF _release.status != 'Development' THEN
+    RAISE EXCEPTION 'Cannot defer because patch is not in development release: %', minor_id;
+  END IF;
+
+  SELECT *
+  INTO _release
+  FROM pde.release
+  WHERE project_id = _release.project_id
+  AND status = 'Future'
+  ;
+
+  IF _release.status != 'Future' THEN
+    RAISE EXCEPTION 'Cannot defer because future release does not exist: %', minor_id;
+  END IF;
+  
+  UPDATE pde.minor SET
+    release_id = _release.id
+  WHERE id = minor_id
+  RETURNING *
+  INTO _minor
+  ;
+
+  return _minor;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE STRICT SECURITY DEFINER
+  COST 100;
+
+------------------------------------------------
+-- promote_minor
+------------------------------------------------
+CREATE OR REPLACE FUNCTION pde.promote_minor(minor_id bigint)
+  RETURNS pde.minor AS
+$BODY$
+DECLARE
+  _minor pde.minor;
+  _release pde.release;
+BEGIN
+  SELECT *
+  INTO _minor
+  FROM pde.minor
+  WHERE id = minor_id
+  ;
+
+  IF _minor.id IS NULL THEN
+    RAISE EXCEPTION 'Cannot promote because minor does not exist: %', minor_id;
+  END IF;
+
+  SELECT *
+  INTO _release
+  FROM pde.release
+  WHERE id = _minor.release_id
+  ;
+
+  IF _release.status != 'Future' THEN
+    RAISE EXCEPTION 'Cannot promote because patch is not in future release: %', _patch_id;
+  END IF;
+
+  UPDATE pde.minor SET
+    release_id = (SELECT id FROM pde.release WHERE project_id = _release.project_id AND status = 'Development')
+  WHERE id = minor_id
+  RETURNING *
+  INTO _minor
+  ;
+
+  return _minor;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE STRICT SECURITY DEFINER
+  COST 100;
+
 
 ------------------------------------------------
 -- dummy data
@@ -497,35 +599,35 @@ SELECT
   ,(select id from pde.artifact where name = 'example_trigger')
 ;
 
-INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
+INSERT INTO pde.patch(minor_id, revision, ddl_up, ddl_up_working, artifact_id) SELECT 
   id 
   ,1
   ,'CREATE SCHEMA todo;'
   ,'CREATE SCHEMA todo;'
   ,(select id from pde.artifact where name = 'todo schema')
   from pde.minor where revision = 1;
-INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
+INSERT INTO pde.patch(minor_id, revision, ddl_up, ddl_up_working, artifact_id) SELECT 
   id 
   ,1
   ,'CREATE TABLE STATEMENT;'
   ,'CREATE TABLE STATEMENT;'
   ,(select id from pde.artifact where name = 'example_table')
   from pde.minor where revision = 2;
-INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
+INSERT INTO pde.patch(minor_id, revision, ddl_up, ddl_up_working, artifact_id) SELECT 
   id
   ,2 
   ,'CREATE FUNCTION STATEMENT;'
   ,'CREATE FUNCTION STATEMENT;'
   ,(select id from pde.artifact where name = 'example_function')
   from pde.minor where revision = 2;
-INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
+INSERT INTO pde.patch(minor_id, revision, ddl_up, ddl_up_working, artifact_id) SELECT 
   id
   ,3
   ,'CREATE TRIGGER STATEMENT;'
   ,'CREATE TRIGGER STATEMENT;'
   ,(select id from pde.artifact where name = 'example_trigger')
   from pde.minor where revision = 2;
-INSERT INTO pde.patch(minor_id, revision, ddl, working_ddl, artifact_id) SELECT 
+INSERT INTO pde.patch(minor_id, revision, ddl_up, ddl_up_working, artifact_id) SELECT 
   id
   ,1
   ,'second function;'

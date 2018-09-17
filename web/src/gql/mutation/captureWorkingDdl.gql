@@ -1,18 +1,18 @@
 mutation CaptureWorkingDdl(
   $patchId: BigInt!
-  $workingDdl: String!
+  $ddlUpWorking: String!
 ) {
   updatePatchById(input: {
     id: $patchId
     patchPatch: {
-      workingDdl: $workingDdl
+      ddlUpWorking: $ddlUpWorking
     }
   }) {
     patch {
       id
       number
-      ddl
-      workingDdl
+      ddlUp
+      ddlUpWorking
       revision
     }
   }
