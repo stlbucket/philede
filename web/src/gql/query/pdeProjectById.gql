@@ -10,6 +10,7 @@ query PdeProjectById(
         name
         number
         status
+        projectId
         minors: minorsByReleaseId(
           orderBy: NUMBER_ASC
         ) {

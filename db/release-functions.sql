@@ -21,11 +21,11 @@ BEGIN
   WHERE project_id = _project_id
   AND status = 'Development';
 
-  SELECT count(*) INTO _test_release_number FROM pde.release WHERE parent_release_id = _development_release.id;
-
   IF _development_release.id IS NULL THEN
     RAISE EXCEPTION 'NO DEVELOPMENT RELEASE FOR PROJECT ID: %', _project_id;
   END IF;
+
+  _test_release_number := (SELECT count(*) FROM pde.release WHERE parent_release_id = _development_release.id);
 
   INSERT INTO pde.release(
     name
@@ -35,15 +35,17 @@ BEGIN
     ,ddl_down
     ,project_id
     ,parent_release_id
+    ,locked
   )
   SELECT
     _development_release.name
-    ,_development_release.number||'.test.'||(_test_release_number+1)
+    ,(_development_release.number||'.test.'||(_test_release_number+1)::text)
     ,'Testing'
     ,_development_release.ddl_up
     ,_development_release.ddl_down
     ,_project_id
     ,_development_release.id
+    ,true
   RETURNING *
   INTO _new_testing_release
   ;

@@ -99,6 +99,7 @@ CREATE TABLE pde.release (
   ddl_up text NOT NULL DEFAULT '<ddl>',
   ddl_down text NOT NULL DEFAULT '<ddl>',
   parent_release_id bigint NULL,
+  locked boolean not null default false,
   CONSTRAINT pk_pde_release PRIMARY KEY (id),
   CHECK (name <> '')
 );
@@ -282,6 +283,7 @@ BEGIN
   )
   FROM max_patch_info mpi
   WHERE id = mpi.release_id
+  AND locked = false
   ;
 
   RETURN NEW;

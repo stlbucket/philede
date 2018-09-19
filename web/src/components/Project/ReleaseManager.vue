@@ -26,9 +26,9 @@
       <v-toolbar dark>
         <v-toolbar-title>{{ releaseDisplay(testingRelease) }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <div v-if="showExplore(stagingRelease)">
-          <v-btn @click="completeRelease">Complete</v-btn>
-          <v-btn @click="explore(stagingRelease)">Explore</v-btn>
+        <div v-if="showExplore(testingRelease)">
+          <v-btn @click="completeRelease">Move to Staging</v-btn>
+          <v-btn @click="explore(testingRelease)">Explore</v-btn>
         </div>
       </v-toolbar>
 
@@ -37,7 +37,7 @@
         <v-toolbar-title> {{ releaseDisplay(developmentRelease) }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <div v-if="showExplore(developmentRelease)">
-          <v-btn @click="releaseToTest">Release to Testing</v-btn>
+          <v-btn @click="releaseToTesting(developmentRelease)">Release to Testing</v-btn>
           <v-btn @click="stashRelease">Stash</v-btn>
           <v-btn @click="explore(developmentRelease)">Explore</v-btn>
         </div>
@@ -95,6 +95,7 @@
 
 <script>
 import Release from './Release'
+import releaseToTesting from '../../gql/mutation/releaseToTesting.gql'
 
 export default {
   name: "ReleaseManager",
@@ -105,11 +106,21 @@ export default {
     completeRelease() {
 
     },
-    releaseToTest() {
-
-    },
-    unreleaseToTest () {
-
+    releaseToTesting(release) {
+      console.log('release me', release)
+      this.$apollo.mutate({
+        mutation: releaseToTesting,
+        variables: {
+          projectId: release.projectId
+        }
+      })
+      .then(result => {
+        this.$eventHub.$emit('releaseToTesting', result.data.releaseToTesting.release.projectId)
+      })
+      .catch(error => {
+        alert('ERROR')
+        console.log(error)
+      })
     },
     stashRelease () {
 
@@ -118,7 +129,7 @@ export default {
 
     },
     releaseDisplay (release) {
-      return release ? `${release.number}: ${release.name}` : `slot empty`
+      return release ? `${release.number}  --  ${release.name}` : `slot empty`
     },
     showExplore (release) {
       return release ? true : false
