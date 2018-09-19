@@ -78,14 +78,16 @@ CREATE TRIGGER tg_after_insert_pde_project
 ------------------------------------------------
 CREATE TYPE pde.release_status AS ENUM
   (
-    'Historic',
-    'Current',
-    'Staging',
-    'Test',
-    'Development',
-    'Stashed',
-    'Future',
-    'Deprecated'
+    'Current',       -- singleton.  release to staging will move to Historic any current Staging release and clone current Testing release
+    'Staging',       -- singleton.  release to staging will move to Deprecated any current Staging release and clone current Testing release
+    'Testing',       -- singleton.  release to testing will move to Deprecated any current Testing release and clone current Development release
+    'Development',   -- singleton.  the current release being worked on
+    'Stashed',       -- collection. a place to park releases to support hot-fixes, dev work while testing another release, etc.
+    'Future',        -- singleton.  deferred items are placed in this bucket and later promoted to Development
+    'StagingLocked', -- singleton.  when a staging release is created, the associated Development release becomes StagingLocked
+    'Archived',      -- collection. old Development releases
+    'Historic',      -- collection. old Current releasees.  should have 1:1 correspondence to Archived releases and they could be checksummed 
+    'Deprecated'     -- collection. releases discarded during Development or Testing
   );
 
 CREATE TABLE pde.release (
@@ -96,10 +98,12 @@ CREATE TABLE pde.release (
   status pde.release_status NOT NULL DEFAULT 'Development',
   ddl_up text NOT NULL DEFAULT '<ddl>',
   ddl_down text NOT NULL DEFAULT '<ddl>',
+  parent_release_id bigint NULL,
   CONSTRAINT pk_pde_release PRIMARY KEY (id),
   CHECK (name <> '')
 );
 ALTER TABLE pde.release ADD CONSTRAINT fk_release_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
+ALTER TABLE pde.release ADD CONSTRAINT fk_release_parent FOREIGN KEY (parent_release_id) REFERENCES pde.release (id);
 
 ------------------------------------------------
 -- major
@@ -178,11 +182,8 @@ CREATE TABLE pde.schema (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   created_at timestamp NOT NULL DEFAULT current_timestamp,
   name text NOT NULL,
-  release_id bigint NOT NULL UNIQUE,
   CONSTRAINT pk_schema PRIMARY KEY (id)
 );
-
-ALTER TABLE pde.schema ADD CONSTRAINT fk_schema_release FOREIGN KEY (release_id) REFERENCES pde.release (id);
 
 ------------------------------------------------
 --artifact
@@ -240,6 +241,7 @@ CREATE TABLE pde.patch (
   ddl_down text NOT NULL DEFAULT '<ddl>',
   ddl_down_working text NOT NULL DEFAULT '<ddl>',
   number text NOT NULL,
+  locked boolean NOT NULL default false,
   CHECK (number <> ''),
   CONSTRAINT pk_pde_patch PRIMARY KEY (id)
 );
@@ -310,17 +312,17 @@ CREATE TABLE pde.test (
 );
 ALTER TABLE pde.test ADD CONSTRAINT fk_test_minor FOREIGN KEY (minor_id) REFERENCES pde.minor (id);
 
-------------------------------------------------
--- pde_project_schemas
-------------------------------------------------
-create or replace function pde.pde_project_schemas(p pde.pde_project)
-returns setof pde.schema as $$
-  select s.*
-  from pde.schema s
-  join pde.release r on r.id = s.release_id
-  where r.project_id = p.id
-  ;
-$$ language sql stable;
+-- ------------------------------------------------
+-- -- pde_project_schemas
+-- ------------------------------------------------
+-- create or replace function pde.pde_project_schemas(p pde.pde_project)
+-- returns setof pde.schema as $$
+--   select s.*
+--   from pde.schema s
+--   join pde.release r on r.id = s.release_id
+--   where r.project_id = p.id
+--   ;
+-- $$ language sql stable;
 
 ------------------------------------------------
 -- artifact_type_children
@@ -522,11 +524,9 @@ INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
 
 INSERT INTO pde.schema(  
   name
-  ,release_id
 )
 SELECT
   'todo'
-  ,(SELECT id from pde.release where status = 'Development')
 ;
 
 INSERT INTO pde.artifact(  
