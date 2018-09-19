@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import releasePatchTree from '../gql/query/releasePatchTree.gql'
+import releasePatchTree from '../../gql/query/releasePatchTree.gql'
 import Minor from './Minor'
 
 export default {

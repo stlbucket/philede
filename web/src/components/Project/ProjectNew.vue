@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import createPdeProject from '../gql/mutation/createPdeProject.gql'
+import createPdeProject from '../../gql/mutation/createPdeProject.gql'
 
 export default {
   name: "NewProject",

@@ -75,8 +75,8 @@ import MinorPatchList from './MinorPatchList'
 import MinorArtifactTree from './MinorArtifactTree'
 import MinorTestSuite from './MinorTestSuite'
 import MinorQuerySuite from './MinorQuerySuite'
-import deferMinor from '../gql/mutation/deferMinor.gql'
-import promoteMinor from '../gql/mutation/promoteMinor.gql'
+import deferMinor from '../../gql/mutation/deferMinor.gql'
+import promoteMinor from '../../gql/mutation/promoteMinor.gql'
 
 export default {
   name: "Minor",

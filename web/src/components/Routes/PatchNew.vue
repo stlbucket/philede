@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import createPatch from '../gql/mutation/createPatch.gql'
+import createPatch from '../../gql/mutation/createPatch.gql'
 
 export default {
   name: "NewPatch",

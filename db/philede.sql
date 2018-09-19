@@ -59,7 +59,7 @@ BEGIN
     ),
     (
       NEW.id
-      ,'Development'
+      ,'Next'
       ,'Development'
       ,'Development'
     )
@@ -77,12 +77,16 @@ CREATE TRIGGER tg_after_insert_pde_project
 -- release
 ------------------------------------------------
 CREATE TYPE pde.release_status AS ENUM
-   (
-    'Production',
+  (
+    'Historic',
+    'Current',
     'Staging',
+    'Test',
     'Development',
-    'Future'
-    );
+    'Stashed',
+    'Future',
+    'Deprecated'
+  );
 
 CREATE TABLE pde.release (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),

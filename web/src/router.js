@@ -2,14 +2,13 @@ import Vue from "vue";
 import Router from "vue-router";
 import Home from "./views/Home.vue";
 // import Apollo from "./views/Apollo.vue";
-import Artifact from "./components/Artifact.vue"
-import ProjectNew from "./components/ProjectNew.vue"
-import ProjectDetail from "./components/ProjectDetail.vue"
-import NewRelease from "./views/NewRelease/Component.vue"
-import TestGraphQL from "./components/TestGraphQL.vue"
-import TestPgTap from "./components/TestPgTap.vue"
-import PatchNew from "./components/PatchNew.vue"
-import SchemaNew from "./components/SchemaNew.vue"
+import Artifact from "./components/Routes/Artifact.vue"
+import ProjectNew from "./components/Project/ProjectNew.vue"
+import ProjectDetail from "./components/Project/ProjectDetail.vue"
+import TestGraphQL from "./components/Routes/TestGraphQL.vue"
+import TestPgTap from "./components/Routes/TestPgTap.vue"
+import PatchNew from "./components/Routes/PatchNew.vue"
+import SchemaNew from "./components/Routes/SchemaNew.vue"
 
 Vue.use(Router);
 
@@ -34,7 +33,7 @@ export default new Router({
     },
     {
       path: "/project/:id",
-      name: "project",
+      name: "projectDetail",
       component: ProjectDetail,
       props: true
     },
@@ -61,12 +60,6 @@ export default new Router({
       name: "newSchema",
       component: SchemaNew,
       props: true
-    },
-    {
-      path: "/newRelease",
-      name: "newRelease",
-      component: NewRelease,
-      props: false
     },
     {
       path: "/about",

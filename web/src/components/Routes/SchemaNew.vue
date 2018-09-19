@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import createSchema from '../gql/mutation/createSchema.gql'
+import createSchema from '../../gql/mutation/createSchema.gql'
 
 export default {
   name: "NewSchema",

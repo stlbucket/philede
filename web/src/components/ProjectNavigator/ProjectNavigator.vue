@@ -9,17 +9,19 @@
         v-model="selectedProjectId"
         @change="projectSelected"
       ></v-select>
-      <v-btn @click="newProject">New Project</v-btn>
+      <v-btn @click="newProject">New</v-btn>
+      <v-btn @click="manageProject">Manage</v-btn>
     </v-toolbar>
     <release-navigator 
       :pdeProjectId="pdeProjectId"
+      :focusReleaseId="focusReleaseId"
     ></release-navigator>
   </div>
 </template>
 
 <script>
 import ReleaseNavigator from './ReleaseNavigator'
-import allProjects from '../gql/query/allProjects.gql'
+import allProjects from '../../gql/query/allProjects.gql'
 
 export default {
   name: "ProjectNavigator",
@@ -40,10 +42,13 @@ export default {
   methods: {
     projectSelected (pdeProjectId) {
       this.pdeProjectId = pdeProjectId
-      this.$router.push({ name: 'project', params: { id: pdeProjectId }})
+      this.$router.push({ name: 'projectDetail', params: { id: pdeProjectId }})
     },
     newProject () {
       this.$router.push({ name: 'newProject' })
+    },
+    manageProject () {
+      this.$router.push({ name: 'projectDetail', params: { id: this.selectedProjectId }})
     },
     schemaSelected (schema) {
       this.$eventHub.$emit('focusItem', schema)
@@ -73,6 +78,10 @@ export default {
     gqlTestSelected (test) {
       this.$router.push({ name: 'test-graph-ql', params: { id: test.id }})
     },
+    exploreRelease (release) {
+      console.log('EXPLORE', release)
+      this.focusReleaseId = release.id
+    },
     boom (sha) {
       console.log('boom', sha)
     }
@@ -81,7 +90,8 @@ export default {
     return {
       projects: [],
       pdeProjectId: '',
-      selectedProjectId: null
+      selectedProjectId: null,
+      focusReleaseId: null
     }
   },
   created () {
@@ -93,6 +103,7 @@ export default {
     this.$eventHub.$on('patchSelected', this.patchSelected)  
     this.$eventHub.$on('newPatch', this.newPatch)  
     this.$eventHub.$on('newSchema', this.newSchema)  
+    this.$eventHub.$on('exploreRelease', this.exploreRelease)  
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected')
@@ -103,6 +114,7 @@ export default {
     this.$eventHub.$off('newPatch')
     this.$eventHub.$off('schemaSelected')
     this.$eventHub.$off('newSchema')
+    this.$eventHub.$off('exploreRelease')
   }
 }
 </script>

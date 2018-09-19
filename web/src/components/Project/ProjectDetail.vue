@@ -1,19 +1,21 @@
 <template>
   <div>
-    <h1>Project</h1>
-    <v-text-field
-      v-model="projectName"
-    ></v-text-field>
+    <h1>Project: {{ project.name }}</h1>
     <v-btn @click="save" :disabled="saveDisabled">Save</v-btn>
+    <release-manager
+      :releases="releases"
+    ></release-manager>
   </div>
 </template>
 
 <script>
-import pdeProjectById from '../gql/query/pdeProjectById.gql'
+import pdeProjectById from '../../gql/query/pdeProjectById.gql'
+import ReleaseManager from './ReleaseManager'
 
 export default {
   name: "ProjectDetail",
   components: {
+    ReleaseManager
   },
   props: {
     id: {
@@ -24,6 +26,9 @@ export default {
   computed: {
     saveDisabled () {
       return this.projectName === this.project.name
+    },
+    releases () {
+      return this.project.releases.nodes
     }
   },
   methods: {
@@ -56,6 +61,7 @@ export default {
         return this.id === ''
       },
       update (result) {
+        console.log('pdeProject result', result)
         this.project = result.pdeProjectById
         this.projectName = this.project.name
         this.$eventHub.$emit('projectFocus', this.project.id)
@@ -65,7 +71,11 @@ export default {
   data () {
     return {
       projectName: '',
-      project: {}
+      project: {
+        releases: {
+          nodes: []
+        }
+      }
     }
   },
 }

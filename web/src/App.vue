@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import ProjectNavigator from './components/ProjectNavigator'
+import ProjectNavigator from './components/ProjectNavigator/ProjectNavigator'
 
 export default {
   name: 'App',

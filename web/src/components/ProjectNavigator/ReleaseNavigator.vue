@@ -18,7 +18,7 @@
 
 <script>
 import MinorList from './MinorList'
-import pdeProjectById from '../gql/query/pdeProjectById.gql'
+import pdeProjectById from '../../gql/query/pdeProjectById.gql'
 
 export default {
   name: "ReleaseNavigator",
@@ -36,6 +36,11 @@ export default {
     },
     releaseStatus () {
       return this.selectedRelease ? this.selectedRelease.status : 'N/A'
+    }
+  },
+  watch: {
+    focusReleaseId () {
+      this.selectedReleaseId = this.focusReleaseId
     }
   },
   apollo: {
@@ -59,7 +64,7 @@ export default {
             }, release)
           }
         )
-        console.log('blshiw')
+        this.selectedReleaseId = this.focusReleaseId ? this.focusReleaseId : ''
         this.selectedReleaseId = this.selectedReleaseId !== '' ? this.selectedReleaseId : (this.releases.find(r => r.status === 'DEVELOPMENT') || {id: ''}).id
       }
     }
@@ -68,7 +73,8 @@ export default {
     pdeProjectId: {
       type: String,
       required: true
-    }
+    },
+    focusReleaseId: String
   },
   data () {
     return {

@@ -99,9 +99,9 @@
 </template>
 
 <script>
-import artifactById from '../gql/query/artifactById.gql'
-import captureWorkingDdl from '../gql/mutation/captureWorkingDdl.gql'
-import commitWorkingDdl from '../gql/mutation/commitWorkingDdl.gql'
+import artifactById from '../../gql/query/artifactById.gql'
+import captureWorkingDdl from '../../gql/mutation/captureWorkingDdl.gql'
+import commitWorkingDdl from '../../gql/mutation/commitWorkingDdl.gql'
 import gql from 'graphql-tag'
 import ace from 'brace'
 
