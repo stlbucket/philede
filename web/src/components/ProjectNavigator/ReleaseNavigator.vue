@@ -51,7 +51,7 @@ export default {
           id: `${this.pdeProjectId}`
         }
       },
-      networkPolicy: 'fetch-only',
+      fetchPolicy: 'network-only',
       skip () {
         return this.pdeProjectId === ''
       },

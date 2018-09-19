@@ -1,7 +1,6 @@
 <template>
   <div>
     <h1>Project: {{ project.name }}</h1>
-    <v-btn @click="save" :disabled="saveDisabled">Save</v-btn>
     <release-manager
       :releases="releases"
     ></release-manager>
@@ -32,21 +31,9 @@ export default {
     }
   },
   methods: {
-    save () {
-      // this.$apollo.query({
-      //   query: pdeProjectById,
-      //   variables: {
-      //     id: this.id
-      //   }
-      // })
-      // .then(result => {
-      //   console.log('result', result)
-      //   // this.$router.
-      // })
-      // .catch(error => {
-      //   alert ('ERROR')
-      //   console.log(error)
-      // })
+    releaseToTesting (release) {
+      console.log('rele', release)
+      console.log('queries', this.$apollo.queries.init.refetch())
     }
   },
   apollo: {
@@ -57,6 +44,7 @@ export default {
           id: this.id
         }
       },
+      fetchPolicy: 'network-only',
       skip () {
         return this.id === ''
       },
@@ -78,5 +66,11 @@ export default {
       }
     }
   },
+  created () {
+    this.$eventHub.$on('releaseToTesting', this.releaseToTesting)  
+  },
+  beforeDestroy() {
+    this.$eventHub.$off('releaseToTesting')
+  }
 }
 </script>

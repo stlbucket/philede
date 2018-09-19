@@ -70,23 +70,15 @@
         </v-toolbar>
       ></v-list>
 
-      <h2>Failed Staging Candidate</h2>
+      <h2>Deprecated</h2>
       <v-list
-        v-for="(release) in stagingHistoricReleases"
+        v-for="(release) in deprecatedReleases"
         :key="release.id"
       >
         <v-toolbar dark>
-          <v-toolbar-title>{{ release }}</v-toolbar-title>
-        </v-toolbar>
-      ></v-list>
-
-      <h2>Development Release History</h2>
-      <v-list
-        v-for="(release) in developmentHistoricReleases"
-        :key="release.id"
-      >
-        <v-toolbar dark>
-          <v-toolbar-title>{{ release }}</v-toolbar-title>
+          <v-toolbar-title>{{ releaseDisplay(release) }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+            <v-btn @click="explore(release)">Explore</v-btn>
         </v-toolbar>
       ></v-list>
     </v-flex>
@@ -115,7 +107,7 @@ export default {
         }
       })
       .then(result => {
-        this.$eventHub.$emit('releaseToTesting', result.data.releaseToTesting.release.projectId)
+        this.$eventHub.$emit('releaseToTesting', result.data.releaseToTesting.release)
       })
       .catch(error => {
         alert('ERROR')
@@ -160,8 +152,8 @@ export default {
     historicReleases () {
       return this.releases.filter(r => r.status === 'HISTORIC')
     },
-    stagingHistoricReleases () {
-      return this.releases.filter(r => r.status === 'DEVELOPMENT_HISTORIC')
+    deprecatedReleases () {
+      return this.releases.filter(r => r.status === 'DEPRECATED')
     },
     developmentHistoricReleases () {
       return this.releases.filter(r => r.status === 'STAGING_HISTORIC')

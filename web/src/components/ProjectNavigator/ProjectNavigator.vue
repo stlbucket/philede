@@ -54,7 +54,6 @@ export default {
       this.$eventHub.$emit('focusItem', schema)
     },
     newSchema (release) {
-      console.log('newSchema', release)
       this.$router.push({ name: 'newSchema', params: { releaseId: release.id }})
     },
     artifactTypeSelected (artifactType) {
@@ -69,7 +68,6 @@ export default {
       this.$eventHub.$emit('focusItem', patch)
     },
     newPatch (minor) {
-      console.log('newPatch', minor)
       this.$router.push({ name: 'newPatch', params: { minorId: minor.id }})
     },
     pgtTestSelected (test) {
@@ -79,7 +77,6 @@ export default {
       this.$router.push({ name: 'test-graph-ql', params: { id: test.id }})
     },
     exploreRelease (release) {
-      console.log('EXPLORE', release)
       this.focusReleaseId = release.id
     },
     boom (sha) {
