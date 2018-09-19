@@ -1,16 +1,65 @@
 ------------------------------------------------
+-- move_to_staging
+------------------------------------------------
+CREATE OR REPLACE FUNCTION pde.move_to_staging(_project_id bigint)
+  RETURNS pde.release AS
+$BODY$
+DECLARE
+  _staging_release pde.release;
+  _testing_release pde.release;
+  _parent_release pde.release;
+  _staging_release_count integer;
+BEGIN
+  SELECT *
+  INTO _testing_release
+  FROM pde.release
+  WHERE project_id = _project_id
+  AND status = 'Testing';
+
+  IF _testing_release.id IS NULL THEN
+    RAISE EXCEPTION 'NO TESTING RELEASE FOR PROJECT ID: %', _project_id;
+  END IF;
+
+  SELECT *
+  INTO _parent_release
+  FROM pde.release
+  WHERE id = _testing_release.parent_release_id;
+
+  UPDATE pde.release SET
+    status = 'StagingDeprecated'
+  WHERE status = 'Staging'
+  AND project_id = _project_id
+  ;
+
+  _staging_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _parent_release.id AND status = 'StagingDeprecated');
+
+  UPDATE pde.release SET
+    status = 'Staging'
+    ,number = (_parent_release.number||'.staging.'||(_staging_release_count+1)::text)
+  WHERE id = _testing_release.id
+  RETURNING *
+  INTO _staging_release
+  ;
+
+  return _staging_release;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE STRICT SECURITY DEFINER
+  COST 100;
+
+------------------------------------------------
 -- release_to_test
 ------------------------------------------------
 CREATE OR REPLACE FUNCTION pde.release_to_testing(_project_id bigint)
   RETURNS pde.release AS
 $BODY$
 DECLARE
-  _new_testing_release pde.release;
+  _testing_release pde.release;
   _development_release pde.release;
-  _test_release_number integer;
+  _testing_release_count integer;
 BEGIN
   UPDATE pde.release SET
-    status = 'Deprecated'
+    status = 'TestingDeprecated'
   WHERE status = 'Testing'
   AND project_id = _project_id
   ;
@@ -25,7 +74,7 @@ BEGIN
     RAISE EXCEPTION 'NO DEVELOPMENT RELEASE FOR PROJECT ID: %', _project_id;
   END IF;
 
-  _test_release_number := (SELECT count(*) FROM pde.release WHERE parent_release_id = _development_release.id);
+  _testing_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _development_release.id AND status = 'TestingDeprecated');
 
   INSERT INTO pde.release(
     name
@@ -39,7 +88,7 @@ BEGIN
   )
   SELECT
     _development_release.name
-    ,(_development_release.number||'.test.'||(_test_release_number+1)::text)
+    ,(_development_release.number||'.testing.'||(_testing_release_count+1)::text)
     ,'Testing'
     ,_development_release.ddl_up
     ,_development_release.ddl_down
@@ -47,7 +96,7 @@ BEGIN
     ,_development_release.id
     ,true
   RETURNING *
-  INTO _new_testing_release
+  INTO _testing_release
   ;
 
   INSERT INTO pde.minor(
@@ -62,7 +111,7 @@ BEGIN
     ,revision
     ,number
     ,name
-    ,_new_testing_release.id
+    ,_testing_release.id
   FROM pde.minor
   WHERE release_id = _development_release.id
   ;
@@ -79,7 +128,7 @@ BEGIN
     ,locked
   )
   SELECT
-    (SELECT id FROM pde.minor WHERE release_id = _new_testing_release.id AND number = m.number)
+    (SELECT id FROM pde.minor WHERE release_id = _testing_release.id AND number = m.number)
     ,p.revision
     ,p.artifact_id
     ,p.number
@@ -93,7 +142,7 @@ BEGIN
   WHERE m.release_id = _development_release.id
   ;
 
-  return _new_testing_release;
+  return _testing_release;
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE STRICT SECURITY DEFINER

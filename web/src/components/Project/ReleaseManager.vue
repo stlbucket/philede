@@ -27,7 +27,7 @@
         <v-toolbar-title>{{ releaseDisplay(testingRelease) }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <div v-if="showExplore(testingRelease)">
-          <v-btn @click="completeRelease">Move to Staging</v-btn>
+          <v-btn @click="moveToStaging(testingRelease)">Move to Staging</v-btn>
           <v-btn @click="explore(testingRelease)">Explore</v-btn>
         </div>
       </v-toolbar>
@@ -70,9 +70,21 @@
         </v-toolbar>
       ></v-list>
 
-      <h2>Deprecated</h2>
+      <h2>Test Deprecated</h2>
       <v-list
-        v-for="(release) in deprecatedReleases"
+        v-for="(release) in testingDeprecatedReleases"
+        :key="release.id"
+      >
+        <v-toolbar dark>
+          <v-toolbar-title>{{ releaseDisplay(release) }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+            <v-btn @click="explore(release)">Explore</v-btn>
+        </v-toolbar>
+      ></v-list>
+
+      <h2>Staging Deprecated</h2>
+      <v-list
+        v-for="(release) in stagingDeprecatedReleases"
         :key="release.id"
       >
         <v-toolbar dark>
@@ -88,6 +100,7 @@
 <script>
 import Release from './Release'
 import releaseToTesting from '../../gql/mutation/releaseToTesting.gql'
+import moveToStaging from '../../gql/mutation/moveToStaging.gql'
 
 export default {
   name: "ReleaseManager",
@@ -99,7 +112,6 @@ export default {
 
     },
     releaseToTesting(release) {
-      console.log('release me', release)
       this.$apollo.mutate({
         mutation: releaseToTesting,
         variables: {
@@ -108,6 +120,21 @@ export default {
       })
       .then(result => {
         this.$eventHub.$emit('releaseToTesting', result.data.releaseToTesting.release)
+      })
+      .catch(error => {
+        alert('ERROR')
+        console.log(error)
+      })
+    },
+    moveToStaging(release) {
+      this.$apollo.mutate({
+        mutation: moveToStaging,
+        variables: {
+          projectId: release.projectId
+        }
+      })
+      .then(result => {
+        this.$eventHub.$emit('moveToStaging', result.data.moveToStaging.release)
       })
       .catch(error => {
         alert('ERROR')
@@ -152,11 +179,11 @@ export default {
     historicReleases () {
       return this.releases.filter(r => r.status === 'HISTORIC')
     },
-    deprecatedReleases () {
-      return this.releases.filter(r => r.status === 'DEPRECATED')
+    testingDeprecatedReleases () {
+      return this.releases.filter(r => r.status === 'TESTING_DEPRECATED')
     },
-    developmentHistoricReleases () {
-      return this.releases.filter(r => r.status === 'STAGING_HISTORIC')
+    stagingDeprecatedReleases () {
+      return this.releases.filter(r => r.status === 'STAGING_DEPRECATED')
     }
   },
   watch: {

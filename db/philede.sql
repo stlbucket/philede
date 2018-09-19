@@ -78,16 +78,17 @@ CREATE TRIGGER tg_after_insert_pde_project
 ------------------------------------------------
 CREATE TYPE pde.release_status AS ENUM
   (
-    'Current',       -- singleton.  release to staging will move to Historic any current Staging release and clone current Testing release
-    'Staging',       -- singleton.  release to staging will move to Deprecated any current Staging release and clone current Testing release
-    'Testing',       -- singleton.  release to testing will move to Deprecated any current Testing release and clone current Development release
-    'Development',   -- singleton.  the current release being worked on
-    'Stashed',       -- collection. a place to park releases to support hot-fixes, dev work while testing another release, etc.
-    'Future',        -- singleton.  deferred items are placed in this bucket and later promoted to Development
-    'StagingLocked', -- singleton.  when a staging release is created, the associated Development release becomes StagingLocked
-    'Archived',      -- collection. old Development releases
-    'Historic',      -- collection. old Current releasees.  should have 1:1 correspondence to Archived releases and they could be checksummed 
-    'Deprecated'     -- collection. releases discarded during Development or Testing
+    'Current',           -- singleton.  release to staging will move to Historic any current Staging release and clone current Testing release
+    'Staging',           -- singleton.  release to staging will move to Deprecated any current Staging release and clone current Testing release
+    'Testing',           -- singleton.  release to testing will move to Deprecated any current Testing release and clone current Development release
+    'Development',       -- singleton.  the current release being worked on
+    'Stashed',           -- collection. a place to park releases to support hot-fixes, dev work while testing another release, etc.
+    'Future',            -- singleton.  deferred items are placed in this bucket and later promoted to Development
+    'StagingLocked',     -- singleton.  when a staging release is created, the associated Development release becomes StagingLocked
+    'Archived',          -- collection. old Development releases
+    'Historic',          -- collection. old Current releasees.  should have 1:1 correspondence to Archived releases and they could be checksummed 
+    'TestingDeprecated',  -- collection. releases discarded during Staging
+    'StagingDeprecated'  -- collection. releases discarded during Testing
   );
 
 CREATE TABLE pde.release (
@@ -284,6 +285,7 @@ BEGIN
   FROM max_patch_info mpi
   WHERE id = mpi.release_id
   AND locked = false
+  AND status = 'Development'
   ;
 
   RETURN NEW;

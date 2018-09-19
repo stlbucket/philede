@@ -32,8 +32,10 @@ export default {
   },
   methods: {
     releaseToTesting (release) {
-      console.log('rele', release)
-      console.log('queries', this.$apollo.queries.init.refetch())
+      this.$apollo.queries.init.refetch()
+    },
+    moveToStaging (release) {
+      this.$apollo.queries.init.refetch()
     }
   },
   apollo: {
@@ -49,7 +51,6 @@ export default {
         return this.id === ''
       },
       update (result) {
-        console.log('pdeProject result', result)
         this.project = result.pdeProjectById
         this.projectName = this.project.name
         this.$eventHub.$emit('projectFocus', this.project.id)
@@ -68,9 +69,11 @@ export default {
   },
   created () {
     this.$eventHub.$on('releaseToTesting', this.releaseToTesting)  
+    this.$eventHub.$on('moveToStaging', this.releaseToTesting)  
   },
   beforeDestroy() {
     this.$eventHub.$off('releaseToTesting')
+    this.$eventHub.$off('moveToStaging')
   }
 }
 </script>
