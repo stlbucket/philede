@@ -9,7 +9,7 @@
 
 <script>
 import pdeProjectById from '../../gql/query/pdeProjectById.gql'
-import ReleaseManager from './ReleaseManager'
+import ReleaseManager from '../Release/ReleaseManager'
 
 export default {
   name: "ProjectDetail",
@@ -34,7 +34,10 @@ export default {
     releaseToTesting (release) {
       this.$apollo.queries.init.refetch()
     },
-    moveToStaging (release) {
+    releaseToStaging (release) {
+      this.$apollo.queries.init.refetch()
+    },
+    releaseToCurrent (release) {
       this.$apollo.queries.init.refetch()
     }
   },
@@ -69,11 +72,13 @@ export default {
   },
   created () {
     this.$eventHub.$on('releaseToTesting', this.releaseToTesting)  
-    this.$eventHub.$on('moveToStaging', this.releaseToTesting)  
+    this.$eventHub.$on('releaseToStaging', this.releaseToStaging)  
+    this.$eventHub.$on('releaseToCurrent', this.releaseToCurrent)  
   },
   beforeDestroy() {
     this.$eventHub.$off('releaseToTesting')
-    this.$eventHub.$off('moveToStaging')
+    this.$eventHub.$off('releaseToStaging')
+    this.$eventHub.$off('releaseToCurrent')
   }
 }
 </script>

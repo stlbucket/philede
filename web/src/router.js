@@ -5,6 +5,7 @@ import Home from "./views/Home.vue";
 import Artifact from "./components/Routes/Artifact.vue"
 import ProjectNew from "./components/Project/ProjectNew.vue"
 import ProjectDetail from "./components/Project/ProjectDetail.vue"
+import ReleaseDetail from "./components/Release/ReleaseDetail.vue"
 import TestGraphQL from "./components/Routes/TestGraphQL.vue"
 import TestPgTap from "./components/Routes/TestPgTap.vue"
 import PatchNew from "./components/Routes/PatchNew.vue"
@@ -35,6 +36,12 @@ export default new Router({
       path: "/project/:id",
       name: "projectDetail",
       component: ProjectDetail,
+      props: true
+    },
+    {
+      path: "/release/:id",
+      name: "releaseDetail",
+      component: ReleaseDetail,
       props: true
     },
     {

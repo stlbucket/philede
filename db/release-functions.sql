@@ -1,7 +1,107 @@
 ------------------------------------------------
--- move_to_staging
+-- ensure_development_release
 ------------------------------------------------
-CREATE OR REPLACE FUNCTION pde.move_to_staging(_project_id bigint)
+CREATE OR REPLACE FUNCTION pde.ensure_development_release(_project_id bigint)
+  RETURNS pde.release AS
+$BODY$
+DECLARE
+  _development_release pde.release;
+BEGIN
+  SELECT *
+  INTO _development_release
+  FROM pde.release
+  WHERE project_id = _project_id
+  AND status = 'Development';
+
+  IF _development_release.id IS NULL THEN
+    INSERT INTO pde.release(
+      name
+      ,number
+      ,status
+      ,ddl_up
+      ,ddl_down
+      ,project_id
+      ,parent_release_id
+      ,locked
+    )
+    SELECT
+      'NEW RELEASE'
+      ,'N/A.development'
+      ,'Development'
+      ,'<ddl_up>'
+      ,'<ddl_down>'
+      ,_project_id
+      ,null
+      ,false
+    RETURNING *
+    INTO _development_release
+    ;
+  END IF;
+
+  return _development_release;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE STRICT SECURITY DEFINER
+  COST 100;
+
+
+------------------------------------------------
+-- release_to_current
+------------------------------------------------
+CREATE OR REPLACE FUNCTION pde.release_to_current(_project_id bigint)
+  RETURNS pde.release AS
+$BODY$
+DECLARE
+  _staging_release pde.release;
+  _current_release pde.release;
+  _parent_release pde.release;
+BEGIN
+  SELECT *
+  INTO _staging_release
+  FROM pde.release
+  WHERE project_id = _project_id
+  AND status = 'Staging';
+
+  IF _staging_release.id IS NULL THEN
+    RAISE EXCEPTION 'NO STAGING RELEASE FOR PROJECT ID: %', _project_id;
+  END IF;
+
+  SELECT *
+  INTO _parent_release
+  FROM pde.release
+  WHERE id = _staging_release.parent_release_id;
+
+  UPDATE pde.release SET
+    status = 'Historic'
+  WHERE status = 'Current'
+  AND project_id = _project_id
+  ;
+
+  UPDATE pde.release SET
+    status = 'Current'
+    ,number = _parent_release.number
+  WHERE id = _staging_release.id
+  RETURNING *
+  INTO _current_release
+  ;
+
+  UPDATE pde.release SET
+    status = 'Archived'
+  WHERE id = _parent_release.id
+  ;
+
+--  PERFORM pde.ensure_development_release(_project_id);
+
+  return _current_release;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE STRICT SECURITY DEFINER
+  COST 100;
+
+------------------------------------------------
+-- release_to_staging
+------------------------------------------------
+CREATE OR REPLACE FUNCTION pde.release_to_staging(_project_id bigint)
   RETURNS pde.release AS
 $BODY$
 DECLARE
@@ -31,11 +131,11 @@ BEGIN
   AND project_id = _project_id
   ;
 
-  _staging_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _parent_release.id AND status = 'StagingDeprecated');
+  _staging_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _parent_release.id); -- AND status = 'StagingDeprecated');
 
   UPDATE pde.release SET
     status = 'Staging'
-    ,number = (_parent_release.number||'.staging.'||(_staging_release_count+1)::text)
+    ,number = replace (_testing_release.number, 'testing', 'staging')
   WHERE id = _testing_release.id
   RETURNING *
   INTO _staging_release
@@ -74,7 +174,7 @@ BEGIN
     RAISE EXCEPTION 'NO DEVELOPMENT RELEASE FOR PROJECT ID: %', _project_id;
   END IF;
 
-  _testing_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _development_release.id AND status = 'TestingDeprecated');
+  _testing_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _development_release.id); -- AND status = 'TestingDeprecated');
 
   INSERT INTO pde.release(
     name
@@ -88,7 +188,7 @@ BEGIN
   )
   SELECT
     _development_release.name
-    ,(_development_release.number||'.testing.'||(_testing_release_count+1)::text)
+    ,(replace(_development_release.number, 'development', 'testing')||'.'||(_testing_release_count+1)::text)
     ,'Testing'
     ,_development_release.ddl_up
     ,_development_release.ddl_down

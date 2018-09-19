@@ -82,12 +82,12 @@ CREATE TYPE pde.release_status AS ENUM
     'Staging',           -- singleton.  release to staging will move to Deprecated any current Staging release and clone current Testing release
     'Testing',           -- singleton.  release to testing will move to Deprecated any current Testing release and clone current Development release
     'Development',       -- singleton.  the current release being worked on
-    'Stashed',           -- collection. a place to park releases to support hot-fixes, dev work while testing another release, etc.
     'Future',            -- singleton.  deferred items are placed in this bucket and later promoted to Development
     'StagingLocked',     -- singleton.  when a staging release is created, the associated Development release becomes StagingLocked
+    'Stashed',           -- collection. a place to park releases to support hot-fixes, dev work while testing another release, etc.
     'Archived',          -- collection. old Development releases
     'Historic',          -- collection. old Current releasees.  should have 1:1 correspondence to Archived releases and they could be checksummed 
-    'TestingDeprecated',  -- collection. releases discarded during Staging
+    'TestingDeprecated', -- collection. releases discarded during Staging
     'StagingDeprecated'  -- collection. releases discarded during Testing
   );
 
@@ -276,7 +276,7 @@ BEGIN
   UPDATE pde.release
   SET number = (
     SELECT 
-      lpad(ma.revision::text,4,'0') || '.' || lpad(mi.revision::text,4,'0') || '.' || lpad(pa.revision::text,4,'0')
+      lpad(ma.revision::text,4,'0') || '.' || lpad(mi.revision::text,4,'0') || '.' || lpad(pa.revision::text,4,'0') || '.development'
     FROM max_patch_info mpi
     JOIN pde.patch pa ON mpi.max_patch_id = pa.id
     JOIN pde.minor mi ON pa.minor_id = mi.id

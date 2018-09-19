@@ -78,6 +78,7 @@ export default {
     },
     exploreRelease (release) {
       this.focusReleaseId = release.id
+      this.$router.push({ name: 'releaseDetail', params: { id: release.id }})
     },
     boom (sha) {
       console.log('boom', sha)
