@@ -80,6 +80,9 @@ export default {
       this.focusReleaseId = release.id
       this.$router.push({ name: 'releaseDetail', params: { id: release.id }})
     },
+    newDevelopmentRelease () {
+      this.$router.push({ name: 'newDevelopmentRelease', params: { projectId: this.selectedProjectId }})
+    },
     boom (sha) {
       console.log('boom', sha)
     }
@@ -102,6 +105,7 @@ export default {
     this.$eventHub.$on('newPatch', this.newPatch)  
     this.$eventHub.$on('newSchema', this.newSchema)  
     this.$eventHub.$on('exploreRelease', this.exploreRelease)  
+    this.$eventHub.$on('newDevelopmentRelease', this.newDevelopmentRelease)  
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected')
@@ -113,6 +117,7 @@ export default {
     this.$eventHub.$off('schemaSelected')
     this.$eventHub.$off('newSchema')
     this.$eventHub.$off('exploreRelease')
+    this.$eventHub.$off('newDevelopmentRelease')
   }
 }
 </script>

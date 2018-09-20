@@ -3,12 +3,19 @@ import Router from "vue-router";
 import Home from "./views/Home.vue";
 // import Apollo from "./views/Apollo.vue";
 import Artifact from "./components/Routes/Artifact.vue"
+
 import ProjectNew from "./components/Project/ProjectNew.vue"
 import ProjectDetail from "./components/Project/ProjectDetail.vue"
+
 import ReleaseDetail from "./components/Release/ReleaseDetail.vue"
+import ReleaseCreate from "./components/Release/ReleaseCreate.vue"
+
 import TestGraphQL from "./components/Routes/TestGraphQL.vue"
+
 import TestPgTap from "./components/Routes/TestPgTap.vue"
+
 import PatchNew from "./components/Routes/PatchNew.vue"
+
 import SchemaNew from "./components/Routes/SchemaNew.vue"
 
 Vue.use(Router);
@@ -42,6 +49,12 @@ export default new Router({
       path: "/release/:id",
       name: "releaseDetail",
       component: ReleaseDetail,
+      props: true
+    },
+    {
+      path: "/newDevelopmentRelease/:projectId",
+      name: "newDevelopmentRelease",
+      component: ReleaseCreate,
       props: true
     },
     {
