@@ -79,7 +79,7 @@ BEGIN
 
   UPDATE pde.release SET
     status = 'Current'
-    ,number = _parent_release.number
+    ,number = replace(_parent_release.number, '.development', '')
   WHERE id = _staging_release.id
   RETURNING *
   INTO _current_release
