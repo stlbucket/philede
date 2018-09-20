@@ -1,42 +1,48 @@
 ------------------------------------------------
--- ensure_development_release
+-- build_development_release
 ------------------------------------------------
-CREATE OR REPLACE FUNCTION pde.ensure_development_release(_project_id bigint)
+CREATE OR REPLACE FUNCTION pde.build_development_release(_project_id bigint, _name text)
   RETURNS pde.release AS
 $BODY$
 DECLARE
   _development_release pde.release;
 BEGIN
+  IF _name IS NULL OR _name = '' THEN
+    RAISE EXCEPTION 'Name cannot be empty';
+  END IF;
+
   SELECT *
   INTO _development_release
   FROM pde.release
   WHERE project_id = _project_id
   AND status = 'Development';
 
-  IF _development_release.id IS NULL THEN
-    INSERT INTO pde.release(
-      name
-      ,number
-      ,status
-      ,ddl_up
-      ,ddl_down
-      ,project_id
-      ,parent_release_id
-      ,locked
-    )
-    SELECT
-      'NEW RELEASE'
-      ,'N/A.development'
-      ,'Development'
-      ,'<ddl_up>'
-      ,'<ddl_down>'
-      ,_project_id
-      ,null
-      ,false
-    RETURNING *
-    INTO _development_release
-    ;
+  IF _development_release.id IS NOT NULL THEN
+    RAISE EXCEPTION 'This project already has a development release';
   END IF;
+
+  INSERT INTO pde.release(
+    name
+    ,number
+    ,status
+    ,ddl_up
+    ,ddl_down
+    ,project_id
+    ,parent_release_id
+    ,locked
+  )
+  SELECT
+    _name
+    ,'N/A.development'
+    ,'Development'
+    ,'<ddl_up>'
+    ,'<ddl_down>'
+    ,_project_id
+    ,null
+    ,false
+  RETURNING *
+  INTO _development_release
+  ;
 
   return _development_release;
 END;
@@ -90,7 +96,7 @@ BEGIN
   WHERE id = _parent_release.id
   ;
 
---  PERFORM pde.ensure_development_release(_project_id);
+--  PERFORM pde.build_development_release(_project_id);
 
   return _current_release;
 END;

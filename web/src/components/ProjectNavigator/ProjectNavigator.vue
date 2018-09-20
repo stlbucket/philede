@@ -56,6 +56,9 @@ export default {
     newSchema (release) {
       this.$router.push({ name: 'newSchema', params: { releaseId: release.id }})
     },
+    newMinor (release) {
+      this.$router.push({ name: 'newMinor', params: { releaseId: release.id }})
+    },
     artifactTypeSelected (artifactType) {
       this.$eventHub.$emit('focusItem', artifactType)
     },
@@ -106,6 +109,7 @@ export default {
     this.$eventHub.$on('newSchema', this.newSchema)  
     this.$eventHub.$on('exploreRelease', this.exploreRelease)  
     this.$eventHub.$on('newDevelopmentRelease', this.newDevelopmentRelease)  
+    this.$eventHub.$on('newMinor', this.newMinor)  
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected')
@@ -118,6 +122,7 @@ export default {
     this.$eventHub.$off('newSchema')
     this.$eventHub.$off('exploreRelease')
     this.$eventHub.$off('newDevelopmentRelease')
+    this.$eventHub.$off('newMinor')
   }
 }
 </script>

@@ -1,14 +1,16 @@
 <template>
   <div>
     <v-toolbar>
-      <v-select 
+      <!-- <v-select 
         :label="`Release - ${releaseStatus}`"
         :items="releases"
         item-text="displayName"
         item-value="id"
         v-model="selectedReleaseId"
-      ></v-select>
+      ></v-select> -->
+      <h3>{{ selectedRelease.number }}</h3>
       <v-btn @click="newSchema">New Schema</v-btn>
+      <v-btn @click="newPatch">New Patch</v-btn>
     </v-toolbar>
     <minor-list
       :releaseId="selectedReleaseId"
@@ -28,6 +30,9 @@ export default {
   methods: {
     newSchema () {
       this.$eventHub.$emit('newSchema', this.selectedRelease)
+    },
+    newPatch () {
+      this.$eventHub.$emit('newMinor', this.selectedRelease)      
     }
   },
   computed: {

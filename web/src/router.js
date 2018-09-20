@@ -16,6 +16,8 @@ import TestPgTap from "./components/Routes/TestPgTap.vue"
 
 import PatchNew from "./components/Routes/PatchNew.vue"
 
+import MinorCreate from "./components/Minor/MinorCreate.vue"
+
 import SchemaNew from "./components/Routes/SchemaNew.vue"
 
 Vue.use(Router);
@@ -49,6 +51,12 @@ export default new Router({
       path: "/release/:id",
       name: "releaseDetail",
       component: ReleaseDetail,
+      props: true
+    },
+    {
+      path: "/newMinor",
+      name: "newMinor",
+      component: MinorCreate,
       props: true
     },
     {
