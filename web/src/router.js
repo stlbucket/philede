@@ -4,6 +4,8 @@ import Home from "./views/Home.vue";
 // import Apollo from "./views/Apollo.vue";
 import Artifact from "./components/Routes/Artifact.vue"
 
+import Graphileiql from "./components/Graphileiql/Graphileiql.vue"
+
 import ProjectNew from "./components/Project/ProjectNew.vue"
 import ProjectDetail from "./components/Project/ProjectDetail.vue"
 
@@ -39,6 +41,12 @@ export default new Router({
       path: "/newProject",
       name: "newProject",
       component: ProjectNew,
+      props: false
+    },
+    {
+      path: "/graphileiql",
+      name: "graphileiql",
+      component: Graphileiql,
       props: false
     },
     {

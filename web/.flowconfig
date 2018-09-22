@@ -1,0 +1,5 @@
+[include]
+./node_modules/.bin/flow init
+
+[ignore]
+.*/node_modules/bjs/.*

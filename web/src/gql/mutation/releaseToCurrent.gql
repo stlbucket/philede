@@ -1,0 +1,28 @@
+mutation ReleaseToCurrent(
+  $projectId: BigInt!
+) {
+  releaseToCurrent(input: {
+    _projectId: $projectId
+  }) {
+    release {
+      id
+      name
+      number
+      status
+      parentRelease: releaseByParentReleaseId {
+        id
+        name
+        number
+        status
+        children: releasesByParentReleaseId {
+          nodes {
+            id
+            name
+            number
+            status
+          }
+        }
+      }
+    }
+  }
+}

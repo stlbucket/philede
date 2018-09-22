@@ -1,16 +1,8 @@
 <template>
   <div>
     <v-toolbar>
-      <!-- <v-select 
-        :label="`Release - ${releaseStatus}`"
-        :items="releases"
-        item-text="displayName"
-        item-value="id"
-        v-model="selectedReleaseId"
-      ></v-select> -->
       <h3>{{ selectedRelease.number }}</h3>
-      <v-btn @click="newSchema">New Schema</v-btn>
-      <v-btn @click="newPatch">New Patch</v-btn>
+      <v-btn @click="newPatch">New Patch Set</v-btn>
     </v-toolbar>
     <minor-list
       :releaseId="selectedReleaseId"
@@ -28,9 +20,6 @@ export default {
     MinorList
   },
   methods: {
-    newSchema () {
-      this.$eventHub.$emit('newSchema', this.selectedRelease)
-    },
     newPatch () {
       this.$eventHub.$emit('newMinor', this.selectedRelease)      
     }
@@ -41,6 +30,9 @@ export default {
     },
     releaseStatus () {
       return this.selectedRelease ? this.selectedRelease.status : 'N/A'
+    },
+    newPatchSetDisabled () {
+      return this.selectedRelease ? this.selectedRelease.locked : true
     }
   },
   watch: {
@@ -71,6 +63,7 @@ export default {
         )
         this.selectedReleaseId = this.focusReleaseId ? this.focusReleaseId : ''
         this.selectedReleaseId = this.selectedReleaseId !== '' ? this.selectedReleaseId : (this.releases.find(r => r.status === 'DEVELOPMENT') || {id: ''}).id
+        console.log('this.sel', this.selectedReleaseId)
       }
     }
   },

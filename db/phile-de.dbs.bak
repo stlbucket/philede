@@ -12,9 +12,15 @@
 			<column name="name" type="text" decimal="0" jt="12" mandatory="y" />
 			<column name="artifact_type_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<column name="schema_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="description" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&#039;::text</defo>
+			</column>
 			<index name="pk_artifact" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<constraint name="artifact_name_check" >
+				<string>name &lt;&gt; &#039;&#039;::text</string>
+			</constraint>
 			<fk name="fk_artifact_type" to_schema="pde" to_table="artifact_type" >
 				<fk_column name="artifact_type_id" pk="id" />
 			</fk>
@@ -47,6 +53,8 @@
 			<column name="properties" type="jsonb" decimal="0" jt="1111" mandatory="y" >
 				<defo>&#039;{}&#039;::jsonb</defo>
 			</column>
+			<column name="ddl_up_template" type="text" decimal="0" jt="12" />
+			<column name="ddl_down_template" type="text" decimal="0" jt="12" />
 			<index name="pk_pde_artifact_ype" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
@@ -73,9 +81,13 @@
 			</column>
 			<column name="project_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<column name="revision" type="integer" length="10" decimal="0" jt="4" />
+			<column name="name" type="text" decimal="0" jt="12" mandatory="y" />
 			<index name="pk_pde_major" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<constraint name="major_name_check" >
+				<string>name &lt;&gt; &#039;&#039;::text</string>
+			</constraint>
 			<fk name="fk_major_project" to_schema="pde" to_table="pde_project" >
 				<fk_column name="project_id" pk="id" />
 			</fk>
@@ -87,9 +99,17 @@
 			<column name="major_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<column name="revision" type="integer" length="10" decimal="0" jt="4" />
 			<column name="release_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="number" type="text" decimal="0" jt="12" mandatory="y" />
+			<column name="name" type="text" decimal="0" jt="12" mandatory="y" />
 			<index name="pk_pde_minor" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<constraint name="minor_number_check" >
+				<string>number &lt;&gt;&#039;&#039;::text</string>
+			</constraint>
+			<constraint name="minor_name_check" >
+				<string>name &lt;&gt; &#039;&#039;::text</string>
+			</constraint>
 			<fk name="fk_minor_major" to_schema="pde" to_table="major" >
 				<fk_column name="major_id" pk="id" />
 			</fk>
@@ -103,11 +123,29 @@
 			</column>
 			<column name="minor_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<column name="revision" type="integer" length="10" decimal="0" jt="4" />
-			<column name="ddl" type="text" decimal="0" jt="12" />
 			<column name="artifact_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="number" type="text" decimal="0" jt="12" mandatory="y" />
+			<column name="ddl_up" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
+			</column>
+			<column name="ddl_up_working" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
+			</column>
+			<column name="ddl_down" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
+			</column>
+			<column name="ddl_down_working" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
+			</column>
+			<column name="locked" type="bool" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo>false</defo>
+			</column>
 			<index name="pk_pde_patch" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<constraint name="patch_number_check" >
+				<string>number &lt;&gt;&#039;&#039;::text</string>
+			</constraint>
 			<fk name="fk_patch_minor" to_schema="pde" to_table="minor" >
 				<fk_column name="minor_id" pk="id" />
 			</fk>
@@ -134,9 +172,19 @@
 			<column name="project_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<column name="name" type="text" decimal="0" jt="12" mandatory="y" />
 			<column name="status" type="&quot;pde&quot;.&quot;release_status&quot;" decimal="0" jt="12" mandatory="y" >
-				<defo>&#039;Planned&#039;::pde.release_status</defo>
+				<defo>&#039;Development&#039;::pde.release_status</defo>
 			</column>
-			<column name="ddl" type="text" decimal="0" jt="12" />
+			<column name="number" type="text" decimal="0" jt="12" mandatory="y" />
+			<column name="ddl_up" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
+			</column>
+			<column name="ddl_down" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
+			</column>
+			<column name="parent_release_id" type="bigint" length="19" decimal="0" jt="-5" />
+			<column name="locked" type="bool" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo>false</defo>
+			</column>
 			<index name="pk_pde_release" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
@@ -145,6 +193,9 @@
 			</constraint>
 			<fk name="fk_release_project" to_schema="pde" to_table="pde_project" >
 				<fk_column name="project_id" pk="id" />
+			</fk>
+			<fk name="fk_release_parent" to_schema="pde" to_table="release" >
+				<fk_column name="parent_release_id" pk="id" />
 			</fk>
 		</table>
 		<table name="schema" >
@@ -155,23 +206,36 @@
 				<defo>now()</defo>
 			</column>
 			<column name="name" type="text" decimal="0" jt="12" mandatory="y" />
-			<column name="release_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<index name="pk_schema" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
-			<index name="schema_release_id_key" unique="UNIQUE" >
-				<column name="release_id" />
+		</table>
+		<table name="test" >
+			<column name="id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" >
+				<defo>shard_1.id_generator()</defo>
+			</column>
+			<column name="type" type="&quot;pde&quot;.&quot;test_type&quot;" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;GraphQL&#039;::pde.test_type</defo>
+			</column>
+			<column name="name" type="text" decimal="0" jt="12" />
+			<column name="script" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&lt;test ddl&gt;&#039;::text</defo>
+			</column>
+			<column name="script_working" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&lt;test ddl&gt;&#039;::text</defo>
+			</column>
+			<column name="minor_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<index name="pk_pde_test" unique="PRIMARY_KEY" >
+				<column name="id" />
 			</index>
-			<fk name="fk_schema_release" to_schema="pde" to_table="release" >
-				<fk_column name="release_id" pk="id" />
+			<fk name="fk_test_minor" to_schema="pde" to_table="minor" >
+				<fk_column name="minor_id" pk="id" />
 			</fk>
 		</table>
 	</schema>
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<layout name="Default Layout" id="Layout_2d3ef4c" show_relation="columns" >
-		<entity schema="pde" name="artifact_type_relationship" color="c1d8ee" x="45" y="525" />
-		<entity schema="pde" name="artifact_type" color="bfd4f5" x="285" y="510" />
 		<entity schema="pde" name="minor" color="bfd4f5" x="930" y="255" />
 		<entity schema="pde" name="artifact" color="bfd4f5" x="300" y="255" />
 		<entity schema="pde" name="artifact_relationship" color="c1d8ee" x="45" y="270" />
@@ -180,5 +244,8 @@
 		<entity schema="pde" name="major" color="bfd4f5" x="1260" y="270" />
 		<entity schema="pde" name="pde_project" color="bfd4f5" x="1245" y="60" />
 		<entity schema="pde" name="schema" color="c1d8ee" x="300" y="45" />
+		<entity schema="pde" name="artifact_type" color="bfd4f5" x="315" y="525" />
+		<entity schema="pde" name="artifact_type_relationship" color="c1d8ee" x="45" y="540" />
+		<entity schema="pde" name="test" color="c1d8ee" x="930" y="600" />
 	</layout>
 </project>

@@ -6,5 +6,8 @@ module.exports = {
         "useBuiltIns": "entry"
       }
     ]
+  ],
+  "plugins": [
+    "transform-flow-comments"
   ]
 }

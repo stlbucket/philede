@@ -1,0 +1,29 @@
+mutation ReleaseToTesting(
+  $projectId: BigInt!
+) {
+  releaseToTesting(input: {
+    _projectId: $projectId
+  }) {
+    release {
+      id
+      name
+      number
+      projectId
+      status
+      parentRelease: releaseByParentReleaseId {
+        id
+        name
+        number
+        status
+        children: releasesByParentReleaseId {
+          nodes {
+            id
+            name
+            number
+            status
+          }
+        }
+      }
+    }
+  }
+}
