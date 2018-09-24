@@ -31,20 +31,16 @@
       </v-container>
     </v-content>
     <v-navigation-drawer
-      temporary
-      :right="right"
+      persistent
+      :mini-variant="miniVariant"
+      :clipped="clipped"
       v-model="rightDrawer"
-      fixed
+      :right="right"
+      enable-resize-watcher
+      width="400"
       app
     >
-      <v-list>
-        <v-list-tile @click="right = !right">
-          <v-list-tile-action>
-            <v-icon>compare_arrows</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-title>Switch drawer (click me)</v-list-tile-title>
-        </v-list-tile>
-      </v-list>
+      <artifact-navigator></artifact-navigator>
     </v-navigation-drawer>
     <v-footer :fixed="fixed" app>
       <span>&copy; 2017</span>
@@ -54,11 +50,13 @@
 
 <script>
 import ProjectNavigator from './components/ProjectNavigator/ProjectNavigator'
+import ArtifactNavigator from './components/ArtifactNavigator/ArtifactNavigator'
 
 export default {
   name: 'App',
   components: { 
-    ProjectNavigator
+    ProjectNavigator,
+    ArtifactNavigator
   },
   data () {
     return {

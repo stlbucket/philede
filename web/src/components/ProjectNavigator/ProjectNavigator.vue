@@ -15,10 +15,36 @@
       <v-btn @click="manageProject">Manage Project</v-btn>
       <v-btn @click="graphQLSchema">GraphQL Voyager</v-btn>
     </v-toolbar>
-    <release-navigator 
-      :pdeProjectId="pdeProjectId"
-      :focusReleaseId="focusReleaseId"
-    ></release-navigator>
+    <v-tabs
+      dark
+      slider-color="yellow"
+    >
+      <v-tab
+        key="releaseNavigator"
+        ripple
+      >
+        Release Navigator
+      </v-tab>
+      <v-tab-item
+        key="releaseNavigator"
+      >
+        <release-navigator 
+          :pdeProjectId="pdeProjectId"
+          :focusReleaseId="focusReleaseId"
+        ></release-navigator>
+      </v-tab-item>
+      <v-tab
+        key="projectCumulativeSchema"
+        ripple
+      >
+        Schema
+      </v-tab>
+      <v-tab-item
+        key="projectCumulativeSchema"
+      >
+        <h1>treeview representation of all artifacts in the schema history</h1>
+      </v-tab-item>
+    </v-tabs>
   </div>
 </template>
 
