@@ -12,7 +12,7 @@
           :class="getCssClass(patch)"
         >
           <v-list-tile-content>
-            <v-list-tile-sub-title class="text--primary">{{ `${patch.number.split('.')[2]} - ${patch.artifact.name}` }}</v-list-tile-sub-title>
+            <v-list-tile-sub-title class="text--primary">{{ `Patch: ${patch.number.split('.')[2]} - ${patch.artifact.name}` }}</v-list-tile-sub-title>
           </v-list-tile-content>
 
         </v-list-tile>

@@ -2,7 +2,7 @@
   <div>
     <v-toolbar dark>
       <v-toolbar-side-icon @click="toggleMinorHidden()"></v-toolbar-side-icon>
-      <v-toolbar-title>{{ `${minor.number.split('.')[1]}-${minor.name}` }}</v-toolbar-title>
+      <h3>{{ `Minor: ${minor.number.split('.')[1]}-${minor.name}` }}</h3>
       <v-spacer></v-spacer>
       <v-btn
         @click="toggleDefer"
