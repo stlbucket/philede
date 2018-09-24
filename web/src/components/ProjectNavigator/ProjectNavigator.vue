@@ -15,36 +15,10 @@
       <v-btn @click="manageProject">Manage Project</v-btn>
       <v-btn @click="graphQLSchema">GraphQL Voyager</v-btn>
     </v-toolbar>
-    <v-tabs
-      dark
-      slider-color="yellow"
-    >
-      <v-tab
-        key="releaseNavigator"
-        ripple
-      >
-        Release Navigator
-      </v-tab>
-      <v-tab-item
-        key="releaseNavigator"
-      >
-        <release-navigator 
-          :pdeProjectId="pdeProjectId"
-          :focusReleaseId="focusReleaseId"
-        ></release-navigator>
-      </v-tab-item>
-      <v-tab
-        key="projectCumulativeSchema"
-        ripple
-      >
-        Schema
-      </v-tab>
-      <v-tab-item
-        key="projectCumulativeSchema"
-      >
-        <h1>treeview representation of all artifacts in the schema history</h1>
-      </v-tab-item>
-    </v-tabs>
+    <release-navigator 
+      :pdeProjectId="pdeProjectId"
+      :focusReleaseId="focusReleaseId"
+    ></release-navigator>
   </div>
 </template>
 
@@ -134,6 +108,9 @@ export default {
     pgtTestSelected (test) {
        this.$router.push({ name: 'test-pg-tap', params: { id: test.id }})
     },
+    newPgTapTest () {
+      this.$router.push({ name: 'pg-tap-test', params: { id: 'N/A' }})
+    },
     gqlTestSelected (test) {
       this.$router.push({ name: 'test-graph-ql', params: { id: test.id }})
     },
@@ -170,6 +147,7 @@ export default {
     this.$eventHub.$on('newMinor', this.newMinor)  
     this.$eventHub.$on('newGraphQLQuery', this.newGraphQLQuery)  
     this.$eventHub.$on('newPsqlQuery', this.newPsqlQuery)  
+    this.$eventHub.$on('newPgTapTest', this.newPgTapTest)  
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected')
@@ -185,6 +163,7 @@ export default {
     this.$eventHub.$off('newMinor')
     this.$eventHub.$off('newGraphQLQuery')
     this.$eventHub.$off('newPsqlQuery ')
+    this.$eventHub.$off('newPgTapTest ')
   }
 }
 </script>

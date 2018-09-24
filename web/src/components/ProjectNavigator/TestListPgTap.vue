@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>a list of named <a href="https://pgtap.org/">pgTap</a> tests</h2>
-    <v-btn>New PgTap Test</v-btn>
+    <v-btn @click="newPgTapTest">New PgTap Test</v-btn>
     <v-list>
       <template v-for="(test, index) in tests">
         <v-list-tile
@@ -31,6 +31,9 @@ export default {
   components: {
   },
   methods: {
+    newPgTapTest () {
+      this.$eventHub.$emit('newPgTapTest')
+    },
     selected (test) {
       this.$eventHub.$emit('pgtTestSelected', test)
     }

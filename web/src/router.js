@@ -18,7 +18,7 @@ import TestGraphQL from "./components/Routes/TestGraphQL.vue"
 import TestPgTap from "./components/Routes/TestPgTap.vue"
 
 import PatchNew from "./components/Routes/PatchNew.vue"
-
+import PgTapTest from "./components/PgTapTest/PgTapTest.vue"
 import PsqlQuery from "./components/PsqlQuery/PsqlQuery.vue"
 
 import MinorCreate from "./components/Minor/MinorCreate.vue"
@@ -50,6 +50,12 @@ export default new Router({
       path: "/psql-query/:id",
       name: "psql-query",
       component: PsqlQuery,
+      props: true
+    },
+    {
+      path: "/pg-tap-test/:id",
+      name: "pg-tap-test",
+      component: PgTapTest,
       props: true
     },
     {
