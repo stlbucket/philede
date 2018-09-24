@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Project: {{ project.name }}</h1>
+    <h1>Project: {{ projectName }}</h1>
     <release-manager
       :releases="releases"
     ></release-manager>
@@ -19,15 +19,18 @@ export default {
   props: {
     id: {
       type: String,
-      required: true
+      default: ''
     }
   },
   computed: {
+    projectName () {
+      return this.project ? this.project.name : 'N/A'
+    },
     saveDisabled () {
       return this.projectName === this.project.name
     },
     releases () {
-      return this.project.releases.nodes
+      return this.project ? this.project.releases.nodes : []
     }
   },
   methods: {
@@ -54,15 +57,17 @@ export default {
         return this.id === ''
       },
       update (result) {
-        this.project = result.pdeProjectById
-        this.projectName = this.project.name
+        this.project = result.pdeProjectById || {
+        releases: {
+          nodes: []
+        }
+      }
         this.$eventHub.$emit('projectFocus', this.project.id)
       }
     }
   },
   data () {
     return {
-      projectName: '',
       project: {
         releases: {
           nodes: []

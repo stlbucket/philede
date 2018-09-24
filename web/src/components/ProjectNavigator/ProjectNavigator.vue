@@ -9,8 +9,11 @@
         v-model="selectedProjectId"
         @change="projectSelected"
       ></v-select>
-      <v-btn @click="newProject">New</v-btn>
-      <v-btn @click="manageProject">Manage</v-btn>
+      <v-btn @click="newProject">New Project</v-btn>
+    </v-toolbar>
+    <v-toolbar>
+      <v-btn @click="manageProject">Manage Project</v-btn>
+      <v-btn @click="graphQLSchema">GraphQL Voyager</v-btn>
     </v-toolbar>
     <release-navigator 
       :pdeProjectId="pdeProjectId"
@@ -22,6 +25,7 @@
 <script>
 import ReleaseNavigator from './ReleaseNavigator'
 import allProjects from '../../gql/query/allProjects.gql'
+import createPdeAppState from '../../gql/mutation/createPdeAppState.gql'
 
 export default {
   name: "ProjectNavigator",
@@ -34,21 +38,49 @@ export default {
       networkPolicy: 'fetch-only',
       update (result) {
         this.projects = result.allPdeProjects.nodes
-        this.pdeProjectId = (this.projects[0] || {}).id
-        this.selectedProjectId = this.pdeProjectId
+        this.selectedProjectId = result.allPdeAppStates.nodes.find(s => s.key === 'selectedProjectId').value
       }
     }
   },
   methods: {
     projectSelected (pdeProjectId) {
-      this.pdeProjectId = pdeProjectId
-      this.$router.push({ name: 'projectDetail', params: { id: pdeProjectId }})
+      if (pdeProjectId) {
+        // console.log('pdeProjectId', pdeProjectId)
+        this.$apollo.mutate({
+          mutation: createPdeAppState,
+          variables: {
+            key: 'selectedProjectId',
+            value: pdeProjectId
+          }
+        })
+        .then(result => {
+          // console.log('pdeAppState', result)
+          this.pdeProjectId = (result.data.createPdeAppState.pdeAppState || { value: '' }).value
+          // console.log('this.pdeProjectId', this.pdeProjectId)
+          if (this.pdeProjectId !== '') {
+            this.$router.push({ name: 'projectDetail', params: { id: this.pdeProjectId }})
+          }
+        })
+        .catch(error => {
+          alert('ERROR')
+          console.log(error)
+        })
+      }
     },
     newProject () {
       this.$router.push({ name: 'newProject' })
     },
     manageProject () {
       this.$router.push({ name: 'projectDetail', params: { id: this.selectedProjectId }})
+    },
+    graphQLSchema () {
+      this.$router.push({ name: 'graphQLSchema' })
+    },
+    newPsqlQuery () {
+      this.$router.push({ name: 'psql-query', params: { id: 'N/A' }})
+    },
+    newGraphQLQuery () {
+      this.$router.push({ name: 'graphileiql' })
     },
     schemaSelected (schema) {
       this.$eventHub.$emit('focusItem', schema)
@@ -110,6 +142,8 @@ export default {
     this.$eventHub.$on('exploreRelease', this.exploreRelease)  
     this.$eventHub.$on('newDevelopmentRelease', this.newDevelopmentRelease)  
     this.$eventHub.$on('newMinor', this.newMinor)  
+    this.$eventHub.$on('newGraphQLQuery', this.newGraphQLQuery)  
+    this.$eventHub.$on('newPsqlQuery', this.newPsqlQuery)  
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected')
@@ -123,6 +157,8 @@ export default {
     this.$eventHub.$off('exploreRelease')
     this.$eventHub.$off('newDevelopmentRelease')
     this.$eventHub.$off('newMinor')
+    this.$eventHub.$off('newGraphQLQuery')
+    this.$eventHub.$off('newPsqlQuery ')
   }
 }
 </script>

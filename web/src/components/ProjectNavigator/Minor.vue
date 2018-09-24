@@ -91,7 +91,7 @@ export default {
       this.hidden = !this.hidden
     },
     toggleDefer() {
-      console.log('this.minor', this.minor)
+      // console.log('this.minor', this.minor)
       this.$apollo.mutate({
         mutation: this.toggleDeferMutation,
         variables: {

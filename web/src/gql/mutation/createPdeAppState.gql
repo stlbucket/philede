@@ -1,0 +1,17 @@
+mutation CreatePdeAppState(
+  $key: String!
+  $value: String!
+){
+  createPdeAppState(input: {
+    pdeAppState: {
+      key: $key
+      value: $value
+    }
+  }) {
+    pdeAppState {
+      id
+      key
+      value
+    }
+  }
+}

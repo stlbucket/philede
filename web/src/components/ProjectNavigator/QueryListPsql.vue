@@ -1,6 +1,9 @@
 <template>
   <div>
-    NOT IMPLEMENTED
+    <v-btn
+      @click="newQuery"
+    >New PSQL Query</v-btn>
+    <h2>a list of named raw sql queries that can be used ad-hoc during dev</h2>
     <!-- <v-btn>New GraphQL Test</v-btn>
      <v-list>
       <template v-for="(test, index) in tests">
@@ -31,6 +34,9 @@ export default {
   components: {
   },
   methods: {
+    newQuery () {
+      this.$eventHub.$emit('newPsqlQuery')
+    }
     // selected (test) {
     //   this.$eventHub.$emit('gqlTestSelected', test)
     // }

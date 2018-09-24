@@ -5,6 +5,7 @@ import Home from "./views/Home.vue";
 import Artifact from "./components/Routes/Artifact.vue"
 
 import Graphileiql from "./components/Graphileiql/Graphileiql.vue"
+import GraphQLSchema from "./components/Graphileiql/GraphQLSchema.vue"
 
 import ProjectNew from "./components/Project/ProjectNew.vue"
 import ProjectDetail from "./components/Project/ProjectDetail.vue"
@@ -17,6 +18,8 @@ import TestGraphQL from "./components/Routes/TestGraphQL.vue"
 import TestPgTap from "./components/Routes/TestPgTap.vue"
 
 import PatchNew from "./components/Routes/PatchNew.vue"
+
+import PsqlQuery from "./components/PsqlQuery/PsqlQuery.vue"
 
 import MinorCreate from "./components/Minor/MinorCreate.vue"
 
@@ -44,9 +47,21 @@ export default new Router({
       props: false
     },
     {
+      path: "/psql-query/:id",
+      name: "psql-query",
+      component: PsqlQuery,
+      props: true
+    },
+    {
       path: "/graphileiql",
       name: "graphileiql",
       component: Graphileiql,
+      props: false
+    },
+    {
+      path: "/graphQLSchema",
+      name: "graphQLSchema",
+      component: GraphQLSchema,
       props: false
     },
     {

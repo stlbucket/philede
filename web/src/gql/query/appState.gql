@@ -1,0 +1,9 @@
+query {
+  allAppStates {
+    nodes {
+      id
+      key
+      value
+    }
+  }
+}

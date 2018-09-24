@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h2>a list of named <a href="https://pgtap.org/">pgTap</a> tests</h2>
     <v-btn>New PgTap Test</v-btn>
     <v-list>
       <template v-for="(test, index) in tests">

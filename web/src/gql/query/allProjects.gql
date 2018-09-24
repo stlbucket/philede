@@ -5,4 +5,12 @@ query {
       name
     }
   }
+
+  allPdeAppStates {
+    nodes {
+      id
+      key
+      value
+    }
+  }
 }

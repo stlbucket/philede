@@ -129,7 +129,7 @@ export default {
     },
     captureWorkingDdl () {
       if (this.ddlUp !== this.currentPatch.ddlUpWorking && this.currentPatch.id){
-        console.log('this.currentPatch', this.currentPatch)
+        // console.log('this.currentPatch', this.currentPatch)
         return this.$apollo.mutate({
           mutation: captureWorkingDdl,
           variables: {

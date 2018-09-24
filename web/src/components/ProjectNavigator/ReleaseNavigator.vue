@@ -63,7 +63,6 @@ export default {
         )
         this.selectedReleaseId = this.focusReleaseId ? this.focusReleaseId : ''
         this.selectedReleaseId = this.selectedReleaseId !== '' ? this.selectedReleaseId : (this.releases.find(r => r.status === 'DEVELOPMENT') || {id: ''}).id
-        console.log('this.sel', this.selectedReleaseId)
       }
     }
   },

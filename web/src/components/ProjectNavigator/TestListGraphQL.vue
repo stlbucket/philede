@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h2>a list of named graphQL-jest tests - these will all use the named whitelist queries</h2>
     <v-btn>New GraphQL Test</v-btn>
      <v-list>
       <template v-for="(test, index) in tests">

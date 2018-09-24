@@ -810,16 +810,16 @@ $function$
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<layout name="Default Layout" id="Layout_2d3ef4c" show_relation="columns" >
-		<entity schema="pde" name="minor" color="bfd4f5" x="930" y="270" />
 		<entity schema="pde" name="artifact" color="bfd4f5" x="300" y="270" />
 		<entity schema="pde" name="artifact_relationship" color="c1d8ee" x="45" y="285" />
-		<entity schema="pde" name="patch" color="bfd4f5" x="615" y="270" />
-		<entity schema="pde" name="major" color="bfd4f5" x="1260" y="285" />
-		<entity schema="pde" name="pde_project" color="bfd4f5" x="1245" y="75" />
 		<entity schema="pde" name="schema" color="c1d8ee" x="300" y="60" />
 		<entity schema="pde" name="artifact_type" color="bfd4f5" x="315" y="540" />
 		<entity schema="pde" name="artifact_type_relationship" color="c1d8ee" x="45" y="555" />
 		<entity schema="pde" name="test" color="c1d8ee" x="930" y="615" />
+		<entity schema="pde" name="patch" color="bfd4f5" x="690" y="255" />
 		<entity schema="pde" name="release" color="bfd4f5" x="915" y="45" />
+		<entity schema="pde" name="pde_project" color="bfd4f5" x="1245" y="75" />
+		<entity schema="pde" name="major" color="bfd4f5" x="1260" y="285" />
+		<entity schema="pde" name="minor" color="bfd4f5" x="930" y="285" />
 	</layout>
 </project>

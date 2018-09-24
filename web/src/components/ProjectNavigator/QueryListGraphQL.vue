@@ -1,6 +1,10 @@
 <template>
   <div>
-    NOT IMPLEMENTED
+    <v-btn
+      @click="newQuery"
+    >New GraphQL Query</v-btn>
+    <h2>this will be a list of named graph ql queries to later be used in tests and selectively published to the whitelist</h2>
+    <h3>gql for mutations will be auto-generated from schema</h3>
     <!-- <v-btn>New GraphQL Test</v-btn>
      <v-list>
       <template v-for="(test, index) in tests">
@@ -31,6 +35,9 @@ export default {
   components: {
   },
   methods: {
+    newQuery () {
+      this.$eventHub.$emit('newGraphQLQuery')
+    }
     // selected (test) {
     //   this.$eventHub.$emit('gqlTestSelected', test)
     // }

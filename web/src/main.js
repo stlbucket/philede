@@ -5,6 +5,7 @@ import App from "./App.vue";
 import router from "./router";
 import { createProvider } from "./vue-apollo";
 import 'graphiql/graphiql.css'
+import 'graphql-voyager/dist/voyager.css'
 
 Vue.config.productionTip = false;
 

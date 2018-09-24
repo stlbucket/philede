@@ -3,7 +3,7 @@
     <v-flex xs12 sm12>
       <v-toolbar color="indigo" dark>
         <v-toolbar-side-icon></v-toolbar-side-icon>
-        <v-toolbar-title>Graphileiql</v-toolbar-title>
+        <v-toolbar-title>{{ artifact.name }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn 
           @click="captureWorkingDdl"
@@ -35,7 +35,7 @@
               <v-card>
                 <editor
                   ref="editor" 
-                  v-model="gql" 
+                  v-model="ddlUp" 
                   @init="editorInit" 
                   lang="pgsql" 
                   theme="tomorrow_night_bright"
@@ -105,12 +105,12 @@
 import ace from 'brace'
 
 export default {
-  name: "Graphileiql",
+  name: "PsqlQuery",
   components: {
     editor: require('vue2-ace-editor'),
   },
   props: {
-    // id: String
+    id: String
   },
   methods: {
     editorInit: function () {
@@ -189,18 +189,22 @@ export default {
   // },
   computed: {
     disableCapture () {
+      return false  // Todo: this
       // return this.ddlUp === this.currentPatch.ddlUpWorking
     },
     disableCommit () {
+      return false  // Todo: this
       // return this.disableCapture ? this.currentPatch.ddlUp === this.currentPatch.ddlUpWorking : true
     },
     disableRevert () {
+      return false  // Todo: this
       // return false
     },
     readonly () {
-      // return false  // Todo: this
+      return false  // Todo: this
     },
     isDirty () {
+      return false  // Todo: this
       // return this.currentPatch.ddlUp !== this.currentPatch.ddlUpWorking
     }
   },
@@ -219,7 +223,7 @@ export default {
   // },
   data () {
     return {
-      gql: 'query {}',
+      ddlUp: 'select foo from bar.fiz;',
       cmOptions: {
         // codemirror options
         tabSize: 2,
@@ -228,21 +232,10 @@ export default {
         lineNumbers: true,
         line: true,
         // more codemirror options, 更多 codemirror 的高级配置...
-      }
+      },
+      artifact: {},
+      currentPatch: {}
     }
   },
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-#codemirror {
-  height: 100%;
-}
-
-#tree {
-  width: 20%;
-  float: left;
-}
-
-</style>

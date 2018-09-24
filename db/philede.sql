@@ -30,6 +30,18 @@ $$ LANGUAGE PLPGSQL;
 drop schema if exists pde cascade;
 
 CREATE SCHEMA pde;
+------------------------------------------------
+-- app_state
+------------------------------------------------
+CREATE TABLE pde.pde_app_state (
+  id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
+  key text NOT NULL,
+  value text NOT NULL,
+  CONSTRAINT pk_pde_app_state PRIMARY KEY (id),
+  CHECK (key <> ''),
+  CHECK (value <> '')
+);
+
 
 ------------------------------------------------
 -- pde_project

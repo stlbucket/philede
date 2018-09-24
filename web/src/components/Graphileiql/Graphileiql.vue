@@ -1,61 +1,12 @@
 <template>
-  <v-layout justify-center justify-end>
-    <v-flex xs12 sm12>
-      <v-toolbar color="indigo" dark>
-        <v-toolbar-side-icon></v-toolbar-side-icon>
-        <v-toolbar-title>Graphileiql</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn 
-          @click="captureWorkingDdl"
-          :disabled="disableCapture"
-        >Capture
-        </v-btn>
-        <v-btn 
-          @click="commitWorkingDdl"
-          :disabled="disableCommit"
-        >Commit
-        </v-btn>
-        <v-btn 
-          @click="revertWorkingDdl"
-          :disabled="disableRevert"
-        >Revert
-        </v-btn>
-      </v-toolbar>
-
-      <v-card>
-        <v-container
-          fluid
-          grid-list-md
-        >
-          <v-layout row wrap>
-            <v-flex
-              v-bind="{ [`xs12`]: true }"
-              key="editor"
-            >
-              <v-card>
-              <graphiql
-                :fetcher="fetcher"
-              ></graphiql>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn icon>
-                    <v-icon>favorite</v-icon>
-                  </v-btn>
-                  <v-btn icon>
-                    <v-icon>bookmark</v-icon>
-                  </v-btn>
-                  <v-btn icon>
-                    <v-icon>share</v-icon>
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-flex>
-          </v-layout>
-        </v-container>
-      </v-card>
-    </v-flex>
-  </v-layout>
+  <div>
+    <h1>THE CSS IS MESSED UP ON THIS COMPONENT</h1>
+    <h2>this is <a href="https://github.com/graphql/graphiql">graphiql</a> wrapped with <a href="https://github.com/akxcv/vuera">vuera</a></h2>
+    <v-spacer></v-spacer>
+    <graphiql
+      :fetcher="fetcher"
+    ></graphiql>
+  </div>
 </template>
 
 <script>
