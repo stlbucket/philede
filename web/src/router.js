@@ -6,6 +6,7 @@ import Artifact from "./components/Routes/Artifact.vue"
 
 import Graphileiql from "./components/Graphileiql/Graphileiql.vue"
 import GraphQLSchema from "./components/Graphileiql/GraphQLSchema.vue"
+import GraphQLTest from "./components/GraphQLTest/GraphQLTest.vue"
 
 import ProjectNew from "./components/Project/ProjectNew.vue"
 import ProjectDetail from "./components/Project/ProjectDetail.vue"
@@ -56,6 +57,12 @@ export default new Router({
       path: "/pg-tap-test/:id",
       name: "pg-tap-test",
       component: PgTapTest,
+      props: true
+    },
+    {
+      path: "/graph-ql-test/:id",
+      name: "graph-ql-test",
+      component: GraphQLTest,
       props: true
     },
     {

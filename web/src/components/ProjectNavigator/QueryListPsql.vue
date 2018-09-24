@@ -2,7 +2,7 @@
   <div>
     <v-btn
       @click="newQuery"
-    >New PSQL Query - NOT IMPLEMENTED</v-btn>
+    >New PSQL Query</v-btn>
     <h2>a list of named raw sql queries that can be used ad-hoc during dev</h2>
     <!-- <v-btn>New GraphQL Test</v-btn>
      <v-list>

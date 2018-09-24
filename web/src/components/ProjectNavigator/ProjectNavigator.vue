@@ -111,6 +111,9 @@ export default {
     newPgTapTest () {
       this.$router.push({ name: 'pg-tap-test', params: { id: 'N/A' }})
     },
+    newGraphQLTest () {
+      this.$router.push({ name: 'graph-ql-test', params: { id: 'N/A' }})
+    },
     gqlTestSelected (test) {
       this.$router.push({ name: 'test-graph-ql', params: { id: test.id }})
     },
@@ -148,6 +151,7 @@ export default {
     this.$eventHub.$on('newGraphQLQuery', this.newGraphQLQuery)  
     this.$eventHub.$on('newPsqlQuery', this.newPsqlQuery)  
     this.$eventHub.$on('newPgTapTest', this.newPgTapTest)  
+    this.$eventHub.$on('newGraphQLTest', this.newGraphQLTest)  
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected')
@@ -164,6 +168,7 @@ export default {
     this.$eventHub.$off('newGraphQLQuery')
     this.$eventHub.$off('newPsqlQuery ')
     this.$eventHub.$off('newPgTapTest ')
+    this.$eventHub.$off('newGraphQLTest ')
   }
 }
 </script>

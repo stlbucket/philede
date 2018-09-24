@@ -1,7 +1,7 @@
 <template>
   <v-layout justify-center>
     <v-flex xs12 sm12>
-      <h1>PSQL Query - NOT IMPLEMENTED</h1>
+      <h1>GraphQL Test - NOT IMPLEMENTED</h1>
       <v-toolbar color="indigo" dark>
         <v-toolbar-side-icon></v-toolbar-side-icon>
         <v-toolbar-title>{{ artifact.name }}</v-toolbar-title>
@@ -224,7 +224,7 @@ export default {
   // },
   data () {
     return {
-      ddlUp: 'select foo from bar.fiz;',
+      ddlUp: 'this will be a jest test that uses named queries defined in adjacent tab',
       cmOptions: {
         // codemirror options
         tabSize: 2,
