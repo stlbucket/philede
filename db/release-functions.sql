@@ -1,27 +1,3 @@
-  -- SELECT *
-  -- INTO _current_major
-  -- FROM pde.major
-  -- WHERE project_id = _project_id
-  -- AND id = (SELECT max(id) from pde.major where project_id = _project_id)
-  -- ;
-
-  -- INSERT INTO pde.artifact(
-
-  -- )
-
-  -- INSERT INTO pde.minor(
-  --   major_id
-  --   ,revision
-  --   ,release_id
-  --   ,name
-  -- ) 
-  -- SELECT
-  --   _current_major.id
-  --   ,1
-  --   ,_development_release.id
-  --   ,_first_minor_name
-  -- RETURNING *
-  -- INTO _new_minor;
 
   -- INSERT INTO pde.patch(
   --   minor_id
@@ -38,6 +14,103 @@
   --   ,(select id from pde.artifact where name = 'todo schema')
   --   from pde.minor where revision = 1
   -- ;
+
+
+------------------------------------------------
+-- build_patch
+------------------------------------------------
+CREATE OR REPLACE FUNCTION pde.build_patch_new_artifact(
+    _minor_id bigint
+    ,_artifact_type_id bigint
+    ,_schema_id bigint
+    ,_name text
+  )
+  RETURNS pde.minor AS
+$BODY$
+DECLARE
+  _revision integer;
+  _artifact_type pde._artifact_type;
+  _minor pde.minor;
+  _schema pde.schema;
+  _artifact pde.artifact;
+  _patch pde.patch;
+BEGIN
+  IF _name IS NULL OR _name = '' THEN
+    RAISE EXCEPTION 'Name cannot be empty';
+  END IF;
+
+  SELECT *
+  INTO _minor
+  FROM pde.minor
+  WHERE id = _minor_id
+  ;
+
+  IF _minor.id IS NULL THEN
+    RAISE EXCEPTION 'Minor does not exist';
+  END IF;
+
+  SELECT *
+  INTO _artifact_type
+  FROM pde.artifact_type
+  WHERE id = _artifact_type_id
+  ;
+
+  IF _artifact_type.id IS NULL THEN
+    RAISE EXCEPTION 'No artifact type exists';
+  END IF;
+
+  _revision := (SELECT count(*) FROM pde.patch WHERE minor_id = _minor.id) + 1;
+
+
+  return _patch;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE STRICT SECURITY DEFINER
+  COST 100;
+
+------------------------------------------------
+-- build_patch
+------------------------------------------------
+CREATE OR REPLACE FUNCTION pde.build_patch_existing_artifact(
+    _minor_id bigint
+    ,_artifact_id bigint
+  )
+  RETURNS pde.minor AS
+$BODY$
+DECLARE
+  _revision integer;
+  _minor pde.minor;
+  _artifact pde.artifact;
+  _patch pde.patch;
+BEGIN
+  SELECT *
+  INTO _minor
+  FROM pde.minor
+  WHERE id = _minor_id
+  ;
+
+  IF _minor.id IS NULL THEN
+    RAISE EXCEPTION 'Minor does not exist';
+  END IF;
+
+  SELECT *
+  INTO _artifact
+  FROM pde.artifact
+  WHERE id = _artifact_id
+  ;
+
+  IF _artifact.id IS NULL THEN
+    RAISE EXCEPTION 'No artifact exists';
+  END IF;
+
+  _revision := (SELECT count(*) FROM pde.patch WHERE minor_id = _minor.id) + 1;
+
+
+  return _patch;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE STRICT SECURITY DEFINER
+  COST 100;
 
 
 ------------------------------------------------
