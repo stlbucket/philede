@@ -1,23 +1,55 @@
+------------------------------------------------
+-- build_patch_new_schema
+------------------------------------------------
+CREATE OR REPLACE FUNCTION pde.build_patch_new_schema(
+    _minor_id bigint
+    ,_name text
+  )
+  RETURNS pde.patch AS
+$BODY$
+DECLARE
+  _revision integer;
+  _artifact_type pde._artifact_type;
+  _minor pde.minor;
+  _schema pde.schema;
+  _artifact pde.artifact;
+  _patch pde.patch;
+BEGIN
+  IF _name IS NULL OR _name = '' THEN
+    RAISE EXCEPTION 'Name cannot be empty';
+  END IF;
 
-  -- INSERT INTO pde.patch(
-  --   minor_id
-  --   ,revision
-  --   ,ddl_up
-  --   ,ddl_up_working
-  --   ,artifact_id
-  -- ) 
-  -- SELECT 
-  --   _new_minor.id 
-  --   ,1
-  --   ,'<ddl>'
-  --   ,'<ddl>'
-  --   ,(select id from pde.artifact where name = 'todo schema')
-  --   from pde.minor where revision = 1
-  -- ;
+  SELECT *
+  INTO _minor
+  FROM pde.minor
+  WHERE id = _minor_id
+  ;
+
+  IF _minor.id IS NULL THEN
+    RAISE EXCEPTION 'Minor does not exist';
+  END IF;
+
+  SELECT *
+  INTO _schema
+  FROM pde.schema
+  WHERE id = _artifact_type_id
+  ;
+
+  IF _artifact_type.id IS NULL THEN
+    RAISE EXCEPTION 'Artifact type does not exists';
+  END IF;
+
+  _revision := (SELECT count(*) FROM pde.patch WHERE minor_id = _minor.id) + 1;
+
+  return _patch;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE STRICT SECURITY DEFINER
+  COST 100;
 
 
 ------------------------------------------------
--- build_patch
+-- build_patch_new_artifact
 ------------------------------------------------
 CREATE OR REPLACE FUNCTION pde.build_patch_new_artifact(
     _minor_id bigint
@@ -25,7 +57,7 @@ CREATE OR REPLACE FUNCTION pde.build_patch_new_artifact(
     ,_schema_id bigint
     ,_name text
   )
-  RETURNS pde.minor AS
+  RETURNS pde.patch AS
 $BODY$
 DECLARE
   _revision integer;
@@ -56,11 +88,10 @@ BEGIN
   ;
 
   IF _artifact_type.id IS NULL THEN
-    RAISE EXCEPTION 'No artifact type exists';
+    RAISE EXCEPTION 'Artifact type does not exists';
   END IF;
 
   _revision := (SELECT count(*) FROM pde.patch WHERE minor_id = _minor.id) + 1;
-
 
   return _patch;
 END;
@@ -69,13 +100,13 @@ $BODY$
   COST 100;
 
 ------------------------------------------------
--- build_patch
+-- build_patch_existing_artifact
 ------------------------------------------------
 CREATE OR REPLACE FUNCTION pde.build_patch_existing_artifact(
     _minor_id bigint
     ,_artifact_id bigint
   )
-  RETURNS pde.minor AS
+  RETURNS pde.patch AS
 $BODY$
 DECLARE
   _revision integer;
@@ -153,19 +184,23 @@ BEGIN
     RAISE EXCEPTION 'No major exists for this project';
   END IF;
 
-  _revision := (SELECT count(*) FROM pde.minor WHERE major_id = _current_major.id) + 1;
+  _revision := (SELECT count(*) FROM pde.minor WHERE major_id = _current_major.id and release_id = _release.id) + 1;
 
   INSERT INTO pde.minor(
     major_id
     ,revision
     ,release_id
     ,name
+    ,project_id
+    ,locked
   ) 
   SELECT
     _current_major.id
     ,_revision
     ,_release.id
     ,_name
+    ,_release.project_id
+    ,false
   RETURNING *
   INTO _minor;
 
@@ -267,6 +302,7 @@ BEGIN
   UPDATE pde.release SET
     status = 'Current'
     ,number = replace(_parent_release.number, '.development', '')
+    ,locked = true
   WHERE id = _staging_release.id
   RETURNING *
   INTO _current_release
@@ -314,6 +350,7 @@ BEGIN
 
   UPDATE pde.release SET
     status = 'StagingDeprecated'
+    ,locked = true
   WHERE status = 'Staging'
   AND project_id = _project_id
   ;
@@ -392,6 +429,8 @@ BEGIN
     ,number
     ,name
     ,release_id
+    ,project_id
+    ,locked
   )
   SELECT
     major_id
@@ -399,6 +438,8 @@ BEGIN
     ,number
     ,name
     ,_testing_release.id
+    ,_testing_release.project_id
+    ,true
   FROM pde.minor
   WHERE release_id = _development_release.id
   ;
@@ -413,6 +454,7 @@ BEGIN
     ,ddl_down
     ,ddl_down_working
     ,locked
+    ,project_id
   )
   SELECT
     (SELECT id FROM pde.minor WHERE release_id = _testing_release.id AND number = m.number)
@@ -424,6 +466,7 @@ BEGIN
     ,p.ddl_down
     ,p.ddl_down_working
     ,true
+    ,_testing_release.project_id
   FROM pde.patch p
   JOIN pde.minor m on m.id = p.minor_id
   WHERE m.release_id = _development_release.id

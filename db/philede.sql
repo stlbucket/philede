@@ -140,7 +140,9 @@ CREATE TABLE pde.minor (
   name text NOT NULL,
   major_id bigint NOT NULL,
   release_id bigint NOT NULL,
+  project_id bigint NOT NULL,
   revision integer,
+  locked boolean NOT NULL default false,
   number text NOT NULL,
   CONSTRAINT pk_pde_minor PRIMARY KEY (id),
   CHECK (number <> ''),
@@ -148,6 +150,7 @@ CREATE TABLE pde.minor (
 );
 ALTER TABLE pde.minor ADD CONSTRAINT fk_minor_major FOREIGN KEY (major_id) REFERENCES pde.major (id);
 ALTER TABLE pde.minor ADD CONSTRAINT fk_minor_release FOREIGN KEY (release_id) REFERENCES pde.release (id);
+ALTER TABLE pde.minor ADD CONSTRAINT fk_minor_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
 
 --||--
 CREATE FUNCTION pde.fn_timestamp_update_minor() RETURNS trigger AS $$
@@ -195,9 +198,11 @@ ALTER TABLE pde.artifact_type_relationship ADD CONSTRAINT fk_artifact_type_relat
 CREATE TABLE pde.schema (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   created_at timestamp NOT NULL DEFAULT current_timestamp,
+  project_id bigint NOT NULL,
   name text NOT NULL,
   CONSTRAINT pk_schema PRIMARY KEY (id)
 );
+ALTER TABLE pde.schema ADD CONSTRAINT fk_schema_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
 
 ------------------------------------------------
 --artifact
@@ -209,10 +214,12 @@ CREATE TABLE pde.artifact (
   name text NOT NULL,
   description text NOT NULL DEFAULT '',
   artifact_type_id bigint NOT NULL,
+  project_id bigint NOT NULL,
   schema_id bigint NOT NULL,
   CHECK (name <> ''),
   CONSTRAINT pk_artifact PRIMARY KEY (id)
 );
+ALTER TABLE pde.artifact ADD CONSTRAINT fk_artifact_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
 
   --||--
   CREATE FUNCTION pde.fn_timestamp_update_artifact() RETURNS trigger AS $$
@@ -249,6 +256,7 @@ CREATE TABLE pde.patch (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   minor_id bigint NOT NULL,
   artifact_id bigint NOT NULL,
+  project_id bigint NOT NULL,
   revision integer,
   ddl_up text NOT NULL DEFAULT '<ddl>',
   ddl_up_working text NOT NULL DEFAULT '<ddl>',
@@ -261,6 +269,7 @@ CREATE TABLE pde.patch (
 );
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_minor FOREIGN KEY (minor_id) REFERENCES pde.minor (id);
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_artifact FOREIGN KEY (artifact_id) REFERENCES pde.artifact (id);
+ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
 --||--
 CREATE FUNCTION pde.fn_timestamp_update_patch() RETURNS trigger AS $$
 BEGIN
@@ -519,30 +528,56 @@ INSERT INTO pde.pde_project(name) SELECT 'Todo';
 
 INSERT INTO pde.major(project_id, revision, name) SELECT id, 1, 'Major Name' from pde.pde_project where name = 'Todo';
 
-INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
+INSERT INTO pde.minor(
+  major_id
+  ,revision
+  ,release_id
+  ,name
+  ,project_id
+) 
+SELECT
   (SELECT id from pde.major where revision = 1)
   ,1
   ,(SELECT id from pde.release where status = 'Development')
   ,'Todo Schema'
+  ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
-INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
+INSERT INTO pde.minor(
+  major_id
+  ,revision
+  ,release_id
+  ,name
+  ,project_id
+)
+SELECT
   (SELECT id from pde.major where revision = 1)
   ,2
   ,(SELECT id from pde.release where status = 'Development')
   ,'First Feature'
+  ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
-INSERT INTO pde.minor(major_id, revision, release_id, name) SELECT
+INSERT INTO pde.minor(  
+  major_id
+  ,revision
+  ,release_id
+  ,name
+  ,project_id
+) 
+SELECT
   (SELECT id from pde.major where revision = 1)
   ,3
   ,(SELECT id from pde.release where status = 'Development')
   ,'Second Feature'
+  ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
 
 INSERT INTO pde.schema(  
   name
+  ,project_id
 )
 SELECT
   'todo'
+  ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
 
 INSERT INTO pde.artifact(  
@@ -550,12 +585,14 @@ INSERT INTO pde.artifact(
   ,artifact_type_id
   ,description
   ,schema_id
+  ,project_id
 )
 SELECT
   'todo schema'
   ,(select id from pde.artifact_type where name = 'schema')
   ,'the todo schema'
   ,(SELECT id from pde.schema where name = 'todo')
+  ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
 
 INSERT INTO pde.artifact(  
@@ -563,12 +600,14 @@ INSERT INTO pde.artifact(
   ,artifact_type_id
   ,description
   ,schema_id
+  ,project_id
 )
 SELECT
   'example_table'
   ,(select id from pde.artifact_type where name = 'table')
   ,'a description of your table'
   ,(SELECT id from pde.schema where name = 'todo')
+  ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
 
 INSERT INTO pde.artifact(  
@@ -576,12 +615,14 @@ INSERT INTO pde.artifact(
   ,artifact_type_id
   ,description
   ,schema_id
+  ,project_id
 )
 SELECT
   'example_function'
   ,(select id from pde.artifact_type where name = 'function')
   ,'a description of your function'
   ,(SELECT id from pde.schema where name = 'todo')
+  ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
 
 INSERT INTO pde.artifact(  
@@ -589,12 +630,14 @@ INSERT INTO pde.artifact(
   ,artifact_type_id
   ,description
   ,schema_id
+  ,project_id
 )
 SELECT
   'example_trigger'
   ,(select id from pde.artifact_type where name = 'trigger')
   ,'a description of your trigger'
   ,(SELECT id from pde.schema where name = 'todo')
+  ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
 
 INSERT INTO pde.artifact(  
@@ -602,12 +645,14 @@ INSERT INTO pde.artifact(
   ,artifact_type_id
   ,description
   ,schema_id
+  ,project_id
 )
 SELECT
   'second_function'
   ,(select id from pde.artifact_type where name = 'function')
   ,'a description of another function'
   ,(SELECT id from pde.schema where name = 'todo')
+  ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
 
 INSERT INTO pde.artifact_relationship(
@@ -619,40 +664,89 @@ SELECT
   ,(select id from pde.artifact where name = 'example_trigger')
 ;
 
-INSERT INTO pde.patch(minor_id, revision, ddl_up, ddl_up_working, artifact_id) SELECT 
+INSERT INTO pde.patch(
+  minor_id
+  ,revision
+  ,ddl_up
+  ,ddl_up_working
+  ,artifact_id
+  ,project_id
+) 
+SELECT 
   id 
   ,1
   ,'CREATE SCHEMA todo;'
   ,'CREATE SCHEMA todo;'
   ,(select id from pde.artifact where name = 'todo schema')
+  ,(SELECT id from pde.pde_project where name = 'Todo')
   from pde.minor where revision = 1;
-INSERT INTO pde.patch(minor_id, revision, ddl_up, ddl_up_working, artifact_id) SELECT 
+
+INSERT INTO pde.patch(
+  minor_id
+  ,revision
+  ,ddl_up
+  ,ddl_up_working
+  ,artifact_id
+  ,project_id
+) 
+SELECT
   id 
   ,1
   ,'CREATE TABLE STATEMENT;'
   ,'CREATE TABLE STATEMENT;'
   ,(select id from pde.artifact where name = 'example_table')
+  ,(SELECT id from pde.pde_project where name = 'Todo')
   from pde.minor where revision = 2;
-INSERT INTO pde.patch(minor_id, revision, ddl_up, ddl_up_working, artifact_id) SELECT 
+
+INSERT INTO pde.patch(
+  minor_id
+  ,revision
+  ,ddl_up
+  ,ddl_up_working
+  ,artifact_id
+  ,project_id
+) 
+SELECT
   id
   ,2 
   ,'CREATE FUNCTION STATEMENT;'
   ,'CREATE FUNCTION STATEMENT;'
   ,(select id from pde.artifact where name = 'example_function')
+  ,(SELECT id from pde.pde_project where name = 'Todo')
   from pde.minor where revision = 2;
-INSERT INTO pde.patch(minor_id, revision, ddl_up, ddl_up_working, artifact_id) SELECT 
+
+INSERT INTO pde.patch(
+  minor_id
+  ,revision
+  ,ddl_up
+  ,ddl_up_working
+  ,artifact_id
+  ,project_id
+) 
+SELECT
   id
   ,3
   ,'CREATE TRIGGER STATEMENT;'
   ,'CREATE TRIGGER STATEMENT;'
   ,(select id from pde.artifact where name = 'example_trigger')
+  ,(SELECT id from pde.pde_project where name = 'Todo')
   from pde.minor where revision = 2;
-INSERT INTO pde.patch(minor_id, revision, ddl_up, ddl_up_working, artifact_id) SELECT 
+
+INSERT INTO pde.patch(
+  minor_id
+  ,revision
+  ,ddl_up
+  ,ddl_up_working
+  ,artifact_id
+  ,project_id
+) 
+SELECT
   id
   ,1
   ,'second function;'
   ,'second function;'
   ,(select id from pde.artifact where name = 'second_function')
+  ,(SELECT id from pde.pde_project where name = 'Todo')
   from pde.minor where revision = 3;
 
 INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-1', id, 'GraphQL' FROM pde.minor;

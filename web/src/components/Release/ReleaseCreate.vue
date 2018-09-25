@@ -44,40 +44,6 @@ export default {
     createDisabled () {
       return this.releaseName === ''
     },
-    // schemas () {
-    //   if (this.project) {
-    //     const schemas = this.project.releases.nodes.reduce(
-    //       (acc, release) => {
-    //         return acc.concat(release.minors.nodes.reduce(
-    //           (acc, minor) => {
-    //             return acc.concat(minor.patches.nodes.reduce(
-    //               (acc, patch) => {
-    //                 const schema = acc.find(s => s.id === patch.artifact.schema.id)
-    //                 if (schema) {
-    //                   return acc
-    //                 } else {
-    //                   return acc.concat([patch.artifact.schema])
-    //                 }
-    //               }, []
-    //             ))
-    //           }, []
-    //         ))
-    //       }, []
-    //     ).reduce(
-    //       (acc, schema) => {
-    //         const existing = acc.find(s => s.id === schema.id)
-    //         if (existing) {
-    //           return acc
-    //         } else {
-    //           return acc.concat([schema])
-    //         }
-    //       }, []
-    //     )
-    //     return schemas
-    //   } else {
-    //     return []
-    //   }
-    // }
   },
   props: {
     projectId: {

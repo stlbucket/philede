@@ -4,6 +4,22 @@ query PdeProjectById(
   pdeProjectById(id: $id) {
     id    
     name
+    schemata: schemataByProjectId {
+      nodes {
+        id
+        name
+        artifacts: artifactsBySchemaId {
+          nodes {
+            id
+            name
+            artifactType: artifactTypeByArtifactTypeId {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
     releases: releasesByProjectId(orderBy: NUMBER_ASC) {
       nodes {
         id
@@ -11,6 +27,7 @@ query PdeProjectById(
         number
         status
         projectId
+        locked
         minors: minorsByReleaseId(
           orderBy: NUMBER_ASC
         ) {
@@ -19,6 +36,7 @@ query PdeProjectById(
             number
             name
             revision
+            locked
             major: majorByMajorId {
               id
               name
@@ -31,19 +49,20 @@ query PdeProjectById(
                 id
                 number
                 revision
-                artifact: artifactByArtifactId {
-                  id
-                  name
-                  schema: schemaBySchemaId {
-                    id
-                    name
-                  }
-                  artifactType: artifactTypeByArtifactTypeId {
-                    id
-                    name
-                    properties
-                  }
-                }
+                locked
+                # artifact: artifactByArtifactId {
+                #   id
+                #   name
+                #   schema: schemaBySchemaId {
+                #     id
+                #     name
+                #   }
+                #   artifactType: artifactTypeByArtifactTypeId {
+                #     id
+                #     name
+                #     properties
+                #   }
+                # }
               }
             }
           }

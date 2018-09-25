@@ -5,6 +5,7 @@ query ReleaseById(
     id
     name
     number
+    locked
     minors: minorsByReleaseId(
       orderBy: NUMBER_ASC
     ) {
@@ -13,6 +14,7 @@ query ReleaseById(
         number
         name
         revision
+        locked
         release: releaseByReleaseId {
           id
           name
@@ -31,6 +33,7 @@ query ReleaseById(
             id
             number
             revision
+            locked
             artifact: artifactByArtifactId {
               id
               name

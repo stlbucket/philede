@@ -2,6 +2,7 @@
   <div>
     <v-btn
       @click="newPatch"
+      :disabled="newPatchDisabled"
     >New Patch</v-btn>
     <v-list>
       <template v-for="(patch, index) in minor.patches.nodes">
@@ -29,6 +30,9 @@
 export default {
   name: "MinorPatchList",
   computed: {
+    newPatchDisabled () {
+      return this.minor.locked
+    }
   },
   methods: {
     selected (patch) {
