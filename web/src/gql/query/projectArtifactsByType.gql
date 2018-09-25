@@ -1,0 +1,9 @@
+query {
+  allArtifactTypes {
+    nodes {
+      id
+      name
+      properties
+    }
+  }
+}

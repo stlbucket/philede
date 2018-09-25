@@ -9,11 +9,14 @@
         v-model="selectedProjectId"
         @change="projectSelected"
       ></v-select>
-      <v-btn @click="newProject">New Project</v-btn>
     </v-toolbar>
     <v-toolbar>
+      <v-btn @click="newProject">New Project</v-btn>
       <v-btn @click="manageProject">Manage Project</v-btn>
+    </v-toolbar>
+    <v-toolbar>
       <v-btn @click="graphQLSchema">GraphQL Voyager</v-btn>
+      <v-btn @click="GraphiQl">GraphiQl</v-btn>
     </v-toolbar>
     <release-navigator 
       :pdeProjectId="pdeProjectId"
@@ -38,7 +41,7 @@ export default {
       networkPolicy: 'fetch-only',
       update (result) {
         this.projects = result.allPdeProjects.nodes
-        this.selectedProjectId = result.allPdeAppStates.nodes.find(s => s.key === 'selectedProjectId').value
+        this.selectedProjectId = (result.allPdeAppStates.nodes.find(s => s.key === 'selectedProjectId') || {}).value
       }
     }
   },
@@ -75,6 +78,9 @@ export default {
     },
     graphQLSchema () {
       this.$router.push({ name: 'graphQLSchema' })
+    },
+    GraphiQl () {
+      this.$router.push({ name: 'graphileiql' })
     },
     newPsqlQuery () {
       this.$router.push({ name: 'psql-query', params: { id: 'N/A' }})
@@ -151,7 +157,8 @@ export default {
     this.$eventHub.$on('newGraphQLQuery', this.newGraphQLQuery)  
     this.$eventHub.$on('newPsqlQuery', this.newPsqlQuery)  
     this.$eventHub.$on('newPgTapTest', this.newPgTapTest)  
-    this.$eventHub.$on('newGraphQLTest', this.newGraphQLTest)  
+    this.$eventHub.$on('newGraphQLTest', this.newGraphQLTest)
+    this.$eventHub.$on('newDevelopmentReleaseCreated', this.exploreRelease)
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected')
@@ -169,6 +176,7 @@ export default {
     this.$eventHub.$off('newPsqlQuery ')
     this.$eventHub.$off('newPgTapTest ')
     this.$eventHub.$off('newGraphQLTest ')
+    this.$eventHub.$off('newDevelopmentReleaseCreated ')
   }
 }
 </script>

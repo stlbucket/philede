@@ -1,0 +1,14 @@
+mutation (
+  $name: String!
+  $releaseId: BigInt!
+){
+  buildMinor(input: {
+    _releaseId:$releaseId
+    _name: $name
+  }) {
+    minor {
+      id
+      name
+    }
+  }
+}

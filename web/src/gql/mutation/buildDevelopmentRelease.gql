@@ -1,0 +1,16 @@
+mutation BuildDevelopmentRelease(
+  $projectId: BigInt!
+  $name: String!
+) {
+  buildDevelopmentRelease(input: {
+    _projectId: $projectId
+    _name: $name
+  }) {
+    release {
+      id
+      name
+      number
+      status
+    }
+  }
+}

@@ -1,7 +1,115 @@
+  -- SELECT *
+  -- INTO _current_major
+  -- FROM pde.major
+  -- WHERE project_id = _project_id
+  -- AND id = (SELECT max(id) from pde.major where project_id = _project_id)
+  -- ;
+
+  -- INSERT INTO pde.artifact(
+
+  -- )
+
+  -- INSERT INTO pde.minor(
+  --   major_id
+  --   ,revision
+  --   ,release_id
+  --   ,name
+  -- ) 
+  -- SELECT
+  --   _current_major.id
+  --   ,1
+  --   ,_development_release.id
+  --   ,_first_minor_name
+  -- RETURNING *
+  -- INTO _new_minor;
+
+  -- INSERT INTO pde.patch(
+  --   minor_id
+  --   ,revision
+  --   ,ddl_up
+  --   ,ddl_up_working
+  --   ,artifact_id
+  -- ) 
+  -- SELECT 
+  --   _new_minor.id 
+  --   ,1
+  --   ,'<ddl>'
+  --   ,'<ddl>'
+  --   ,(select id from pde.artifact where name = 'todo schema')
+  --   from pde.minor where revision = 1
+  -- ;
+
+
+------------------------------------------------
+-- build_minor
+------------------------------------------------
+CREATE OR REPLACE FUNCTION pde.build_minor(
+    _release_id bigint
+    ,_name text
+  )
+  RETURNS pde.minor AS
+$BODY$
+DECLARE
+  _release pde.release;
+  _current_major pde.major;
+  _revision integer;
+  _minor pde.minor;
+BEGIN
+  IF _name IS NULL OR _name = '' THEN
+    RAISE EXCEPTION 'Name cannot be empty';
+  END IF;
+
+  SELECT *
+  INTO _release
+  FROM pde.release
+  WHERE id = _release_id
+  ;
+
+  IF _release.id IS NULL THEN
+    RAISE EXCEPTION 'Release does not exist';
+  END IF;
+
+  SELECT *
+  INTO _current_major
+  FROM pde.major
+  WHERE project_id = _release.project_id
+  AND id = (SELECT max(id) from pde.major where project_id = _release.project_id)
+  ;
+
+  IF _current_major.id IS NULL THEN
+    RAISE EXCEPTION 'No major exists for this project';
+  END IF;
+
+  _revision := (SELECT count(*) FROM pde.minor WHERE major_id = _current_major.id) + 1;
+
+  INSERT INTO pde.minor(
+    major_id
+    ,revision
+    ,release_id
+    ,name
+  ) 
+  SELECT
+    _current_major.id
+    ,_revision
+    ,_release.id
+    ,_name
+  RETURNING *
+  INTO _minor;
+
+  return _minor;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE STRICT SECURITY DEFINER
+  COST 100;
+
+
 ------------------------------------------------
 -- build_development_release
 ------------------------------------------------
-CREATE OR REPLACE FUNCTION pde.build_development_release(_project_id bigint, _name text)
+CREATE OR REPLACE FUNCTION pde.build_development_release(
+    _project_id bigint
+    ,_name text
+  )
   RETURNS pde.release AS
 $BODY$
 DECLARE
