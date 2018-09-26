@@ -57,32 +57,49 @@ export default {
         this.$eventHub.$emit('artifactTypeSelected', artifactType)
       } else {
       }
+    },
+    getArtifactsForType (artifactType) {
+      return this.allArtifacts.filter(a => a.artifactType.id === artifactType.id)
+    },
+    getPatchesForArtifactType (artifactType) {
+      return this.minor.patches.nodes.filter(p => p.artifact.artifactType.id === artifactType.id)
     }
   },
   computed: {
     items () {
-      return this.schemas.map(
+      const tree = this.schemas.map(
           schema => {
             return {
               id: schema.id,
               name: schema.name,
-              children: this.allArtifactTypes.filter(at => at.name !== 'schema').map(
+              children: this.artifactTypes.map(
                 artifactType => {
-                  const typeChildren = this.minor.patches.nodes.reduce(
+                  const patches = this.getPatchesForArtifactType(artifactType)
+
+                  const artifacts = patches.reduce(
                     (acc, patch) => {
-                        return patch.artifact.artifactType.id === artifactType.id ? acc.concat([patch.artifact]) : acc
-                      }, []   
+                      const existing = acc.find(a => a.id === patch.artifact.id)
+                      return existing ? acc : acc.concat([patch.artifact])
+                    }, []
                   )
 
                   return {
                     id: artifactType.id,
                     name: artifactType.name,
-                    children: typeChildren.map(
+                    children: artifacts.map(
                       artifact => {
                         return {
                           id: artifact.id,
-                          name: `*-${artifact.name}`,
-                          children: []
+                          name: artifact.name,
+                          children: patches.filter(p => p.artifact.id === artifact.id).map(
+                            patch => {
+                              return {
+                                id: patch.id,
+                                name: patch.patchType.key,
+                                children: []
+                              }
+                            }
+                          )
                         }
                       }
                     )
@@ -92,6 +109,16 @@ export default {
             }
           }
         )
+        console.log('tree', tree)
+        return tree
+    },
+    artifactTypes () {
+      return this.minor.patches.nodes.reduce(
+        (acc, patch) => {
+          const artifactType = patch.artifact.artifactType
+          return acc.find(at => at.id === artifactType.id) ? acc : acc.concat([artifactType])
+        }, []
+      )
     },
     schemas () {
       return this.minor.patches.nodes.reduce(

@@ -1068,8 +1068,8 @@ $function$
 		<entity schema="pde" name="minor" color="bfd4f5" x="870" y="405" />
 		<entity schema="pde" name="artifact" color="bfd4f5" x="405" y="225" />
 		<entity schema="pde" name="schema" color="c1d8ee" x="255" y="60" />
-		<entity schema="pde" name="artifact_relationship" color="c1d8ee" x="90" y="495" />
 		<entity schema="pde" name="artifact_type" color="bfd4f5" x="345" y="705" />
 		<entity schema="pde" name="artifact_type_relationship" color="c1d8ee" x="45" y="735" />
+		<entity schema="pde" name="artifact_relationship" color="c1d8ee" x="75" y="285" />
 	</layout>
 </project>

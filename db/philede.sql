@@ -176,21 +176,6 @@ CREATE TABLE pde.artifact_type (
   properties jsonb NOT NULL DEFAULT '{}'::jsonb,
   CONSTRAINT pk_pde_artifact_ype PRIMARY KEY (id)
 );
---||--
-
-------------------------------------------------
---artifact_type_relationship
-------------------------------------------------
-CREATE TABLE pde.artifact_type_relationship (
-  id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
-  parent_artifact_type_id bigint NOT NULL,
-  child_artifact_type_id bigint NOT NULL,
-  CONSTRAINT pk_artifact_type_relationship PRIMARY KEY (id)
-);
-
-ALTER TABLE pde.artifact_type_relationship ADD CONSTRAINT fk_artifact_type_relationship_parent FOREIGN KEY (parent_artifact_type_id) REFERENCES pde.artifact_type (id);
-ALTER TABLE pde.artifact_type_relationship ADD CONSTRAINT fk_artifact_type_relationship_child FOREIGN KEY (child_artifact_type_id) REFERENCES pde.artifact_type (id);
-
 
 ------------------------------------------------
 --schema
@@ -237,23 +222,27 @@ ALTER TABLE pde.artifact ADD CONSTRAINT fk_artifact_type FOREIGN KEY (artifact_t
 ALTER TABLE pde.artifact ADD CONSTRAINT fk_artifact_schema FOREIGN KEY (schema_id) REFERENCES pde.schema (id);
 
 ------------------------------------------------
---artifact_relationship
+-- patch type
 ------------------------------------------------
-CREATE TABLE pde.artifact_relationship (
+CREATE TABLE pde.patch_type (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
-  parent_artifact_id bigint NOT NULL,
-  child_artifact_id bigint NOT NULL,
-  CONSTRAINT pk_artifact_relationship PRIMARY KEY (id)
+  name text NOT NULL,
+  key text NOT NULL,
+  ddl_up_template text,
+  ddl_down_template text,
+  execution_order integer NOT NULL,
+  properties jsonb NOT NULL DEFAULT '{}'::jsonb,
+  artifact_type_id bigint NOT NULL,
+  CONSTRAINT pk_pde_patch_ype PRIMARY KEY (id)
 );
-
-ALTER TABLE pde.artifact_relationship ADD CONSTRAINT fk_artifact_relationship_parent FOREIGN KEY (parent_artifact_id) REFERENCES pde.artifact (id);
-ALTER TABLE pde.artifact_relationship ADD CONSTRAINT fk_artifact_relationship_child FOREIGN KEY (child_artifact_id) REFERENCES pde.artifact (id);
+ALTER TABLE pde.patch_type ADD CONSTRAINT fk_patch_type_artifact_type FOREIGN KEY (artifact_type_id) REFERENCES pde.artifact_type (id);
 
 ------------------------------------------------
 -- patch
 ------------------------------------------------
 CREATE TABLE pde.patch (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
+  patch_type_id bigint NOT NULL,
   minor_id bigint NOT NULL,
   artifact_id bigint NOT NULL,
   project_id bigint NOT NULL,
@@ -270,6 +259,7 @@ CREATE TABLE pde.patch (
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_minor FOREIGN KEY (minor_id) REFERENCES pde.minor (id);
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_artifact FOREIGN KEY (artifact_id) REFERENCES pde.artifact (id);
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
+ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_patch_type FOREIGN KEY (patch_type_id) REFERENCES pde.patch_type (id);
 --||--
 CREATE FUNCTION pde.fn_timestamp_update_patch() RETURNS trigger AS $$
 BEGIN
@@ -336,30 +326,6 @@ CREATE TABLE pde.test (
   CONSTRAINT pk_pde_test PRIMARY KEY (id)
 );
 ALTER TABLE pde.test ADD CONSTRAINT fk_test_minor FOREIGN KEY (minor_id) REFERENCES pde.minor (id);
-
--- ------------------------------------------------
--- -- pde_project_schemas
--- ------------------------------------------------
--- create or replace function pde.pde_project_schemas(p pde.pde_project)
--- returns setof pde.schema as $$
---   select s.*
---   from pde.schema s
---   join pde.release r on r.id = s.release_id
---   where r.project_id = p.id
---   ;
--- $$ language sql stable;
-
-------------------------------------------------
--- artifact_type_children
-------------------------------------------------
-create or replace function pde.artifact_type_children(artifact_type pde.artifact_type)
-returns setof pde.artifact_type as $$
-  select ac.*
-  from pde.artifact_type_relationship atr
-  join pde.artifact_type ac on ac.id = atr.child_artifact_type_id
-  where atr.parent_artifact_type_id = artifact_type.id
-  ;
-$$ language sql stable;
 
 ------------------------------------------------
 -- release_display_name
@@ -485,44 +451,32 @@ $BODY$
 -- dummy data
 ------------------------------------------------
 INSERT INTO pde.artifact_type(name, execution_order) SELECT 'extension', 1; 
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'install extension', (SELECT id FROM pde.artifact_type WHERE NAME = 'extension'), 1, 'extension-install';
+
 INSERT INTO pde.artifact_type(name, execution_order) SELECT 'schema', 2; 
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'create schema', (SELECT id FROM pde.artifact_type WHERE NAME = 'schema'), 2, 'schema-create';
+
 INSERT INTO pde.artifact_type(name, execution_order) SELECT 'type', 3; 
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'create type', (SELECT id FROM pde.artifact_type WHERE NAME = 'type'), 3, 'type-create';
+
 INSERT INTO pde.artifact_type(name, execution_order) SELECT 'table', 4; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'foreign key', 5; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'index', 6; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'trigger', 7; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'function', 8; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'view', 9; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'comment', 10; 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'permission', 11; 
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'create table', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 4, 'table-create';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'add column(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 5, 'table-add-column';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'add foreign key(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 6, 'table-add-foreign-key';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'add index(es)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 7, 'table-add-index';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'table computed column(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 9, 'table-add-computed-column';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'table comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 10, 'table-comments';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'table security', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 11, 'table-security';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'table trigger(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 12, 'table-triggers';
 
--- table children
-INSERT INTO pde.artifact_type_relationship(parent_artifact_type_id, child_artifact_type_id) SELECT 
-  (SELECT id from pde.artifact_type WHERE name = 'table')
-  ,(SELECT id from pde.artifact_type WHERE name = 'index')
-  ; 
-INSERT INTO pde.artifact_type_relationship(parent_artifact_type_id, child_artifact_type_id) SELECT 
-  (SELECT id from pde.artifact_type WHERE name = 'table')
-  ,(SELECT id from pde.artifact_type WHERE name = 'trigger')
-  ; 
-INSERT INTO pde.artifact_type_relationship(parent_artifact_type_id, child_artifact_type_id) SELECT 
-  (SELECT id from pde.artifact_type WHERE name = 'table')
-  ,(SELECT id from pde.artifact_type WHERE name = 'comment')
-  ; 
-INSERT INTO pde.artifact_type_relationship(parent_artifact_type_id, child_artifact_type_id) SELECT 
-  (SELECT id from pde.artifact_type WHERE name = 'table')
-  ,(SELECT id from pde.artifact_type WHERE name = 'permission')
-  ; 
--- function children
-INSERT INTO pde.artifact_type_relationship(parent_artifact_type_id, child_artifact_type_id) SELECT 
-  (SELECT id from pde.artifact_type WHERE name = 'function')
-  ,(SELECT id from pde.artifact_type WHERE name = 'comment')
-  ; 
-INSERT INTO pde.artifact_type_relationship(parent_artifact_type_id, child_artifact_type_id) SELECT 
-  (SELECT id from pde.artifact_type WHERE name = 'function')
-  ,(SELECT id from pde.artifact_type WHERE name = 'permission')
-  ; 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'function', 8;
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'create function', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 13, 'function-create';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'modify function', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 14, 'function-modify';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'define comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 15, 'function-comments';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'define security', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 16, 'function-security';
 
+INSERT INTO pde.artifact_type(name, execution_order) SELECT 'custom script', 8; 
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'create custom script', (SELECT id FROM pde.artifact_type WHERE NAME = 'custom script'), 17, 'custom-script';
 
 INSERT INTO pde.pde_project(name) SELECT 'Todo';
 
@@ -625,20 +579,20 @@ SELECT
   ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
 
-INSERT INTO pde.artifact(  
-  name
-  ,artifact_type_id
-  ,description
-  ,schema_id
-  ,project_id
-)
-SELECT
-  'example_trigger'
-  ,(select id from pde.artifact_type where name = 'trigger')
-  ,'a description of your trigger'
-  ,(SELECT id from pde.schema where name = 'todo')
-  ,(SELECT id from pde.pde_project where name = 'Todo')
-;
+-- INSERT INTO pde.artifact(  
+--   name
+--   ,artifact_type_id
+--   ,description
+--   ,schema_id
+--   ,project_id
+-- )
+-- SELECT
+--   'example_trigger'
+--   ,(select id from pde.artifact_type where name = 'trigger')
+--   ,'a description of your trigger'
+--   ,(SELECT id from pde.schema where name = 'todo')
+--   ,(SELECT id from pde.pde_project where name = 'Todo')
+-- ;
 
 INSERT INTO pde.artifact(  
   name
@@ -655,15 +609,6 @@ SELECT
   ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
 
-INSERT INTO pde.artifact_relationship(
-  parent_artifact_id
-  ,child_artifact_id
-)
-SELECT
-  (select id from pde.artifact where name = 'example_table')
-  ,(select id from pde.artifact where name = 'example_trigger')
-;
-
 INSERT INTO pde.patch(
   minor_id
   ,revision
@@ -671,6 +616,7 @@ INSERT INTO pde.patch(
   ,ddl_up_working
   ,artifact_id
   ,project_id
+  ,patch_type_id
 ) 
 SELECT 
   id 
@@ -679,6 +625,7 @@ SELECT
   ,'CREATE SCHEMA todo;'
   ,(select id from pde.artifact where name = 'todo schema')
   ,(SELECT id from pde.pde_project where name = 'Todo')
+  ,(SELECT id from pde.patch_type where key = 'schema-create')
   from pde.minor where revision = 1;
 
 INSERT INTO pde.patch(
@@ -688,6 +635,7 @@ INSERT INTO pde.patch(
   ,ddl_up_working
   ,artifact_id
   ,project_id
+  ,patch_type_id
 ) 
 SELECT
   id 
@@ -696,6 +644,7 @@ SELECT
   ,'CREATE TABLE STATEMENT;'
   ,(select id from pde.artifact where name = 'example_table')
   ,(SELECT id from pde.pde_project where name = 'Todo')
+  ,(SELECT id from pde.patch_type where key = 'table-create')
   from pde.minor where revision = 2;
 
 INSERT INTO pde.patch(
@@ -705,6 +654,7 @@ INSERT INTO pde.patch(
   ,ddl_up_working
   ,artifact_id
   ,project_id
+  ,patch_type_id
 ) 
 SELECT
   id
@@ -713,6 +663,7 @@ SELECT
   ,'CREATE FUNCTION STATEMENT;'
   ,(select id from pde.artifact where name = 'example_function')
   ,(SELECT id from pde.pde_project where name = 'Todo')
+  ,(SELECT id from pde.patch_type where key = 'function-create')
   from pde.minor where revision = 2;
 
 INSERT INTO pde.patch(
@@ -722,14 +673,16 @@ INSERT INTO pde.patch(
   ,ddl_up_working
   ,artifact_id
   ,project_id
+  ,patch_type_id
 ) 
 SELECT
   id
   ,3
   ,'CREATE TRIGGER STATEMENT;'
   ,'CREATE TRIGGER STATEMENT;'
-  ,(select id from pde.artifact where name = 'example_trigger')
+  ,(select id from pde.artifact where name = 'example_table')
   ,(SELECT id from pde.pde_project where name = 'Todo')
+  ,(SELECT id from pde.patch_type where key = 'table-triggers')
   from pde.minor where revision = 2;
 
 INSERT INTO pde.patch(
@@ -739,6 +692,7 @@ INSERT INTO pde.patch(
   ,ddl_up_working
   ,artifact_id
   ,project_id
+  ,patch_type_id
 ) 
 SELECT
   id
@@ -747,6 +701,7 @@ SELECT
   ,'second function;'
   ,(select id from pde.artifact where name = 'second_function')
   ,(SELECT id from pde.pde_project where name = 'Todo')
+  ,(SELECT id from pde.patch_type where key = 'function-create')
   from pde.minor where revision = 3;
 
 INSERT INTO pde.test(name, minor_id, type) SELECT 'GQL-1', id, 'GraphQL' FROM pde.minor;
