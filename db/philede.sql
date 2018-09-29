@@ -481,7 +481,7 @@ INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, propert
   ,'
 CREATE TABLE {{schemaName}}.{{tableName}} (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
-  CONSTRAINT pk_{{schema}}_{{tableName}} PRIMARY KEY (id)
+  CONSTRAINT pk_{{schemaName}}_{{tableName}} PRIMARY KEY (id)
 );
   ';
 INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template) SELECT 'add column(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 50, 'table-add-column', '{}', 'Append'
@@ -521,6 +521,7 @@ INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, propert
  ';
 INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template) SELECT 'security', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 110, 'table-security', '{}', 'Append'
  ,'
+-- https://www.graphile.org/postgraphile/security/
  REVOKE ALL PRIVILEGES ON {{schemaName}}_{{tableName}} FROM PUBLIC;
  ALTER TABLE {{schemaName}}_{{tableName}} DISABLE ROW LEVEL SECURITY;
  DROP POLICY IF EXISTS all_{{schemaName}}_{{tableName}} ON {{schemaName}}_{{tableName}};
@@ -567,6 +568,7 @@ INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, propert
  ';
 INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template) SELECT 'security', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 160, 'function-security', '{}', 'Append'
  ,'
+-- https://www.graphile.org/postgraphile/security/
 GRANT EXECUTE ON FUNCTION {{schemaName}}.{{functionName}}() TO {{roleName}};
 ';
 
