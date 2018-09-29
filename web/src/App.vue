@@ -16,8 +16,12 @@
       :clipped-left="clipped"
     >
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+      <project-selector></project-selector>
+      <v-spacer></v-spacer>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn @click="graphQLSchema">GraphQL Voyager</v-btn>
+      <v-btn @click="GraphiQl">GraphiQl</v-btn>
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>menu</v-icon>
       </v-btn>
@@ -49,6 +53,7 @@
 </template>
 
 <script>
+import ProjectSelector from './components/Project/ProjectSelector'
 import ProjectNavigator from './components/ProjectNavigator/ProjectNavigator'
 import ArtifactNavigator from './components/ArtifactNavigator/ArtifactNavigator'
 
@@ -56,8 +61,17 @@ export default {
   name: 'App',
   components: { 
     ProjectNavigator,
-    ArtifactNavigator
+    ArtifactNavigator,
+    ProjectSelector
   },
+  methods: {
+    graphQLSchema () {
+      this.$eventHub.$emit('graphQLSchema')
+    },
+    GraphiQl () {
+      this.$eventHub.$emit('graphiql')
+    },
+ },
   data () {
     return {
       clipped: true,
@@ -74,7 +88,10 @@ export default {
 </script>
 
 <style lang="css">
-  .treeview-label {
-    background-color: #494544;
-  }
+  .treeview-label { background-color: #494544; }
+  .v-content .container { height: 100%; }
+  .v-content .container > .layout { height: 100%; }
+  .v-content .container > .layout .v-card.theme--dark { 	height: 100%; }
+  .v-content .container > .layout .v-card.theme--dark .grid-list-md .row.wrap.layout { 	height: 100%; }
+  .graphiql-parent { 	height: 90%; }
 </style>

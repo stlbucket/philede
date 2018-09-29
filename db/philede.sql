@@ -170,6 +170,7 @@ CREATE TRIGGER tg_timestamp_update_minor
 CREATE TABLE pde.artifact_type (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   name text NOT NULL,
+  requires_schema boolean NOT NULL DEFAULT true,
   ddl_up_template text,
   ddl_down_template text,
   execution_order integer NOT NULL,
@@ -224,10 +225,17 @@ ALTER TABLE pde.artifact ADD CONSTRAINT fk_artifact_schema FOREIGN KEY (schema_i
 ------------------------------------------------
 -- patch type
 ------------------------------------------------
+CREATE TYPE pde.patch_type_action AS ENUM
+(
+  'Create',
+  'Append'
+);
+
 CREATE TABLE pde.patch_type (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   name text NOT NULL,
   key text NOT NULL,
+  action pde.patch_type_action NOT NULL,
   ddl_up_template text,
   ddl_down_template text,
   execution_order integer NOT NULL,
@@ -450,33 +458,36 @@ $BODY$
 ------------------------------------------------
 -- dummy data
 ------------------------------------------------
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'extension', 1; 
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'install extension', (SELECT id FROM pde.artifact_type WHERE NAME = 'extension'), 1, 'extension-install';
+-- INSERT INTO pde.artifact_type(name, execution_order) SELECT 'extension', 1; 
+-- INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'install extension', (SELECT id FROM pde.artifact_type WHERE NAME = 'extension'), 1, 'extension-install', '{}', 'Create';
 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'schema', 2; 
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'create schema', (SELECT id FROM pde.artifact_type WHERE NAME = 'schema'), 2, 'schema-create';
+INSERT INTO pde.artifact_type(name, execution_order, requires_schema) SELECT 'schema', 2, false; 
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'create schema', (SELECT id FROM pde.artifact_type WHERE NAME = 'schema'), 20, 'schema-create', '{}', 'Create';
 
 INSERT INTO pde.artifact_type(name, execution_order) SELECT 'type', 3; 
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'create type', (SELECT id FROM pde.artifact_type WHERE NAME = 'type'), 3, 'type-create';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'create type', (SELECT id FROM pde.artifact_type WHERE NAME = 'type'), 30, 'type-create', '{}', 'Create';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'modify type', (SELECT id FROM pde.artifact_type WHERE NAME = 'type'), 33, 'type-modify', '{}', 'Append';
 
 INSERT INTO pde.artifact_type(name, execution_order) SELECT 'table', 4; 
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'create table', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 4, 'table-create';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'add column(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 5, 'table-add-column';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'add foreign key(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 6, 'table-add-foreign-key';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'add index(es)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 7, 'table-add-index';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'table computed column(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 9, 'table-add-computed-column';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'table comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 10, 'table-comments';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'table security', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 11, 'table-security';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'table trigger(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 12, 'table-triggers';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'create table', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 40, 'table-create', '{}', 'Create';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'add column(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 50, 'table-add-column', '{}', 'Append';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'add foreign key(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 60, 'table-add-foreign-key', '{}', 'Append';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'add index(es)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 70, 'table-add-index', '{}', 'Append';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'add computed column', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 90, 'table-add-computed-column', '{}', 'Append';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'modify computed column', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 93, 'table-modify-computed-column', '{}', 'Append';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'doc comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 100, 'table-doc-comments', '{}', 'Append';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'smart comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 103, 'table-smart-comments', '{}', 'Append';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'security', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 110, 'table-security', '{}', 'Append';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'trigger(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 120, 'table-triggers', '{}', 'Append';
 
 INSERT INTO pde.artifact_type(name, execution_order) SELECT 'function', 8;
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'create function', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 13, 'function-create';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'modify function', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 14, 'function-modify';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'define comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 15, 'function-comments';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'define security', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 16, 'function-security';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'create function', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 130, 'function-create', '{}', 'Create';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'modify function', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 140, 'function-modify', '{}', 'Append';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 150, 'function-comments', '{}', 'Append';
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'security', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 160, 'function-security', '{}', 'Append';
 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'custom script', 8; 
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key) SELECT 'create custom script', (SELECT id FROM pde.artifact_type WHERE NAME = 'custom script'), 17, 'custom-script';
+INSERT INTO pde.artifact_type(name, execution_order, requires_schema) SELECT 'custom script', 8, false; 
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action) SELECT 'create custom script', (SELECT id FROM pde.artifact_type WHERE NAME = 'custom script'), 170, 'custom-script', '{}', 'Create';
 
 INSERT INTO pde.pde_project(name) SELECT 'Todo';
 

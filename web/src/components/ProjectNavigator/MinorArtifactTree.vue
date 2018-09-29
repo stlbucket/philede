@@ -67,7 +67,7 @@ export default {
   },
   computed: {
     items () {
-      const tree = this.schemas.map(
+      return this.schemas.map(
           schema => {
             return {
               id: schema.id,
@@ -95,7 +95,7 @@ export default {
                             patch => {
                               return {
                                 id: patch.id,
-                                name: patch.patchType.key,
+                                name: patch.patchType.name,
                                 children: []
                               }
                             }
@@ -109,8 +109,6 @@ export default {
             }
           }
         )
-        console.log('tree', tree)
-        return tree
     },
     artifactTypes () {
       return this.minor.patches.nodes.reduce(

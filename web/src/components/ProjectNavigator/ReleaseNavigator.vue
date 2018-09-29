@@ -1,8 +1,11 @@
 <template>
   <div>
     <v-toolbar>
-      <h3>{{ selectedRelease.number }}</h3>
-      <v-btn @click="newPatch" :disabled="newPatchSetDisabled">New Patch Set</v-btn>
+      <v-text-field
+        label="Release"
+        :value="selectedRelease.number"
+      ></v-text-field>
+      <v-btn @click="newPatch" :disabled="newPatchSetDisabled">New Minor</v-btn>
     </v-toolbar>
     <minor-list
       :releaseId="selectedReleaseId"
@@ -32,7 +35,6 @@ export default {
       return this.selectedRelease ? this.selectedRelease.status : 'N/A'
     },
     newPatchSetDisabled () {
-      console.log('WTF', this.selectedRelease)
       return this.selectedRelease.id ? this.selectedRelease.locked === true : true
     }
   },

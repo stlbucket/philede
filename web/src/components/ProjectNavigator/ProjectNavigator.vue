@@ -1,23 +1,5 @@
 <template>
   <div>
-    <v-toolbar>
-      <v-select 
-        label="Project"
-        :items="projects"
-        item-text="name"
-        item-value="id"
-        v-model="selectedProjectId"
-        @change="projectSelected"
-      ></v-select>
-    </v-toolbar>
-    <v-toolbar>
-      <v-btn @click="newProject">New Project</v-btn>
-      <v-btn @click="manageProject">Manage Project</v-btn>
-    </v-toolbar>
-    <v-toolbar>
-      <v-btn @click="graphQLSchema">GraphQL Voyager</v-btn>
-      <v-btn @click="GraphiQl">GraphiQl</v-btn>
-    </v-toolbar>
     <release-navigator 
       :pdeProjectId="pdeProjectId"
       :focusReleaseId="focusReleaseId"
@@ -79,7 +61,7 @@ export default {
     graphQLSchema () {
       this.$router.push({ name: 'graphQLSchema' })
     },
-    GraphiQl () {
+    graphiql () {
       this.$router.push({ name: 'graphileiql' })
     },
     newPsqlQuery () {
@@ -158,7 +140,12 @@ export default {
     this.$eventHub.$on('newPsqlQuery', this.newPsqlQuery)  
     this.$eventHub.$on('newPgTapTest', this.newPgTapTest)  
     this.$eventHub.$on('newGraphQLTest', this.newGraphQLTest)
+    this.$eventHub.$on('graphQLSchema', this.graphQLSchema)
+    this.$eventHub.$on('graphiql', this.graphiql)
     this.$eventHub.$on('newDevelopmentReleaseCreated', this.exploreRelease)
+    this.$eventHub.$on('newProject', this.newProject)
+    this.$eventHub.$on('manageProject', this.manageProject)
+    this.$eventHub.$on('projectSelected', this.projectSelected)
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected')
@@ -173,10 +160,15 @@ export default {
     this.$eventHub.$off('newDevelopmentRelease')
     this.$eventHub.$off('newMinor')
     this.$eventHub.$off('newGraphQLQuery')
-    this.$eventHub.$off('newPsqlQuery ')
-    this.$eventHub.$off('newPgTapTest ')
-    this.$eventHub.$off('newGraphQLTest ')
-    this.$eventHub.$off('newDevelopmentReleaseCreated ')
+    this.$eventHub.$off('newPsqlQuery')
+    this.$eventHub.$off('newPgTapTest')
+    this.$eventHub.$off('newGraphQLTest')
+    this.$eventHub.$off('graphQLSchema')
+    this.$eventHub.$off('graphiql')
+    this.$eventHub.$off('newDevelopmentReleaseCreated')
+    this.$eventHub.$off('newProject')
+    this.$eventHub.$off('manageProject')
+    this.$eventHub.$off('projectSelected')
   }
 }
 </script>

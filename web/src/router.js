@@ -18,7 +18,7 @@ import TestGraphQL from "./components/Routes/TestGraphQL.vue"
 
 import TestPgTap from "./components/Routes/TestPgTap.vue"
 
-import PatchNew from "./components/Routes/PatchNew.vue"
+import PatchNew from "./components/Patch/PatchNew.vue"
 import PgTapTest from "./components/PgTapTest/PgTapTest.vue"
 import PsqlQuery from "./components/PsqlQuery/PsqlQuery.vue"
 

@@ -50,19 +50,6 @@ query PdeProjectById(
                 number
                 revision
                 locked
-                # artifact: artifactByArtifactId {
-                #   id
-                #   name
-                #   schema: schemaBySchemaId {
-                #     id
-                #     name
-                #   }
-                #   artifactType: artifactTypeByArtifactTypeId {
-                #     id
-                #     name
-                #     properties
-                #   }
-                # }
               }
             }
           }
@@ -76,6 +63,13 @@ query PdeProjectById(
       id
       name
       properties
+      patchTypes: patchTypesByArtifactTypeId {
+        nodes {
+          id
+          name
+          key
+        }
+      }
     }
   }
 

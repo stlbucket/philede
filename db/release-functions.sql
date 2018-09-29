@@ -453,6 +453,7 @@ BEGIN
     ,ddl_up_working
     ,ddl_down
     ,ddl_down_working
+    ,patch_type_id
     ,locked
     ,project_id
   )
@@ -465,6 +466,7 @@ BEGIN
     ,p.ddl_up_working
     ,p.ddl_down
     ,p.ddl_down_working
+    ,p.patch_type_id
     ,true
     ,_testing_release.project_id
   FROM pde.patch p

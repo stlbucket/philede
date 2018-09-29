@@ -1,12 +1,64 @@
 <template>
-  <div>
-    <h1>THE CSS IS MESSED UP ON THIS COMPONENT</h1>
-    <h2>this is <a href="https://github.com/graphql/graphiql">graphiql</a> wrapped with <a href="https://github.com/akxcv/vuera">vuera</a></h2>
-    <v-spacer></v-spacer>
-    <graphiql
-      :fetcher="fetcher"
-    ></graphiql>
-  </div>
+  <v-layout justify-center>
+    <v-flex xs12 sm12>
+      <v-toolbar color="indigo" dark>
+        <v-toolbar-side-icon></v-toolbar-side-icon>
+        <v-toolbar-title>Graphiql</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn 
+          @click="captureWorkingDdl"
+          :disabled="disableCapture"
+        >Capture
+        </v-btn>
+        <v-btn 
+          @click="commitWorkingDdl"
+          :disabled="disableCommit"
+        >Commit
+        </v-btn>
+        <v-btn 
+          @click="revertWorkingDdl"
+          :disabled="disableRevert"
+        >Revert
+        </v-btn>
+      </v-toolbar>
+
+      <v-card>
+        <v-container
+          fluid
+          grid-list-md
+        >
+          <v-layout row wrap>
+            <v-flex
+              v-bind="{ [`xs12`]: true }"
+              key="editor"
+            >
+              <v-card>
+                <graphiql
+                  class="graphiql-parent"
+                  :fetcher="fetcher"
+                  :query="query"
+                  @onEditQuery="onEditQuery"
+                ></graphiql>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn icon>
+                    <v-icon>favorite</v-icon>
+                  </v-btn>
+                  <v-btn icon>
+                    <v-icon>bookmark</v-icon>
+                  </v-btn>
+                  <v-btn icon>
+                    <v-icon>share</v-icon>
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script>
@@ -25,7 +77,14 @@ export default {
   },
   methods: {
     fetcher (query) {
-      console.log('query', query)
+      return fetch(window.location.origin + '/graphql', {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(query),
+      }).then(response => response.json());
+    },
+    onEditQuery (newQuery) {
+      console.log('newQuery', newQuery)
     },
     // editorInit: function () {
     //     require('brace/ext/language_tools') //language extension prerequsite...
@@ -134,6 +193,23 @@ export default {
   data () {
     return {
       gql: 'query {}',
+      query: `query {
+  allPdeProjects {
+    nodes {
+      id
+      name
+    }
+  }
+
+  allPdeAppStates {
+    nodes {
+      id
+      key
+      value
+    }
+  }
+}
+`,
       cmOptions: {
         // codemirror options
         tabSize: 2,
@@ -149,3 +225,8 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
+<style>
+.graphiql-container {
+  color: red
+}
+</style>

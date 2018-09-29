@@ -31,7 +31,7 @@
           <v-btn @click="explore(testingRelease)">Explore</v-btn>
         </div>
       </v-toolbar>
-
+<hr/>
       <h2>Development</h2>
       <v-toolbar dark>
         <v-toolbar-title> {{ releaseDisplay(developmentRelease) }}</v-toolbar-title>

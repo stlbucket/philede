@@ -2,7 +2,7 @@
   <div>
     <v-toolbar dark>
       <v-toolbar-side-icon @click="toggleMinorHidden()"></v-toolbar-side-icon>
-      <h3>{{ `Minor: ${minor.number.split('.')[1]}-${minor.name}` }}</h3>
+      <h3>{{ `${minor.number.split('.')[1]}-${minor.name}` }}</h3>
       <v-spacer></v-spacer>
       <v-btn
         @click="toggleDefer"
@@ -30,7 +30,7 @@
         key="Artifacts"
         ripple
       >
-        Schemas
+        Artifacts
       </v-tab>
       <v-tab-item
         key="Artifacts"
