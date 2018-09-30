@@ -43,6 +43,9 @@
 			</column>
 			<column name="ddl_up_template" type="text" decimal="0" jt="12" />
 			<column name="ddl_down_template" type="text" decimal="0" jt="12" />
+			<column name="requires_schema" type="bool" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo>true</defo>
+			</column>
 			<index name="pk_pde_artifact_ype" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
@@ -153,6 +156,8 @@
 				<defo>&#039;{}&#039;::jsonb</defo>
 			</column>
 			<column name="artifact_type_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="action" type="&quot;pde&quot;.&quot;patch_type_action&quot;" decimal="0" jt="12" mandatory="y" />
+			<column name="documentation_url" type="text" decimal="0" jt="12" />
 			<index name="pk_pde_patch_ype" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
@@ -961,6 +966,7 @@ BEGIN
     ,ddl_up_working
     ,ddl_down
     ,ddl_down_working
+    ,patch_type_id
     ,locked
     ,project_id
   )
@@ -973,6 +979,7 @@ BEGIN
     ,p.ddl_up_working
     ,p.ddl_down
     ,p.ddl_down_working
+    ,p.patch_type_id
     ,true
     ,_testing_release.project_id
   FROM pde.patch p
@@ -983,6 +990,16 @@ BEGIN
 END;
 $function$
 ]]></string>
+			<input_param name="id" jt="-5" type="int8" />
+			<input_param name="project_id" jt="-5" type="int8" />
+			<input_param name="name" jt="12" type="text" />
+			<input_param name="number" jt="12" type="text" />
+			<input_param name="status" jt="1111" type="&quot;pde&quot;.&quot;release_status&quot;" />
+			<input_param name="ddl_up" jt="12" type="text" />
+			<input_param name="ddl_down" jt="12" type="text" />
+			<input_param name="parent_release_id" jt="-5" type="int8" />
+			<input_param name="locked" jt="-7" type="bool" />
+			<input_param name="_project_id" jt="-5" type="int8" />
 			<input_param name="id" jt="-5" type="int8" />
 			<input_param name="project_id" jt="-5" type="int8" />
 			<input_param name="name" jt="12" type="text" />
@@ -1051,16 +1068,16 @@ $function$
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<layout name="Default Layout" id="Layout_2d3ef4c" show_relation="columns" >
-		<entity schema="pde" name="release" color="bfd4f5" x="855" y="45" />
-		<entity schema="pde" name="major" color="bfd4f5" x="630" y="225" />
-		<entity schema="pde" name="pde_project" color="bfd4f5" x="420" y="75" />
-		<entity schema="pde" name="test" color="c1d8ee" x="675" y="675" />
-		<entity schema="pde" name="minor" color="bfd4f5" x="675" y="405" />
-		<entity schema="pde" name="schema" color="c1d8ee" x="60" y="60" />
-		<entity schema="pde" name="pde_app_state" color="c1d8ee" x="1095" y="330" />
-		<entity schema="pde" name="artifact_type" color="bfd4f5" x="45" y="480" />
-		<entity schema="pde" name="artifact" color="bfd4f5" x="270" y="195" />
+		<entity schema="pde" name="pde_project" color="bfd4f5" x="435" y="60" />
+		<entity schema="pde" name="schema" color="c1d8ee" x="75" y="45" />
+		<entity schema="pde" name="artifact" color="bfd4f5" x="285" y="180" />
+		<entity schema="pde" name="artifact_type" color="bfd4f5" x="60" y="465" />
 		<entity schema="pde" name="patch_type" color="c1d8ee" x="60" y="660" />
-		<entity schema="pde" name="patch" color="bfd4f5" x="360" y="540" />
+		<entity schema="pde" name="patch" color="bfd4f5" x="345" y="525" />
+		<entity schema="pde" name="minor" color="bfd4f5" x="645" y="420" />
+		<entity schema="pde" name="release" color="bfd4f5" x="705" y="45" />
+		<entity schema="pde" name="major" color="bfd4f5" x="585" y="180" />
+		<entity schema="pde" name="test" color="c1d8ee" x="690" y="675" />
+		<entity schema="pde" name="pde_app_state" color="c1d8ee" x="45" y="210" />
 	</layout>
 </project>

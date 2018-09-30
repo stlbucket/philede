@@ -534,13 +534,13 @@ $$ language sql stable;
 --  ,'
 --  -- https://www.graphile.org/postgraphile/smart-comments/
 --  ';
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'smart comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 103, 'table-smart-comments', '{}', 'Append'
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'manage smart comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 103, 'table-smart-comments', '{}', 'Append'
  ,'
 
  '
  ,'https://www.graphile.org/postgraphile/smart-comments/'
 ;
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'security', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 110, 'table-security', '{}', 'Append'
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'manage security', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 110, 'table-security', '{}', 'Append'
  ,'
 -- https://www.graphile.org/postgraphile/security/
  REVOKE ALL PRIVILEGES ON {{schemaName}}_{{tableName}} FROM PUBLIC;
@@ -555,7 +555,7 @@ INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, propert
 '
 ,'https://www.graphile.org/postgraphile/security/'
 ;
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'trigger(s)', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 120, 'table-triggers', '{}', 'Append'
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'manage trigger', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 120, 'table-triggers', '{}', 'Append'
  ,'
   CREATE FUNCTION {{triggerSchemaName}}.{{functionName}}() RETURNS trigger AS $$
   BEGIN
@@ -591,13 +591,13 @@ $$ language sql stable;
 '
 ,'https://www.graphile.org/postgraphile/custom-mutations/'
 ;
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 150, 'function-comments', '{}', 'Append'
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'manage smart comments', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 150, 'function-comments', '{}', 'Append'
  ,'
 -- https://www.graphile.org/postgraphile/smart-comments/
  '
  ,'https://www.graphile.org/postgraphile/smart-comments/'
 ;
-INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'security', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 160, 'function-security', '{}', 'Append'
+INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'manage security', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 160, 'function-security', '{}', 'Append'
  ,'
 -- https://www.graphile.org/postgraphile/security/
 GRANT EXECUTE ON FUNCTION {{schemaName}}.{{functionName}}() TO {{roleName}};
