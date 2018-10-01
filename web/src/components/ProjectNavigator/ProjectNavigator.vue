@@ -63,7 +63,7 @@ export default {
       this.$router.push({ name: 'graphileiql' })
     },
     newPsqlQuery () {
-      this.$router.push({ name: 'psql-query', params: { id: 'N/A' }})
+      this.$router.push({ name: 'new-psql-query' })
     },
     newGraphQLQuery () {
       this.$router.push({ name: 'graphileiql' })

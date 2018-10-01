@@ -54,6 +54,12 @@ export default new Router({
       props: true
     },
     {
+      path: "/psql-query",
+      name: "new-psql-query",
+      component: PsqlQuery,
+      props: false
+    },
+    {
       path: "/pg-tap-test/:id",
       name: "pg-tap-test",
       component: PgTapTest,

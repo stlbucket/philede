@@ -18,5 +18,8 @@
     "pm2": "^3.0.4",
     "postgraphile": "^4.0.0-rc.4",
     "postgraphile-plugin-connection-filter": "^1.0.0-beta.15"
+  },
+  "devDependencies": {
+    "http-proxy-middleware": "^0.19.0"
   }
 }

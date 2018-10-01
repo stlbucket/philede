@@ -33,45 +33,15 @@ const ExecSqlPlugin = makeExtendSchemaPlugin(build => {
           await pgClient.query("SAVEPOINT graphql_mutation");
           try {
 
-            // Our custom logic to register the user:
-            const result = await pgClient.query(args.input.sql,
-              [
-              ]
-            );
+            const result = await pgClient.query(args.input.sql, []);
 
             clog('result', result)
 
-            // Now we fetch the result that the GraphQL
-            // client requested, using the new user
-            // account as the source of the data. You
-            // should always use
-            // `selectGraphQLResultFromTable` if you
-            // return database data from your custom
-            // field.
-            // const [row] =
-            //   await selectGraphQLResultFromTable(
-            //     sql.fragment`app_public.users`,
-            //     (tableAlias, sqlBuilder) => {
-            //       sqlBuilder.where(
-            //         sql.fragment`${tableAlias}.id = ${
-            //           sql.value(user.id)
-            //         }`
-            //       );
-            //     }
-            //   );
-
-            // Success! Write the user to the database.
             await pgClient.query("RELEASE SAVEPOINT graphql_mutation");
 
-            // We pass the fetched result via the
-            // `user` field to match the
-            // @recurseDataGenerators directive
-            // used above. GraphQL mutation
-            // payloads typically have additional
-            // fields.
             return {
               sql: args.input.sql,
-              result: result //JSON.stringify(result),
+              result: result
             };
           } catch (e) {
             // Oh noes! If at first you don't succeed,
@@ -88,25 +58,8 @@ const ExecSqlPlugin = makeExtendSchemaPlugin(build => {
 module.exports = ExecSqlPlugin
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// the above was built from the below
+// https://www.graphile.org/postgraphile/make-extend-schema-plugin/
 
 // const MyRegisterUserMutationPlugin =
 // makeExtendSchemaPlugin(build => {

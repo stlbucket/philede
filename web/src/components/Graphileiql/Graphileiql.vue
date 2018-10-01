@@ -77,14 +77,14 @@ export default {
   },
   methods: {
     fetcher (query) {
-      return fetch(window.location.origin + '/graphql', {
+      return fetch(window.location.origin + '/dev-graphql', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(query),
       }).then(response => response.json());
     },
     onEditQuery (newQuery) {
-      console.log('newQuery', newQuery)
+      // console.log('newQuery', newQuery)
     },
     // editorInit: function () {
     //     require('brace/ext/language_tools') //language extension prerequsite...
@@ -193,23 +193,7 @@ export default {
   data () {
     return {
       gql: 'query {}',
-      query: `query {
-  allPdeProjects {
-    nodes {
-      id
-      name
-    }
-  }
-
-  allPdeAppStates {
-    nodes {
-      id
-      key
-      value
-    }
-  }
-}
-`,
+      query: ``,
       cmOptions: {
         // codemirror options
         tabSize: 2,

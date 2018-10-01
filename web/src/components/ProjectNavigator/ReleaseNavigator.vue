@@ -1,10 +1,13 @@
 <template>
   <div>
     <v-toolbar>
-      <v-text-field
-        label="Release"
-        :value="selectedRelease.number"
-      ></v-text-field>
+    <v-text-field
+      label="Release"
+      :value="selectedRelease.number"
+    ></v-text-field>
+      <v-btn @click="explore">Explore</v-btn>
+    </v-toolbar>
+    <v-toolbar>
       <v-btn @click="newPatch" :disabled="newPatchSetDisabled">New Minor</v-btn>
     </v-toolbar>
     <minor-list
@@ -25,6 +28,9 @@ export default {
   methods: {
     newPatch () {
       this.$eventHub.$emit('newMinor', this.selectedRelease)      
+    },
+    explore () {
+      this.$eventHub.$emit('exploreRelease', this.selectedRelease)
     }
   },
   computed: {

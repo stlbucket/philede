@@ -12,6 +12,9 @@ module.exports = {
     proxy: {
       "/graphql": {
         target: "http://localhost:5000"
+      },
+      "/dev-graphql": {
+        target: "http://localhost:5000"
       }
     }
   },

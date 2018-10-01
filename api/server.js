@@ -2,10 +2,11 @@ require('./.env')
 const {ApolloEngine} = require('apollo-engine');
 const express = require("express");
 const {postgraphile} = require("postgraphile");
+var proxy = require('http-proxy-middleware');
+
 
 const plugins = [
   require('./src/graphile-extensions/pm2Status'),
-  require('./src/graphile-extensions/execSql'),
   require('postgraphile-plugin-connection-filter')
 ]
 
@@ -41,6 +42,16 @@ app.use(postgraphile(
     // ,classicIds: true
   }
 ));
+
+app.use('/dev-graphql', proxy({
+  target: 'http://localhost:5001',
+  changeOrigin: true,
+  logLevel: 'debug',
+  pathRewrite: {'/dev-graphql' : '/graphql'}
+}));
+// app.use('/dev-graphql', function(res, req) {
+//   res.send('fuck you')
+// });
 
 if (enableApolloEngine) {
   engine.listen({

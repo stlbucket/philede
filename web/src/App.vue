@@ -20,8 +20,9 @@
       <v-spacer></v-spacer>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn @click="graphQLSchema">GraphQL Voyager</v-btn>
+      <v-btn @click="psql">psql</v-btn>
       <v-btn @click="GraphiQl">GraphiQl</v-btn>
+      <v-btn @click="graphQLSchema">GraphQL Voyager</v-btn>
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>menu</v-icon>
       </v-btn>
@@ -65,6 +66,9 @@ export default {
     ProjectSelector
   },
   methods: {
+    psql () {
+      this.$eventHub.$emit('newPsqlQuery')
+    },
     graphQLSchema () {
       this.$eventHub.$emit('graphQLSchema')
     },

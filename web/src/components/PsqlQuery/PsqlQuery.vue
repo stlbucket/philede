@@ -1,25 +1,13 @@
 <template>
   <v-layout justify-center>
     <v-flex xs12 sm12>
-      <h1>PSQL Query - NOT IMPLEMENTED</h1>
+      <h1>PSQL Query</h1>
       <v-toolbar color="indigo" dark>
         <v-toolbar-side-icon></v-toolbar-side-icon>
-        <v-toolbar-title>{{ artifact.name }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn 
-          @click="captureWorkingDdl"
-          :disabled="disableCapture"
-        >Capture
-        </v-btn>
-        <v-btn 
-          @click="commitWorkingDdl"
-          :disabled="disableCommit"
-        >Commit
-        </v-btn>
-        <v-btn 
-          @click="revertWorkingDdl"
-          :disabled="disableRevert"
-        >Revert
+          @click="execSql"
+        >Exec Sql
         </v-btn>
       </v-toolbar>
 
@@ -36,7 +24,7 @@
               <v-card>
                 <editor
                   ref="editor" 
-                  v-model="ddlUp" 
+                  v-model="sql" 
                   @init="editorInit" 
                   lang="pgsql" 
                   theme="tomorrow_night_bright"
@@ -64,46 +52,11 @@
       </v-card>
     </v-flex>
   </v-layout>
-  <!-- <div
-    justify-start
-  >
-    <h1>{{ artifact.name }}</h1>
-    <v-btn 
-      @click="captureWorkingDdl"
-      :disabled="disableCapture"
-    >Capture
-    </v-btn>
-    <v-btn 
-      @click="commitWorkingDdl"
-      :disabled="disableCommit"
-    >Commit
-    </v-btn>
-    <v-btn 
-      @click="revertWorkingDdl"
-      :disabled="disableRevert"
-    >Revert
-    </v-btn>
-    <div
-    >
-      <editor
-        ref="editor" 
-        v-model="ddlUp" 
-        @init="editorInit" 
-        lang="pgsql" 
-        theme="tomorrow_night_bright"
-        width="100%" 
-        height="750"
-        readonly="readonly"
-      ></editor>
-    </div>
-  </div> -->
 </template>
 
 <script>
-// import artifactById from '../../gql/query/artifactById.gql'
-// import captureWorkingDdl from '../../gql/mutation/captureWorkingDdl.gql'
-// import commitWorkingDdl from '../../gql/mutation/commitWorkingDdl.gql'
 import ace from 'brace'
+import execSql from '../../gql/mutation/execSql.gql'
 
 export default {
   name: "PsqlQuery",
@@ -111,7 +64,10 @@ export default {
     editor: require('vue2-ace-editor'),
   },
   props: {
-    id: String
+    id: {
+      type: String,
+      required: false
+    }
   },
   methods: {
     editorInit: function () {
@@ -124,119 +80,33 @@ export default {
         require('brace/mode/pgsql')
         require('brace/theme/tomorrow_night_bright')
     },
-    editName () {
-      return true
+    execSql () {
+      this.$apollo.mutate({
+        client: 'b',
+        mutation: execSql,
+        variables: {
+          sql: this.sql
+        }
+      })
+      .then(result => {
+        console.log('result', result)
+        return result.data.result
+      })
+      .catch(error => {
+        alert('ERROR')
+        console.log(error)
+      })
     },
-    captureWorkingDdl () {
-      // if (this.ddlUp !== this.currentPatch.ddlUpWorking && this.currentPatch.id){
-      //   console.log('this.currentPatch', this.currentPatch)
-      //   return this.$apollo.mutate({
-      //     mutation: captureWorkingDdl,
-      //     variables: {
-      //       patchId: this.currentPatch.id,
-      //       ddlUpWorking: this.ddlUp
-      //     },
-      //     fetchPolicy: 'no-cache'
-      //   })
-      //   .then(result => {
-      //     this.currentPatch = result.data.updatePatchById.patch
-      //     this.$refs.editor.focus()
-      //   })
-      //   .catch(error => {
-      //     alert('ERROR')
-      //     console.log('error', error)
-      //   })
-      // } else {
-      //   return Promise.resolve()
-      // }
-
-    },
-    commitWorkingDdl () {
-      // return this.$apollo.mutate({
-      //   mutation: commitWorkingDdl,
-      //   variables: {
-      //     patchId: this.currentPatch.id,
-      //     ddlUp: this.ddlUp
-      //   },
-      //   fetchPolicy: 'no-cache'
-      // })
-      // .then(result => {
-      //   this.currentPatch = result.data.updatePatchById.patch
-      //   this.$refs.editor.focus()
-      // })
-      // .catch(error => {
-      //   alert('ERROR')
-      //   console.log('error', error)
-      // })
-    },
-    revertWorkingDdl () {
-
-    }
   },
-  // apollo: {
-  //   loadArtifact: {
-  //     fetchPolicy: 'network-only',
-  //     query: artifactById,
-  //     variables () {
-  //       return {id: this.id}
-  //     },
-  //     update (data) {
-  //       this.artifact = data.artifactById
-  //       this.currentPatch = this.artifact.patches.nodes[0] || {ddlUp: null}
-  //       this.ddlUp = this.currentPatch.ddlUpWorking
-  //     }
-  //   }
-
-  // },
-  computed: {
-    disableCapture () {
-      return false  // Todo: this
-      // return this.ddlUp === this.currentPatch.ddlUpWorking
-    },
-    disableCommit () {
-      return false  // Todo: this
-      // return this.disableCapture ? this.currentPatch.ddlUp === this.currentPatch.ddlUpWorking : true
-    },
-    disableRevert () {
-      return false  // Todo: this
-      // return false
-    },
-    readonly () {
-      return false  // Todo: this
-    },
-    isDirty () {
-      return false  // Todo: this
-      // return this.currentPatch.ddlUp !== this.currentPatch.ddlUpWorking
-    }
-  },
-  // beforeRouteUpdate (to, from, next) {
-  //   this.$emit('artifact-route', to.params.id)
-  //   this.captureWorkingDdl()
-  //   .then(result => {
-  //     next()
-  //   })
-  // },
-  // beforeRouteLeave (to, from, next) {
-  //   this.captureWorkingDdl()
-  //   .then(result => {
-  //     next()
-  //   })
-  // },
   data () {
     return {
-      ddlUp: 'select foo from bar.fiz;',
-      cmOptions: {
-        // codemirror options
-        tabSize: 2,
-        mode: 'text/x-pgsql',
-        theme: 'base16-dark',
-        lineNumbers: true,
-        line: true,
-        // more codemirror options, 更多 codemirror 的高级配置...
-      },
-      artifact: {},
-      currentPatch: {}
+      sql: `
+CREATE TABLE pools.pool (
+  id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
+  CONSTRAINT pk_pools_pool PRIMARY KEY (id)
+);
+      `
     }
-  },
+  }
 }
 </script>

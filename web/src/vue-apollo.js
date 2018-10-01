@@ -10,10 +10,12 @@ Vue.use(VueApollo);
 
 // Name of the localStorage item
 const AUTH_TOKEN = "apollo-token";
+const AUTH_TOKEN_DEV = "apollo-token-dev";
 
 // Http endpoint
 const httpEndpoint =
   process.env.VUE_APP_GRAPHQL_HTTP || "http://localhost:8080/graphql";
+  const httpDevEndpoint = "http://localhost:8080/dev-graphql";
 // Files URL root
 export const filesRoot =
   process.env.VUE_APP_FILES_ROOT ||
@@ -56,6 +58,38 @@ const defaultOptions = {
   // clientState: { resolvers: { ... }, defaults: { ... } }
 };
 
+const defaultDevOptions = {
+  // You can use `https` for secure connection (recommended in production)
+  httpEndpoint: httpDevEndpoint,
+  // You can use `wss` for secure connection (recommended in production)
+  // Use `null` to disable subscriptions
+  wsEndpoint: null, //process.env.VUE_APP_GRAPHQL_WS || "ws://localhost:8080/graphql",
+  // LocalStorage token
+  tokenName: AUTH_TOKEN_DEV,
+  // Enable Automatic Query persisting with Apollo Engine
+  persisting: false,
+  // Use websockets for everything (no HTTP)
+  // You need to pass a `wsEndpoint` for this to work
+  websocketsOnly: false,
+  // Is being rendered on the server?
+  ssr: false
+
+  // Override default http link
+  // link: myLink
+
+  // Override default cache
+  // cache: myCache
+
+  // Override the way the Authorization header is set
+  // getAuth: (tokenName) => ...
+
+  // Additional ApolloClient options
+  // apollo: { ... }
+
+  // Client local data (see apollo-link-state)
+  // clientState: { resolvers: { ... }, defaults: { ... } }
+};
+
 // Call this in the Vue app file
 export function createProvider(options = {}) {
   // Create apollo client
@@ -64,9 +98,20 @@ export function createProvider(options = {}) {
     ...options
   });
   apolloClient.wsClient = wsClient;
+  console.log('a', apolloClient)
+
+  const apolloDevClient = createApolloClient({
+    ...defaultDevOptions,
+    ...options
+  }).apolloClient;
+  console.log('b', apolloDevClient)
 
   // Create vue apollo provider
   const apolloProvider = new VueApollo({
+    clients: {
+      a: apolloClient,
+      b: apolloDevClient
+    },
     defaultClient: apolloClient,
     defaultOptions: {
       $query: {
