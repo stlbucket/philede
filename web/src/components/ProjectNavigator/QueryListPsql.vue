@@ -11,7 +11,7 @@
           :key="test.id"
           ripple
           @click="selected(test)"
-          :class="test.id === focusItem.id ? 'v-list__tile--active' : 'v-list__tile'"
+          :class="test.id === focusPatch.id ? 'v-list__tile--active' : 'v-list__tile'"
         >
           <v-list-tile-content>
             <v-list-tile-sub-title class="text--primary">{{ `${test.name}` }}</v-list-tile-sub-title>
@@ -53,7 +53,7 @@ export default {
   },
   data () {
     return {
-      focusItem: {}
+      focusPatch: {}
     }
   },
 }

@@ -41,11 +41,11 @@ export default {
     newPatch () {
       this.$eventHub.$emit('newPatch', this.minor)
     },
-    focusItemChanged (focusItem) {
-      this.focusItem = focusItem
+    focusPatchChanged (focusPatch) {
+      this.focusPatch = focusPatch
     },
     getCssClass(patch) {
-      return (patch.artifact.id === this.focusItem.id) || patch.id === this.focusItem.id ? 'v-list__tile--active' : 'v-list__tile'
+      return (patch.artifact.id === this.focusPatch.id) || patch.id === this.focusPatch.id ? 'v-list__tile--active' : 'v-list__tile'
     }
   },
   calculated: {
@@ -64,16 +64,16 @@ export default {
       panel: [],
       expand: true,
       pdeProject: null,
-      focusItem: {
+      focusPatch: {
         artifact: {}
       }
     }
   },
   created () {
-    this.$eventHub.$on('focusItem', this.focusItemChanged);
+    this.$eventHub.$on('focusPatch', this.focusPatchChanged);
   },
   beforeDestroy() {
-    this.$eventHub.$off('focusItem');
+    this.$eventHub.$off('focusPatch');
   }
 }
 </script>

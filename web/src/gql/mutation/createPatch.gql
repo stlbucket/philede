@@ -24,6 +24,10 @@ mutation CreatePatch(
       ddlUp
       ddlUpWorking
       number
+      artifact: artifactByArtifactId {
+        id
+        name
+      }
     }
   }
 }

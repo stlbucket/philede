@@ -84,6 +84,6 @@ export default {
       selectedReleaseId: '',
       pdeProject: null
     }
-  },
+  }
 }
 </script>

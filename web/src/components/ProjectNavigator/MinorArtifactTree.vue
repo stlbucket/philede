@@ -24,21 +24,21 @@ export default {
     findArtifact (id) {
       // const artifact = this.pdeProject.schemas.nodes.
     },
-    focusItemChanged (focusItem) {
-      // console.log('FOCUS DANIELSON', focusItem)
-      this.focusItem = focusItem
-      switch (focusItem.__typename) {
+    focusPatchChanged (focusPatch) {
+      // console.log('FOCUS DANIELSON', focusPatch)
+      this.focusPatch = focusPatch
+      switch (focusPatch.__typename) {
         case 'Schema':
-          this.selectedItems = [ focusItem.id ]
+          this.selectedItems = [ focusPatch.id ]
         break
         case 'Artifact':
-          this.selectedItems = [ focusItem.id ]
+          this.selectedItems = [ focusPatch.id ]
         break
         case 'ArtifactType':
-          this.selectedItems = [ focusItem.id ]
+          this.selectedItems = [ focusPatch.id ]
         break
         case 'Patch':
-          this.selectedItems = [ focusItem.artifact.id ]
+          this.selectedItems = [ focusPatch.artifact.id ]
         break
         default:
           this.selectedItems = []
@@ -135,7 +135,7 @@ export default {
       )
     },
     newArtifactDisabled () {
-      return (this.focusItem.__typename || 'NONE') !== 'ArtifactType'
+      return (this.focusPatch.__typename || 'NONE') !== 'ArtifactType'
     }
   },
   watch: {
@@ -154,15 +154,15 @@ export default {
   data () {
     return {
       selectedItems: [],
-      focusItem: {}
+      focusPatch: {}
     }
   },
   created () {
-    this.$eventHub.$on('focusItem', this.focusItemChanged);
+    this.$eventHub.$on('focusPatch', this.focusPatchChanged);
     this.$eventHub.$on('treeSelect', this.treeSelect);
   },
   beforeDestroy() {
-    this.$eventHub.$off('focusItem');
+    this.$eventHub.$off('focusPatch');
     this.$eventHub.$off('treeSelect');
   }
 }

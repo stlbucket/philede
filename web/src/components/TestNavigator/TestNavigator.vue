@@ -60,7 +60,7 @@ export default {
   //     this.$router.push({ name: 'graphileiql' })
   //   },
   //   schemaSelected (schema) {
-  //     this.$eventHub.$emit('focusItem', schema)
+  //     this.$eventHub.$emit('focusPatch', schema)
   //   },
   //   newSchema (release) {
   //     this.$router.push({ name: 'newSchema', params: { releaseId: release.id }})
@@ -69,15 +69,15 @@ export default {
   //     this.$router.push({ name: 'newMinor', params: { releaseId: release.id }})
   //   },
   //   artifactTypeSelected (artifactType) {
-  //     this.$eventHub.$emit('focusItem', artifactType)
+  //     this.$eventHub.$emit('focusPatch', artifactType)
   //   },
   //   artifactSelected (artifact) {
   //     this.$router.push({ name: 'artifact', params: { id: artifact.id }})
-  //     this.$eventHub.$emit('focusItem', artifact)
+  //     this.$eventHub.$emit('focusPatch', artifact)
   //   },
   //   patchSelected (patch) {
   //     this.$router.push({ name: 'artifact', params: { id: patch.artifact.id }})
-  //     this.$eventHub.$emit('focusItem', patch)
+  //     this.$eventHub.$emit('focusPatch', patch)
   //   },
   //   newPatch (minor) {
   //     this.$router.push({ name: 'newPatch', params: { minorId: minor.id }})

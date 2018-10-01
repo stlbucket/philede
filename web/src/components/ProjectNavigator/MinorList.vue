@@ -69,14 +69,16 @@ export default {
       hiddenMinors: [],
       pdeProject: null,
       allArtifactTypes: [],
-      focusItem: {}
+      focusPatch: {}
     }
   },
   created () {
     this.$eventHub.$on('minorDeferredToggled', this.queryRelease)
+    this.$eventHub.$on('patchCreated', this.queryRelease)  
   },
   beforeDestroy() {
     this.$eventHub.$off('minorDeferredToggled')
+    this.$eventHub.$off('patchCreated')
   }
 }
 </script>
