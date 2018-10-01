@@ -30,7 +30,6 @@ export default {
         }
       })
       .then(result => {
-        console.log('result', result)
         this.$eventHub.$emit('newMinorCreated', result.data.buildMinor.minor)
       })
       .catch(error => {

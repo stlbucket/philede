@@ -32,8 +32,8 @@ export default {
         }
       })
       .then(result => {
-        console.log('result', result)
-        // this.$router.
+        console.log('res', result)
+        this.$eventHub.$emit('projectCreated', result.data.createPdeProject.pdeProject)
       })
       .catch(error => {
         alert ('ERROR')

@@ -74,11 +74,13 @@ export default {
   },
   created () {
     this.$eventHub.$on('minorDeferredToggled', this.queryRelease)
-    this.$eventHub.$on('patchCreated', this.queryRelease)  
+    this.$eventHub.$on('patchCreated', this.queryRelease)
+    this.$eventHub.$on('newMinorCreated', this.queryRelease)
   },
   beforeDestroy() {
     this.$eventHub.$off('minorDeferredToggled')
     this.$eventHub.$off('patchCreated')
+    this.$eventHub.$off('newMinorCreated')
   }
 }
 </script>

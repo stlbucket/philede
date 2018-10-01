@@ -29,7 +29,17 @@
                   lang="pgsql" 
                   theme="tomorrow_night_bright"
                   width="100%" 
-                  height="750"
+                  height="400"
+                  readonly="readonly"
+                ></editor>
+                <hr/>
+                <editor
+                  ref="results" 
+                  v-model="results" 
+                  @init="editorInit" 
+                  theme="tomorrow_night_bright"
+                  width="100%" 
+                  height="400"
                   readonly="readonly"
                 ></editor>
 
@@ -90,7 +100,8 @@ export default {
       })
       .then(result => {
         console.log('result', result)
-        return result.data.result
+        this.results = JSON.stringify(result.data.ExecSql.result.rows)
+        // this.results = result.data.ExecSql.result.rows
       })
       .catch(error => {
         alert('ERROR')
@@ -101,11 +112,9 @@ export default {
   data () {
     return {
       sql: `
-CREATE TABLE pools.pool (
-  id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
-  CONSTRAINT pk_pools_pool PRIMARY KEY (id)
-);
-      `
+      -- any sql
+      `,
+      results: 'results'
     }
   }
 }

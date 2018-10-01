@@ -77,6 +77,10 @@ export default {
     newMinor (release) {
       this.$router.push({ name: 'newMinor', params: { releaseId: release.id }})
     },
+    newMinorCreated (minor) {
+      this.focusReleaseId = minor.releaseId
+      this.$router.push({ name: 'releaseDetail', params: { id: minor.releaseId }})
+    },
     artifactTypeSelected (artifactType) {
       this.$eventHub.$emit('focusPatch', artifactType)
     },
@@ -149,6 +153,7 @@ export default {
     this.$eventHub.$on('newProject', this.newProject)
     this.$eventHub.$on('manageProject', this.manageProject)
     this.$eventHub.$on('projectSelected', this.projectSelected)
+    this.$eventHub.$on('newMinorCreated', this.newMinorCreated)
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected')
@@ -173,6 +178,7 @@ export default {
     this.$eventHub.$off('newProject')
     this.$eventHub.$off('manageProject')
     this.$eventHub.$off('projectSelected')
+    this.$eventHub.$off('newMinorCreated')
   }
 }
 </script>
