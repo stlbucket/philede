@@ -1,19 +1,19 @@
 mutation CreatePatch(
+  $projectId: BigInt!
   $minorId: BigInt!
   $artifactId: BigInt!
-  $revision: Int
+  $patchTypeId: BigInt!
   $ddlUp: String
   $ddlUpWorking: String
-  $number: String!
 ) {
   createPatch(input: {
     patch: {
+      projectId: $projectId
       minorId: $minorId
       artifactId: $artifactId
-      revision: $revision
+      patchTypeId: $patchTypeId
       ddlUp: $ddlUp
       ddlUpWorking: $ddlUpWorking
-      number: $number
     }
   }) {
     patch {

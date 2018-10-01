@@ -39,9 +39,7 @@ export default {
           }
         })
         .then(result => {
-          // console.log('pdeAppState', result)
           this.pdeProjectId = (result.data.createPdeAppState.pdeAppState || { value: '' }).value
-          // console.log('this.pdeProjectId', this.pdeProjectId)
           if (this.pdeProjectId !== '') {
             this.$router.push({ name: 'projectDetail', params: { id: this.pdeProjectId }})
           }
@@ -93,6 +91,11 @@ export default {
     newPatch (minor) {
       this.$router.push({ name: 'newPatch', params: { minorId: minor.id }})
     },
+    patchCreated (patch) {
+      this.$apollo.queries.init.refetch()
+      this.$router.push({ name: 'artifact', params: { id: patch.artifactId }})
+      this.$eventHub.$emit('focusItem', patch)
+    },
     pgtTestSelected (test) {
        this.$router.push({ name: 'test-pg-tap', params: { id: test.id }})
     },
@@ -132,6 +135,7 @@ export default {
     this.$eventHub.$on('artifactTypeSelected', this.artifactTypeSelected)  
     this.$eventHub.$on('patchSelected', this.patchSelected)  
     this.$eventHub.$on('newPatch', this.newPatch)  
+    this.$eventHub.$on('patchCreated', this.patchCreated)  
     this.$eventHub.$on('newSchema', this.newSchema)  
     this.$eventHub.$on('exploreRelease', this.exploreRelease)  
     this.$eventHub.$on('newDevelopmentRelease', this.newDevelopmentRelease)  
@@ -154,6 +158,7 @@ export default {
     this.$eventHub.$off('artifactTypeSelected')
     this.$eventHub.$off('patchSelected')
     this.$eventHub.$off('newPatch')
+    this.$eventHub.$off('patchCreated')
     this.$eventHub.$off('schemaSelected')
     this.$eventHub.$off('newSchema')
     this.$eventHub.$off('exploreRelease')

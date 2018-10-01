@@ -206,6 +206,7 @@ CREATE TABLE pde.artifact (
   CONSTRAINT pk_artifact PRIMARY KEY (id)
 );
 ALTER TABLE pde.artifact ADD CONSTRAINT fk_artifact_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
+comment on column pde.artifact.updated_at is E'@omit create';
 
   --||--
   CREATE FUNCTION pde.fn_timestamp_update_artifact() RETURNS trigger AS $$
@@ -265,6 +266,7 @@ CREATE TABLE pde.patch (
   CHECK (number <> ''),
   CONSTRAINT pk_pde_patch PRIMARY KEY (id)
 );
+comment on column pde.patch.number is E'@omit create';
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_minor FOREIGN KEY (minor_id) REFERENCES pde.minor (id);
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_artifact FOREIGN KEY (artifact_id) REFERENCES pde.artifact (id);
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
@@ -272,12 +274,13 @@ ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_patch_type FOREIGN KEY (patch_type
 --||--
 CREATE FUNCTION pde.fn_timestamp_update_patch() RETURNS trigger AS $$
 BEGIN
+  NEW.revision := (select count(*) from pde.patch where minor_id = NEW.minor_id);
   NEW.number = (select mi.number || '.' || lpad(NEW.revision::text,4,'0') from pde.minor mi where mi.id = NEW.minor_id);
   RETURN NEW;
 END; $$ LANGUAGE plpgsql;
 --||--
 CREATE TRIGGER tg_timestamp_before_update_patch
-  BEFORE INSERT OR UPDATE ON pde.patch
+  BEFORE INSERT ON pde.patch
   FOR EACH ROW
   EXECUTE PROCEDURE pde.fn_timestamp_update_patch();
 --||--
