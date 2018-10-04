@@ -6,7 +6,7 @@
 
 INSERT INTO pde.artifact_type(name, execution_order, requires_schema) SELECT 'schema', 2, false; 
 INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, documentation_url) SELECT 'create schema', (SELECT id FROM pde.artifact_type WHERE NAME = 'schema'), 20, 'schema-create', '{}', 'Create'
- ,'CREATE SCHEMA {{schemaName}}'
+ ,'CREATE SCHEMA {{schemaName}};'
  ,'https://www.graphile.org/postgraphile/namespaces/'
  ;
 

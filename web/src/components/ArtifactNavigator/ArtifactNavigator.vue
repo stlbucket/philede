@@ -25,7 +25,7 @@
       <v-tab-item
         key="projectCumulativeSchema"
       >
-        <h1>treeview representation of all artifacts in the schema history</h1>
+        <h1>treeview representation of all artifacts in the cumulative project history</h1>
       </v-tab-item>
     </v-tabs>
 

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1>ALSO WORKING ON A BETTER VISUALIZATION HERE BASED ON D3 FORCE-DIRECTED GRAPH</h1>
     <voyager
       :introspection="introspectionProvider"
     ></voyager>

@@ -113,6 +113,8 @@ export default {
     return {
       sql: `
       -- any sql
+
+      the release manager doesn't yet actually execute patches, but the plan is for it to be able to roll up/down anytime
       `,
       results: 'results'
     }

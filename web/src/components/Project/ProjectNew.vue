@@ -32,7 +32,7 @@ export default {
         }
       })
       .then(result => {
-        console.log('res', result)
+        console.log('result', result)
         this.$eventHub.$emit('projectCreated', result.data.createPdeProject.pdeProject)
       })
       .catch(error => {

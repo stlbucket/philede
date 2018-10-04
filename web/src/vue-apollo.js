@@ -98,13 +98,13 @@ export function createProvider(options = {}) {
     ...options
   });
   apolloClient.wsClient = wsClient;
-  console.log('a', apolloClient)
+  console.log('apolloClient for phile-de', apolloClient)
 
   const apolloDevClient = createApolloClient({
     ...defaultDevOptions,
     ...options
   }).apolloClient;
-  console.log('b', apolloDevClient)
+  console.log('apolloClient for db under development - uses proxy on phile-de server', apolloDevClient)
 
   // Create vue apollo provider
   const apolloProvider = new VueApollo({

@@ -18,7 +18,9 @@
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <project-selector></project-selector>
       <v-spacer></v-spacer>
-      <v-toolbar-title v-text="title"></v-toolbar-title>
+      <div id="title">
+        <v-toolbar-title v-text="title" @click="home"></v-toolbar-title>
+      </div>
       <v-spacer></v-spacer>
       <v-btn @click="psql">psql</v-btn>
       <v-btn @click="GraphiQl">GraphiQl</v-btn>
@@ -75,6 +77,9 @@ export default {
     GraphiQl () {
       this.$eventHub.$emit('graphiql')
     },
+    home () {
+      this.$router.push({ name: 'home' })
+    }
  },
   data () {
     return {
@@ -93,6 +98,9 @@ export default {
 
 <style lang="css">
   .treeview-label { background-color: #494544; }
+
+  #title { cursor: pointer; }
+
   .v-content .container { height: 100%; }
   .v-content .container > .layout { height: 100%; }
   .v-content .container > .layout .v-card.theme--dark { 	height: 100%; }

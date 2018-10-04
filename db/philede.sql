@@ -35,7 +35,7 @@ CREATE SCHEMA pde;
 ------------------------------------------------
 CREATE TABLE pde.pde_app_state (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
-  key text NOT NULL,
+  key text NOT NULL UNIQUE,
   value text NOT NULL,
   CONSTRAINT pk_pde_app_state PRIMARY KEY (id),
   CHECK (key <> ''),
