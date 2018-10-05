@@ -10,9 +10,6 @@
 <script>
 import ReleaseNavigator from './ReleaseNavigator'
 import allProjects from '../../gql/query/allProjects.gql'
-import createPdeAppState from '../../gql/mutation/createPdeAppState.gql'
-import updatePdeAppState from '../../gql/mutation/updatePdeAppState.gql'
-import appState from '../../gql/query/appState.gql'
 const SELECTED_PROJECT_ID = 'selectedProjectId'
 
 export default {
@@ -26,36 +23,12 @@ export default {
       networkPolicy: 'fetch-only',
       update (result) {
         this.projects = result.allPdeProjects.nodes
-        this.selectedProjectId = (result.allPdeAppStates.nodes.find(s => s.key === SELECTED_PROJECT_ID) || {}).value
       }
     }
   },
   methods: {
-    appState () {
-      return this.$apollo.query({
-        query: appState
-      })
-      .then(result => {
-        console.log('result', result)
-        return result.data.allPdeAppStates.nodes
-      })
-      .catch(error => {
-        alert('ERROR')
-        console.log(error)
-      })
-    },
     projectSelected (pdeProjectId) {
       if (pdeProjectId) {
-        this.appState()
-        .then(appState => {
-          const existing = appState.find(a => a.key === SELECTED_PROJECT_ID)
-          console.log('existing', existing)
-          if (existing) return
-        })
-        .catch(error => {
-          alert('ERROR')
-          console.log(error)
-        })
       }
     },
     newProject () {
