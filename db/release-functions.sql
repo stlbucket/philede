@@ -241,8 +241,6 @@ BEGIN
     name
     ,number
     ,status
-    ,ddl_up
-    ,ddl_down
     ,project_id
     ,parent_release_id
     ,locked
@@ -251,8 +249,6 @@ BEGIN
     _name
     ,'N/A.development'
     ,'Development'
-    ,'<ddl_up>'
-    ,'<ddl_down>'
     ,_project_id
     ,null
     ,false
@@ -404,8 +400,6 @@ BEGIN
     name
     ,number
     ,status
-    ,ddl_up
-    ,ddl_down
     ,project_id
     ,parent_release_id
     ,locked
@@ -414,8 +408,6 @@ BEGIN
     _development_release.name
     ,(replace(_development_release.number, 'development', 'testing')||'.'||(_testing_release_count+1)::text)
     ,'Testing'
-    ,_development_release.ddl_up
-    ,_development_release.ddl_down
     ,_project_id
     ,_development_release.id
     ,true
@@ -450,9 +442,7 @@ BEGIN
     ,artifact_id
     ,number
     ,ddl_up
-    ,ddl_up_working
     ,ddl_down
-    ,ddl_down_working
     ,patch_type_id
     ,locked
     ,project_id
@@ -463,9 +453,7 @@ BEGIN
     ,p.artifact_id
     ,p.number
     ,p.ddl_up
-    ,p.ddl_up_working
     ,p.ddl_down
-    ,p.ddl_down_working
     ,p.patch_type_id
     ,true
     ,_testing_release.project_id

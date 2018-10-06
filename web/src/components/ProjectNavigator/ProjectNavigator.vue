@@ -29,7 +29,6 @@ export default {
       this.manageProject()
     },
     focusArtifactId () {
-      console.log('blah', this.focusArtifactId)
       this.$router.push({ name: 'artifact', params: { id: this.focusArtifactId }})
     }
   },

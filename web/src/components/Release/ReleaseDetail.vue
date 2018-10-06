@@ -75,7 +75,6 @@ export default {
       fetchPolicy: 'network-only',
       update (result) {
         this.release = result.release
-        console.log('down', this.release.ddlDown)
       }
     }
 
