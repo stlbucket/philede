@@ -3,16 +3,14 @@
     <v-toolbar>
     <v-text-field
       label="Release"
-      :value="selectedRelease.number"
+      :value="focusRelease.number"
     ></v-text-field>
       <v-btn @click="explore">Explore</v-btn>
     </v-toolbar>
     <v-toolbar>
       <v-btn @click="newPatch" :disabled="newPatchSetDisabled">New Minor</v-btn>
     </v-toolbar>
-    <minor-list
-      :releaseId="selectedReleaseId"
-    ></minor-list>
+    <minor-list></minor-list>
   </div>
 </template>
 
@@ -27,26 +25,29 @@ export default {
   },
   methods: {
     newPatch () {
-      this.$eventHub.$emit('newMinor', this.selectedRelease)      
+      this.$eventHub.$emit('newMinor', this.focusRelease)      
     },
     explore () {
-      this.$eventHub.$emit('exploreRelease', this.selectedRelease)
+      this.$eventHub.$emit('exploreRelease', this.focusRelease)
     }
   },
   computed: {
-    selectedRelease () {
-      return (this.releases.find(r => r.id === this.selectedReleaseId) || {})
+    focusRelease () {
+      return (this.releases.find(r => r.id === this.$store.state.focusReleaseId) || {})
     },
     releaseStatus () {
-      return this.selectedRelease ? this.selectedRelease.status : 'N/A'
+      return this.focusRelease ? this.focusRelease.status : 'N/A'
     },
     newPatchSetDisabled () {
-      return this.selectedRelease.id ? this.selectedRelease.locked === true : true
+      return this.focusRelease.id ? this.focusRelease.locked === true : true
+    },
+    selectedProjectId () {
+      return this.$store.state.selectedProjectId
     }
   },
   watch: {
-    focusReleaseId () {
-      this.selectedReleaseId = this.focusReleaseId
+    selectedProjectId () {
+      this.$apollo.queries.init.refetch()
     }
   },
   apollo: {
@@ -54,15 +55,19 @@ export default {
       query: pdeProjectById,
       variables () {
         return {
-          id: `${this.pdeProjectId}`
+          id: this.selectedProjectId
         }
       },
       fetchPolicy: 'network-only',
       skip () {
-        return this.pdeProjectId === ''
+        return this.selectedProjectId === ''
       },
       update (result) {
-        this.pdeProject = result.pdeProjectById
+        this.pdeProject = result.pdeProjectById || {
+          releases: {
+            nodes: []
+          }
+        }
         this.releases = this.pdeProject.releases.nodes.map(
           release => {
             return Object.assign({
@@ -70,8 +75,6 @@ export default {
             }, release)
           }
         )
-        this.selectedReleaseId = this.focusReleaseId ? this.focusReleaseId : ''
-        this.selectedReleaseId = this.selectedReleaseId !== '' ? this.selectedReleaseId : (this.releases.find(r => r.status === 'DEVELOPMENT') || {id: ''}).id
       }
     }
   },
@@ -79,15 +82,13 @@ export default {
     pdeProjectId: {
       type: String,
       required: true
-    },
-    focusReleaseId: String
+    }
   },
   data () {
     return {
       items:  [],
       selectedItems: [],
       releases: [],
-      selectedReleaseId: '',
       pdeProject: null
     }
   }

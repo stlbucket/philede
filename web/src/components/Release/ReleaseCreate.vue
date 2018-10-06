@@ -26,7 +26,7 @@ export default {
       this.$apollo.mutate({
         mutation: buildDevelopmentRelease,
         variables: {
-          projectId: this.projectId,
+          projectId: this.$store.state.selectedProjectId  ,
           name: this.releaseName
         }
       })
@@ -46,17 +46,13 @@ export default {
     },
   },
   props: {
-    projectId: {
-      type: String,
-      required: true
-    }
   },
   apollo: {
     init: {
       query: pdeProjectById,
       variables () {
         return {
-          id: this.projectId
+          id: this.$store.state.selectedProjectId
         }
       },
       update (result) {

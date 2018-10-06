@@ -39,15 +39,18 @@ export default {
     }
   },
   computed: {
+    releaseId () {
+      return this.$store.state.focusReleaseId
+    },
     createDisabled () {
       return this.minorName === ''
     }
   },
   props: {
-    releaseId: {
-      type: String,
-      required: true
-    }
+    // releaseId: {
+    //   type: String,
+    //   required: true
+    // }
   },
   data () {
     return {

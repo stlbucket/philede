@@ -84,10 +84,10 @@ export default new Router({
       props: false
     },
     {
-      path: "/project/:id",
+      path: "/project",
       name: "projectDetail",
       component: ProjectDetail,
-      props: true
+      props: false
     },
     {
       path: "/release/:id",
@@ -102,10 +102,10 @@ export default new Router({
       props: true
     },
     {
-      path: "/newDevelopmentRelease/:projectId",
+      path: "/newDevelopmentRelease",
       name: "newDevelopmentRelease",
       component: ReleaseCreate,
-      props: true
+      props: false
     },
     {
       path: "/test-graph-ql/:id",

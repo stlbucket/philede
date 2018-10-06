@@ -2,14 +2,13 @@
   <div>
     <release-navigator 
       :pdeProjectId="pdeProjectId"
-      :focusReleaseId="focusReleaseId"
     ></release-navigator>
   </div>
 </template>
 
 <script>
 import ReleaseNavigator from './ReleaseNavigator'
-import allProjects from '../../gql/query/allProjects.gql'
+// import allProjects from '../../gql/query/allProjects.gql'
 const SELECTED_PROJECT_ID = 'selectedProjectId'
 
 export default {
@@ -17,29 +16,25 @@ export default {
   components: {
     ReleaseNavigator
   },
-  apollo: {
-    init: {
-      query: allProjects,
-      networkPolicy: 'fetch-only',
-      update (result) {
-        this.projects = result.allPdeProjects.nodes
-      }
+  computed: {
+    currentProjectId () {
+      return this.$store.state.selectedProjectId
+    }
+  },
+  watch: {
+    currentProjectId () {
+      this.manageProject()
     }
   },
   methods: {
-    projectSelected (pdeProjectId) {
-      if (pdeProjectId) {
-      }
-    },
     newProject () {
       this.$router.push({ name: 'newProject' })
     },
     projectCreated (project) {
-      this.projectSelected(project.id)
-      // this.$eventHub.$emit('projectSelected', project.id)
+      this.manageProject()
     },
     manageProject () {
-      this.$router.push({ name: 'projectDetail', params: { id: this.selectedProjectId }})
+      this.$router.push({ name: 'projectDetail'})
     },
     graphQLSchema () {
       this.$router.push({ name: 'graphQLSchema' })
@@ -63,7 +58,7 @@ export default {
       this.$router.push({ name: 'newMinor', params: { releaseId: release.id }})
     },
     newMinorCreated (minor) {
-      this.focusReleaseId = minor.releaseId
+      this.$store.commit('focusReleaseId', { releaseId: minor.releaseId})
       this.$router.push({ name: 'releaseDetail', params: { id: minor.releaseId }})
     },
     artifactTypeSelected (artifactType) {
@@ -97,11 +92,11 @@ export default {
       this.$router.push({ name: 'test-graph-ql', params: { id: test.id }})
     },
     exploreRelease (release) {
-      this.focusReleaseId = release.id
+      this.$store.commit('focusReleaseId', { releaseId: release.id })
       this.$router.push({ name: 'releaseDetail', params: { id: release.id }})
     },
     newDevelopmentRelease () {
-      this.$router.push({ name: 'newDevelopmentRelease', params: { projectId: this.selectedProjectId }})
+      this.$router.push({ name: 'newDevelopmentRelease'})
     },
     boom (sha) {
       console.log('boom', sha)
@@ -111,8 +106,7 @@ export default {
     return {
       projects: [],
       pdeProjectId: '',
-      selectedProjectId: null,
-      focusReleaseId: null
+      selectedProjectId: null
     }
   },
   created () {
@@ -137,7 +131,6 @@ export default {
     this.$eventHub.$on('newDevelopmentReleaseCreated', this.exploreRelease)
     this.$eventHub.$on('newProject', this.newProject)
     this.$eventHub.$on('manageProject', this.manageProject)
-    this.$eventHub.$on('projectSelected', this.projectSelected)
     this.$eventHub.$on('newMinorCreated', this.newMinorCreated)
     this.$eventHub.$on('projectCreated', this.projectCreated)
   },
@@ -163,7 +156,6 @@ export default {
     this.$eventHub.$off('newDevelopmentReleaseCreated')
     this.$eventHub.$off('newProject')
     this.$eventHub.$off('manageProject')
-    this.$eventHub.$off('projectSelected')
     this.$eventHub.$off('newMinorCreated')
     this.$eventHub.$off('projectCreated')
   }

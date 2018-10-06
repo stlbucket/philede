@@ -1,13 +1,16 @@
 mutation CreateSchema(
+  $projectId: BigInt!
   $name: String!
-	$releaseId: BigInt!
-) {
+){
   createSchema (input: {
-    name:	$name
-    releaseId: $releaseId
+    schema: {
+      projectId: $projectId
+      name: $name
+    }
   }) {
     schema {
       id
+      projectId
       name
     }
   }

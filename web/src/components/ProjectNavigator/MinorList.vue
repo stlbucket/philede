@@ -23,36 +23,40 @@ export default {
   },
   methods: {
     queryRelease () {
-      this.$apollo.query({
-        query: releasePatchTree,
-        variables: {
-          id: this.releaseId
-        },
-        fetchPolicy: 'network-only'
-      })
-      .then(result => {
-        this.release = result.data.release
-        this.allArtifactTypes = result.data.allArtifactTypes.nodes
-      })
+      this.$apollo.queries.init.refetch()
     }
   },
   computed: {
     minors () {
-      return this.release.minors.nodes
+      return this.release ? this.release.minors.nodes : []
+    },
+    focusReleaseId () {      
+      return this.$store.state.focusReleaseId
     }
   },
   watch: {
-    releaseId () {
-      if (this.releaseId !== '') {
-        this.queryRelease()
-      }
+    focusReleaseId () {
+      this.queryRelease()
     }
   },
-  props: {
-    releaseId: {
-      type: String,
-      required: true
+  apollo: {
+    init: {
+      query: releasePatchTree,
+      variables () {
+        return {
+          id: this.focusReleaseId
+        }
+      },
+      skip () {
+        return this.focusReleaseId === ''
+      },
+      fetchPolicy: 'network-only',
+      update (result) {
+        this.release = result.release
+        this.allArtifactTypes = result.allArtifactTypes.nodes
+      }
     }
+
   },
   data () {
     return {

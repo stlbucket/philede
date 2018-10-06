@@ -17,10 +17,6 @@ export default {
     ReleaseManager
   },
   props: {
-    id: {
-      type: String,
-      default: ''
-    }
   },
   computed: {
     projectName () {
@@ -49,7 +45,7 @@ export default {
       query: pdeProjectById,
       variables () {
         return {
-          id: this.id
+          id: this.$store.state.selectedProjectId
         }
       },
       fetchPolicy: 'network-only',

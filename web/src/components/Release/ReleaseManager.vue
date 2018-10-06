@@ -186,6 +186,7 @@ export default {
       return release ? true : false
     },
     explore (release) {
+      this.$store.commit('focusReleaseId', { releaseId: release.id })
       this.$eventHub.$emit('exploreRelease', release)
     }
   },

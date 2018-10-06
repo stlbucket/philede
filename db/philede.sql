@@ -214,11 +214,11 @@ comment on column pde.artifact.updated_at is E'@omit create';
     _artifact_type pde.artifact_type;
     _schema pde.schema;
   BEGIN
-    SELECT * INTO _artifact_type FROM pde.artifact_type WHERE id = NEW.artifact_type_id;
-    IF _artifact_type.name = 'schema' THEN
-      INSERT INTO pde.schema(project_id, name) SELECT NEW.project_id, NEW.name WHERE NOT EXISTS (select * from pde.schema where project_id = NEW.project_id and name = NEW.name) returning * into _schema;
-      NEW.schema_id = _schema.id;
-    END IF;
+    -- SELECT * INTO _artifact_type FROM pde.artifact_type WHERE id = NEW.artifact_type_id;
+    -- IF _artifact_type.name = 'schema' THEN
+    --   INSERT INTO pde.schema(project_id, name) SELECT NEW.project_id, NEW.name WHERE NOT EXISTS (select * from pde.schema where project_id = NEW.project_id and name = NEW.name) returning * into _schema;
+    --   NEW.schema_id = _schema.id;
+    -- END IF;
 
     NEW.updated_at = current_timestamp;
     RETURN NEW;
