@@ -13,7 +13,7 @@
           :class="getCssClass(patch)"
         >
           <v-list-tile-content>
-            <v-list-tile-sub-title class="text--primary">{{ `Patch: ${patch.number.split('.')[2]} - ${patch.artifact.name}` }}</v-list-tile-sub-title>
+            <v-list-tile-sub-title class="text--primary">{{ `Patch: ${patch.number.split('.')[2]} - ${patch.patchType.name} - ${patch.artifact.name}` }}</v-list-tile-sub-title>
           </v-list-tile-content>
 
         </v-list-tile>
@@ -39,15 +39,14 @@ export default {
   },
   methods: {
     selected (patch) {
-      console.log('patch', patch)
       this.$store.commit('focusArtifactId', { focusArtifactId: patch.artifactId })
+      this.$eventHub.$emit('patchSelected')
     },
     newPatch () {
       this.$eventHub.$emit('newPatch', this.minor)
     },
     getCssClass(patch) {
-      console.log('focus', this.focusArtifactId)
-      return (patch.artifactId === this.focusArtifactId) ? 'v-list__tile--active' : 'v-list__tile'
+      return (patch.artifactId === this.focusArtifactId) || (patch.arti) ? 'v-list__tile--active' : 'v-list__tile'
     }
   },
   props: {

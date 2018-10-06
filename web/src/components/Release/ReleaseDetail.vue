@@ -2,11 +2,45 @@
   <div>
     <h1>Release - {{ release.number }}</h1>
     <v-btn @click="done">Done</v-btn>
-    <v-textarea
-      :value="release.ddlUp"
-      auto-grow
-      readonly
-    ></v-textarea>
+    <v-tabs
+      dark
+      slider-color="yellow"
+    >
+      <v-tab
+        key="ddl-up"
+        ripple
+      >
+        Up DDL
+      </v-tab>
+      <v-tab-item
+        key="ddl-up"
+        lazy
+      >
+        <v-textarea
+          :value="release.ddlUp"
+          auto-grow
+          readonly
+        ></v-textarea>
+      </v-tab-item>
+
+      <v-tab
+        key="ddl-down"
+        ripple
+      >
+        Down DDL
+      </v-tab>
+      <v-tab-item
+        key="ddl-down"
+        lazy
+      >
+        <v-textarea
+          :value="release.ddlDown"
+          auto-grow
+          readonly
+        ></v-textarea>
+      </v-tab-item>
+
+    </v-tabs>
   </div>
 </template>
 
@@ -41,8 +75,7 @@ export default {
       fetchPolicy: 'network-only',
       update (result) {
         this.release = result.release
-        console.log('this.release', this.release.ddlUp)
-        // this.allArtifactTypes = result.allArtifactTypes.nodes
+        console.log('down', this.release.ddlDown)
       }
     }
 

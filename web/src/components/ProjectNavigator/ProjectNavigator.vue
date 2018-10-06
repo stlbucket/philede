@@ -29,6 +29,7 @@ export default {
       this.manageProject()
     },
     focusArtifactId () {
+      console.log('blah', this.focusArtifactId)
       this.$router.push({ name: 'artifact', params: { id: this.focusArtifactId }})
     }
   },
@@ -74,7 +75,7 @@ export default {
       this.$router.push({ name: 'artifact', params: { id: artifact.id }})
     },
     patchSelected (patch) {
-      this.$router.push({ name: 'artifact', params: { id: patch.artifact.id }})
+      this.$router.push({ name: 'artifact', params: { id: this.focusArtifactId }})
     },
     newPatch (minor) {
       this.$router.push({ name: 'newPatch', params: { minorId: minor.id }})

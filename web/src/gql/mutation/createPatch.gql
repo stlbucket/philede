@@ -4,6 +4,7 @@ mutation CreatePatch(
   $artifactId: BigInt!
   $patchTypeId: BigInt!
   $ddlUp: String
+  $ddlDown: String
 ) {
   createPatch(input: {
     patch: {
@@ -12,6 +13,7 @@ mutation CreatePatch(
       artifactId: $artifactId
       patchTypeId: $patchTypeId
       ddlUp: $ddlUp
+      ddlDown: $ddlDown
     }
   }) {
     patch {
@@ -20,6 +22,7 @@ mutation CreatePatch(
       artifactId
       revision
       ddlUp
+      ddlDown
       number
       artifact: artifactByArtifactId {
         id
