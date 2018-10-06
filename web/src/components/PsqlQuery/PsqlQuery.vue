@@ -100,7 +100,7 @@ export default {
       })
       .then(result => {
         console.log('result', result)
-        this.results = JSON.stringify(result.data.ExecSql.result.rows)
+        this.results = JSON.stringify(result.data.ExecSql.result)
         // this.results = result.data.ExecSql.result.rows
       })
       .catch(error => {
