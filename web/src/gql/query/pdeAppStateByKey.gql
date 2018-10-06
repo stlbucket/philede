@@ -1,0 +1,7 @@
+query PdeAppStateByKey{
+  pdeAppStateByKey(key: "selectedProjectId") {
+    id
+    key
+    value
+  }
+}

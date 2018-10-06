@@ -1,0 +1,66 @@
+query PatchCreateInit(
+  $minorId: BigInt!
+){
+  minorById(id: $minorId) {
+    id
+    name
+    number
+    revision
+    project: pdeProjectByProjectId {
+      id
+      name
+      schemata: schemataByProjectId {
+        nodes {
+          id
+          name
+        }
+      }
+      artifacts: artifactsByProjectId {
+        nodes {
+          id
+          name
+          schema: schemaBySchemaId {
+            id
+            name
+          }
+          artifactType: artifactTypeByArtifactTypeId {
+            id
+            name
+            requiresSchema
+          }
+          patches: patchesByArtifactId(orderBy: NUMBER_ASC) {
+            nodes {
+              id
+              patchType: patchTypeByPatchTypeId {
+                id
+                name
+                key
+                action
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  allArtifactTypes {
+    nodes {
+      id
+      name
+      requiresSchema
+      properties
+      patchTypes: patchTypesByArtifactTypeId {
+        nodes {
+          id
+          name
+          key
+          action
+          ddlUpTemplate
+          ddlDownTemplate
+          documentationUrl
+        }
+      }
+    }
+  }
+}

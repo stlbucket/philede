@@ -1,0 +1,23 @@
+mutation CreateArtifact(
+  $name: String!
+  $description: String
+  $artifactTypeId: BigInt!
+  $projectId: BigInt!
+  $schemaId: BigInt
+){
+  createArtifact(input: {
+    artifact: {
+      name: $name
+      description: $description
+      artifactTypeId: $artifactTypeId
+      projectId: $projectId
+      schemaId: $schemaId
+    }
+  }) {
+    artifact {
+      id
+      name
+      description
+    }
+  }
+}
