@@ -6,6 +6,8 @@ query ReleaseById(
     name
     number
     locked
+    ddlUp
+    ddlDown
     minors: minorsByReleaseId(
       orderBy: NUMBER_ASC
     ) {
