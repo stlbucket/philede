@@ -19,11 +19,17 @@ export default {
   computed: {
     currentProjectId () {
       return this.$store.state.selectedProjectId
+    },
+    focusArtifactId () {
+      return this.$store.state.focusArtifactId
     }
   },
   watch: {
     currentProjectId () {
       this.manageProject()
+    },
+    focusArtifactId () {
+      this.$router.push({ name: 'artifact', params: { id: this.focusArtifactId }})
     }
   },
   methods: {
@@ -66,18 +72,15 @@ export default {
     },
     artifactSelected (artifact) {
       this.$router.push({ name: 'artifact', params: { id: artifact.id }})
-      this.$eventHub.$emit('focusPatch', artifact)
     },
     patchSelected (patch) {
       this.$router.push({ name: 'artifact', params: { id: patch.artifact.id }})
-      this.$eventHub.$emit('focusPatch', patch)
     },
     newPatch (minor) {
       this.$router.push({ name: 'newPatch', params: { minorId: minor.id }})
     },
     patchCreated (patch) {
       this.$router.push({ name: 'artifact', params: { id: patch.artifactId }})
-      this.$eventHub.$emit('focusPatch', patch)
     },
     pgtTestSelected (test) {
        this.$router.push({ name: 'test-pg-tap', params: { id: test.id }})

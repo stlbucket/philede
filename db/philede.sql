@@ -109,8 +109,6 @@ CREATE TABLE pde.release (
   name text NOT NULL,
   number text NOT NULL,
   status pde.release_status NOT NULL DEFAULT 'Development',
-  ddl_up text NOT NULL DEFAULT '<ddl>',
-  ddl_down text NOT NULL DEFAULT '<ddl>',
   parent_release_id bigint NULL,
   locked boolean not null default false,
   CONSTRAINT pk_pde_release PRIMARY KEY (id),
@@ -267,9 +265,7 @@ CREATE TABLE pde.patch (
   project_id bigint NOT NULL,
   revision integer,
   ddl_up text NOT NULL DEFAULT '<ddl>',
-  ddl_up_working text NOT NULL DEFAULT '<ddl>',
   ddl_down text NOT NULL DEFAULT '<ddl>',
-  ddl_down_working text NOT NULL DEFAULT '<ddl>',
   number text NOT NULL,
   locked boolean NOT NULL default false,
   CHECK (number <> ''),
@@ -342,7 +338,6 @@ CREATE TABLE pde.test (
   type pde.test_type NOT NULL DEFAULT 'GraphQL',
   name text,
   script text NOT NULL DEFAULT '<test ddl>',
-  script_working text NOT NULL DEFAULT '<test ddl>',
   minor_id bigint NOT NULL,
   CONSTRAINT pk_pde_test PRIMARY KEY (id)
 );

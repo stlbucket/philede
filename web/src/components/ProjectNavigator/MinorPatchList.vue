@@ -32,24 +32,23 @@ export default {
   computed: {
     newPatchDisabled () {
       return this.minor.locked
+    },
+    focusArtifactId () {
+      return this.$store.state.focusArtifactId
     }
   },
   methods: {
     selected (patch) {
-      this.$eventHub.$emit('patchSelected', patch)
+      console.log('patch', patch)
+      this.$store.commit('focusArtifactId', { focusArtifactId: patch.artifactId })
     },
     newPatch () {
       this.$eventHub.$emit('newPatch', this.minor)
     },
-    focusPatchChanged (focusPatch) {
-      this.focusPatch = focusPatch
-    },
     getCssClass(patch) {
-      return (patch.artifact.id === this.focusPatch.id) || patch.id === this.focusPatch.id ? 'v-list__tile--active' : 'v-list__tile'
+      console.log('focus', this.focusArtifactId)
+      return (patch.artifactId === this.focusArtifactId) ? 'v-list__tile--active' : 'v-list__tile'
     }
-  },
-  calculated: {
-
   },
   props: {
     minor: {

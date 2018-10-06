@@ -2,7 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import Home from "./views/Home.vue";
 // import Apollo from "./views/Apollo.vue";
-import Artifact from "./components/Routes/Artifact.vue"
+import Artifact from "./components/Artifact/Artifact.vue"
 
 import Graphileiql from "./components/Graphileiql/Graphileiql.vue"
 import GraphQLSchema from "./components/Graphileiql/GraphQLSchema.vue"
@@ -18,7 +18,7 @@ import TestGraphQL from "./components/Routes/TestGraphQL.vue"
 
 import TestPgTap from "./components/Routes/TestPgTap.vue"
 
-import PatchNew from "./components/Patch/PatchNew.vue"
+import PatchCreate from "./components/Patch/PatchCreate.vue"
 import PgTapTest from "./components/PgTapTest/PgTapTest.vue"
 import PsqlQuery from "./components/PsqlQuery/PsqlQuery.vue"
 
@@ -122,7 +122,7 @@ export default new Router({
     {
       path: "/newPatch/:minorId",
       name: "newPatch",
-      component: PatchNew,
+      component: PatchCreate,
       props: true
     },
     {

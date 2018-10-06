@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>New Minor Patch Set - {{ releaseId }}</h1>
+    <h1>New Minor Patch Set</h1>
     <v-text-field
       label="Name"
       v-model="minorName"
@@ -45,12 +45,6 @@ export default {
     createDisabled () {
       return this.minorName === ''
     }
-  },
-  props: {
-    // releaseId: {
-    //   type: String,
-    //   required: true
-    // }
   },
   data () {
     return {

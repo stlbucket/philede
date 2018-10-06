@@ -14,7 +14,6 @@ query ArtifactById(
         id
         number
         ddlUp
-        ddlUpWorking
         minor: minorByMinorId {
           id
           number

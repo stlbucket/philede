@@ -34,6 +34,7 @@ query ReleaseById(
             number
             revision
             locked
+            artifactId
             patchType: patchTypeByPatchTypeId {
               id
               name
@@ -62,7 +63,6 @@ query ReleaseById(
             id
             name
             script
-            scriptWorking
             type
           }
         }
@@ -73,7 +73,6 @@ query ReleaseById(
             id
             name
             script
-            scriptWorking
             type
           }
         }

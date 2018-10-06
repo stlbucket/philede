@@ -137,7 +137,6 @@ INSERT INTO pde.patch(
   minor_id
   ,revision
   ,ddl_up
-  ,ddl_up_working
   ,artifact_id
   ,project_id
   ,patch_type_id
@@ -145,7 +144,6 @@ INSERT INTO pde.patch(
 SELECT 
   id 
   ,1
-  ,'CREATE SCHEMA todo;'
   ,'CREATE SCHEMA todo;'
   ,(select id from pde.artifact where name = 'todo schema')
   ,(SELECT id from pde.pde_project where name = 'Todo')
@@ -156,7 +154,6 @@ INSERT INTO pde.patch(
   minor_id
   ,revision
   ,ddl_up
-  ,ddl_up_working
   ,artifact_id
   ,project_id
   ,patch_type_id
@@ -164,7 +161,6 @@ INSERT INTO pde.patch(
 SELECT
   id 
   ,1
-  ,'CREATE TABLE STATEMENT;'
   ,'CREATE TABLE STATEMENT;'
   ,(select id from pde.artifact where name = 'example_table')
   ,(SELECT id from pde.pde_project where name = 'Todo')
@@ -175,7 +171,6 @@ INSERT INTO pde.patch(
   minor_id
   ,revision
   ,ddl_up
-  ,ddl_up_working
   ,artifact_id
   ,project_id
   ,patch_type_id
@@ -183,7 +178,6 @@ INSERT INTO pde.patch(
 SELECT
   id
   ,2 
-  ,'CREATE FUNCTION STATEMENT;'
   ,'CREATE FUNCTION STATEMENT;'
   ,(select id from pde.artifact where name = 'example_function')
   ,(SELECT id from pde.pde_project where name = 'Todo')
@@ -194,7 +188,6 @@ INSERT INTO pde.patch(
   minor_id
   ,revision
   ,ddl_up
-  ,ddl_up_working
   ,artifact_id
   ,project_id
   ,patch_type_id
@@ -202,7 +195,6 @@ INSERT INTO pde.patch(
 SELECT
   id
   ,3
-  ,'CREATE TRIGGER STATEMENT;'
   ,'CREATE TRIGGER STATEMENT;'
   ,(select id from pde.artifact where name = 'example_table')
   ,(SELECT id from pde.pde_project where name = 'Todo')
@@ -213,7 +205,6 @@ INSERT INTO pde.patch(
   minor_id
   ,revision
   ,ddl_up
-  ,ddl_up_working
   ,artifact_id
   ,project_id
   ,patch_type_id
@@ -221,7 +212,6 @@ INSERT INTO pde.patch(
 SELECT
   id
   ,1
-  ,'second function;'
   ,'second function;'
   ,(select id from pde.artifact where name = 'second_function')
   ,(SELECT id from pde.pde_project where name = 'Todo')
