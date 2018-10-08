@@ -315,14 +315,18 @@ export default {
     calculateDdlUp () {
       this.ddlUp = this.templateFields.reduce(
         (template, fieldName) => {
-          return template.split(`{{${fieldName}}}`).join(this.templateFieldValues[fieldName])
+          const enteredValue = this.templateFieldValues[fieldName]
+          const value = enteredValue === enteredValue.toLowerCase() ? enteredValue : `"${enteredValue}"`
+          return template.split(`{{${fieldName}}}`).join(value)
         }, this.selectedPatchType.ddlUpTemplate
       ) 
     },
     calculateDdlDown () {
       this.ddlDown = this.templateFields.reduce(
         (template, fieldName) => {
-          return template.split(`{{${fieldName}}}`).join(this.templateFieldValues[fieldName])
+          const enteredValue = this.templateFieldValues[fieldName]
+          const value = enteredValue === enteredValue.toLowerCase() ? enteredValue : `"${enteredValue}"`
+          return template.split(`{{${fieldName}}}`).join(value)
         }, this.selectedPatchType.ddlDownTemplate
       ) 
     },

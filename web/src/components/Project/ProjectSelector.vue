@@ -10,6 +10,8 @@
         @change="projectSelected"
       ></v-select>
       <v-btn @click="manageProject">Manage</v-btn>
+      <v-btn @click="exportProject">Export</v-btn>
+      <v-btn @click="importProject">Import</v-btn>
       <v-btn @click="newProject">New</v-btn>
     </v-toolbar>
   </div>
@@ -54,6 +56,12 @@ export default {
     manageProject () {
       this.$eventHub.$emit('manageProject', this.pdeProjectId)
     },
+    exportProject () {
+      this.$eventHub.$emit('exportProject')
+    },
+    importProject () {
+      this.$eventHub.$emit('importProject')
+    }
   },
   data () {
     return {

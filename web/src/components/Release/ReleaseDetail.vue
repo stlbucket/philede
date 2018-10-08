@@ -16,6 +16,7 @@
         key="ddl-up"
         lazy
       >
+        <v-btn @click="execDdlUp">Execute</v-btn>
         <v-textarea
           :value="release.ddlUp"
           auto-grow
@@ -33,6 +34,7 @@
         key="ddl-down"
         lazy
       >
+        <v-btn @click="execDdlDown">Execute</v-btn>
         <v-textarea
           :value="release.ddlDown"
           auto-grow
@@ -46,6 +48,7 @@
 
 <script>
 import releasePatchTree from '../../gql/query/releasePatchTree.gql'
+import execSql from '../../gql/mutation/execSql.gql'
 
 export default {
   name: "ReleaseDetail",
@@ -54,6 +57,40 @@ export default {
   methods: {
     done () {
       this.$router.go(-1)
+    },
+    execDdlUp () {
+      this.$apollo.mutate({
+        client: 'b',
+        mutation: execSql,
+        variables: {
+          sql: this.release.ddlUp
+        }
+      })
+      .then(result => {
+        alert('SUCCESS')
+        console.log(result.data.ExecSql.result)
+      })
+      .catch(error => {
+        alert('ERROR')
+        console.error(error)
+      })
+    },
+    execDdlDown () {
+      this.$apollo.mutate({
+        client: 'b',
+        mutation: execSql,
+        variables: {
+          sql: this.release.ddlDown
+        }
+      })
+      .then(result => {
+        alert('SUCCESS')
+        console.log(result.data.ExecSql.result)
+      })
+      .catch(error => {
+        alert('ERROR')
+        console.error(error)
+      })
     }
   },
   computed: {

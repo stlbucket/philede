@@ -1,0 +1,9 @@
+mutation ImportProject(
+  $project: JSON!
+){
+  importProject(input: {
+    _project: $project
+  }) {
+    json
+  }
+}

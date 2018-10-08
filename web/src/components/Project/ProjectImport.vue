@@ -1,0 +1,98 @@
+<template>
+  <div>
+    <div class="container">
+      <div class="large-12 medium-12 small-12 cell">
+        <label>File
+          <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>
+        </label>
+      </div>
+    </div>
+    <h1>Import Project: {{ projectName }}</h1>
+      <v-toolbar>
+        <v-btn @click="importProject">Import</v-btn>
+      </v-toolbar>
+      <v-textarea
+        :value="projectJson"
+        auto-grow
+        readonly
+      ></v-textarea>
+  </div>
+</template>
+
+<script>
+import importProject from '../../gql/mutation/importProject.gql'
+
+export default {
+  name: "ExportProject",
+  components: {
+  },
+  props: {
+  },
+  computed: {
+    projectName () {
+      return this.project ? this.project.name : 'N/A'
+    },
+    projectJson () {
+      return this.project ? JSON.stringify(this.project, null, 2) : 'N/A'
+    }
+  },
+  methods: {
+    importProject: function() {
+      this.$apollo.mutate({
+        mutation: importProject,
+        variables: {
+          project: this.project
+        }
+      })
+      .then(result => {
+        console.log('import result', result.data.importProject.json)
+      })
+      .catch(error => {
+        alert('ERROR')
+        console.log(error)
+      })
+    },
+    useResults (reader) {
+      this.project = JSON.parse(reader.currentTarget.result)
+    },
+    handleFileUpload () {
+      this.file = this.$refs.file.files[0];
+      console.log('this.file', this.file)
+      const reader = new FileReader();
+      reader.onload = this.useResults
+      reader.readAsText(this.file);
+    },
+    submitFile () {
+
+    }
+  },
+  // apollo: {
+  //   init: {
+  //     query: exportProjectById,
+  //     variables () {
+  //       return {
+  //         id: this.$store.state.selectedProjectId
+  //       }
+  //     },
+  //     fetchPolicy: 'network-only',
+  //     update (result) {
+  //       this.project = result.pdeProjectById || {
+  //       releases: {
+  //         nodes: []
+  //         }
+  //       }
+  //     }
+  //   }
+  // },
+  data () {
+    return {
+      file: '',
+      project: {
+        releases: {
+          nodes: []
+        }
+      }
+    }
+  }
+}
+</script>

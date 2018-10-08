@@ -1,4 +1,4 @@
-require('./.env')
+// require('./.env')
 const {ApolloEngine} = require('apollo-engine');
 const express = require("express");
 const {postgraphile} = require("postgraphile");
@@ -43,17 +43,6 @@ app.use(postgraphile(
     // ,classicIds: true
   }
 ));
-
-// todo: refactor so this is configurable
-// app.use('/dev-graphql', proxy({
-//   target: 'http://localhost:3000',
-//   changeOrigin: true,
-//   logLevel: 'debug',
-//   pathRewrite: {'/dev-graphql' : '/graphql'}
-// }));
-// app.use('/dev-graphql', function(res, req) {
-//   res.send('fuck you')
-// });
 
 if (enableApolloEngine) {
   engine.listen({

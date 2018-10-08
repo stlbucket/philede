@@ -134,7 +134,7 @@ ALTER TABLE pde.major ADD CONSTRAINT fk_major_project FOREIGN KEY (project_id) R
 -- minor
 ------------------------------------------------
 CREATE TABLE pde.minor (
-  id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
+  id bigint NOT NULL DEFAULT shard_1.id_generator(),
   name text NOT NULL,
   major_id bigint NOT NULL,
   release_id bigint NOT NULL,
@@ -169,8 +169,6 @@ CREATE TABLE pde.artifact_type (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   name text NOT NULL,
   requires_schema boolean NOT NULL DEFAULT true,
-  ddl_up_template text,
-  ddl_down_template text,
   execution_order integer NOT NULL,
   properties jsonb NOT NULL DEFAULT '{}'::jsonb,
   CONSTRAINT pk_pde_artifact_ype PRIMARY KEY (id)

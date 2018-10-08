@@ -1,0 +1,83 @@
+query {
+  allArtifactTypes { 
+    nodes {
+      id
+      name
+      properties
+      requiresSchema
+      executionOrder
+      patchTypes: patchTypesByArtifactTypeId {
+        nodes {
+          id
+          name
+          key
+          ddlUpTemplate
+          ddlDownTemplate
+          action
+          documentationUrl
+          executionOrder
+          properties
+        }
+      }
+    }
+  }
+
+  allPdeProjects {
+    nodes {
+      id    
+      name
+      schemata: schemataByProjectId {
+        nodes {
+          id
+          name
+          artifacts: artifactsBySchemaId {
+            nodes {
+              id
+              name
+              description
+              artifactTypeId
+            }
+          }
+        }
+      }
+      releases: releasesByProjectId(orderBy: NUMBER_ASC) {
+        nodes {
+          id
+          name
+          number
+          status
+          projectId
+          locked
+          minors: minorsByReleaseId(
+            orderBy: NUMBER_ASC
+          ) {
+            nodes {
+              id
+              number
+              name
+              revision
+              locked
+              major: majorByMajorId {
+                id
+                name
+                revision
+              }
+              patches: patchesByMinorId(
+                orderBy: NUMBER_ASC
+              ) {
+                nodes {
+                  id
+                  number
+                  revision
+                  locked
+                  artifactId
+                  patchTypeId
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

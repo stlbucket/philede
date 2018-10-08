@@ -10,6 +10,8 @@ import GraphQLTest from "./components/GraphQLTest/GraphQLTest.vue"
 
 import ProjectNew from "./components/Project/ProjectNew.vue"
 import ProjectDetail from "./components/Project/ProjectDetail.vue"
+import ProjectExport from "./components/Project/ProjectExport.vue"
+import ProjectImport from "./components/Project/ProjectImport.vue"
 
 import ReleaseDetail from "./components/Release/ReleaseDetail.vue"
 import ReleaseCreate from "./components/Release/ReleaseCreate.vue"
@@ -45,6 +47,18 @@ export default new Router({
       path: "/newProject",
       name: "newProject",
       component: ProjectNew,
+      props: false
+    },
+    {
+      path: "/exportProject",
+      name: "exportProject",
+      component: ProjectExport,
+      props: false
+    },
+    {
+      path: "/importProject",
+      name: "importProject",
+      component: ProjectImport,
       props: false
     },
     {

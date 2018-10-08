@@ -24,20 +24,27 @@ export default {
       return this.$store.state.focusArtifactId
     }
   },
-  watch: {
-    currentProjectId () {
-      this.manageProject()
+  watch: {  // todo - convert as many watchers as possible
+    currentProjectId: {
+      handler: 'manageProject',
+      immediate: true
     },
     focusArtifactId () {
       this.$router.push({ name: 'artifact', params: { id: this.focusArtifactId }})
     }
   },
-  methods: {
+  methods: {  // todo: get rid of as many events as possible
     newProject () {
       this.$router.push({ name: 'newProject' })
     },
     projectCreated (project) {
       this.manageProject()
+    },
+    exportProject () {
+      this.$router.push({ name: 'exportProject'})
+    },
+    importProject () {
+      this.$router.push({ name: 'importProject'})
     },
     manageProject () {
       this.$router.push({ name: 'projectDetail'})
@@ -136,6 +143,8 @@ export default {
     this.$eventHub.$on('manageProject', this.manageProject)
     this.$eventHub.$on('newMinorCreated', this.newMinorCreated)
     this.$eventHub.$on('projectCreated', this.projectCreated)
+    this.$eventHub.$on('exportProject', this.exportProject)
+    this.$eventHub.$on('importProject', this.importProject)
   },
   beforeDestroy() {
     this.$eventHub.$off('pgtTestSelected')
@@ -161,6 +170,8 @@ export default {
     this.$eventHub.$off('manageProject')
     this.$eventHub.$off('newMinorCreated')
     this.$eventHub.$off('projectCreated')
+    this.$eventHub.$off('exportProject')
+    this.$eventHub.$off('importProject')
   }
 }
 </script>

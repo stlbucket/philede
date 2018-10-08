@@ -4,13 +4,14 @@
     <v-text-field
       v-model="projectName"
     ></v-text-field>
-    <v-btn @click="create" :disabled="newDisabled">Create</v-btn>
+    <v-btn @click="createProject" :disabled="newDisabled">Create</v-btn>
     <v-btn @click="cancel">Cancel</v-btn>
   </div>
 </template>
 
 <script>
 import createPdeProject from '../../gql/mutation/createPdeProject.gql'
+import execSql from '../../gql/mutation/execSql.gql'
 
 export default {
   name: "NewProject",
@@ -24,7 +25,7 @@ export default {
     }
   },
   methods: {
-    create () {
+    createProject () {
       this.$apollo.mutate({
         mutation: createPdeProject,
         variables: {
@@ -44,8 +45,29 @@ export default {
       this.$router.go(-1)
     }
   },
-  apollo: {
-  },
+  // created () {
+  //   this.$apollo.mutate({
+  //     client: 'b',
+  //     mutation: execSql,
+  //     variables: {
+  //       sql: `
+  //         SELECT schema_name
+  //         FROM information_schema.schemata
+  //         WHERE schema_name NOT LIKE 'pg_%'
+  //         AND schema_name != 'public'
+  //         AND schema_name != 'information_schema'
+  //         ;
+  //         `
+  //     }
+  //   })
+  //   .then(result => {
+  //     console.log('result', result)
+  //   })
+  //   .catch(error => {
+  //     alert('ERROR')
+  //     console.log(error)
+  //   })
+  // },
   data () {
     return {
       projectName: ''
