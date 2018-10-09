@@ -54,6 +54,7 @@ export default {
         console.log('schemaSelected', schema)
       } else if (artifact) {
         console.log('artifactSelected', artifact)
+        this.$store.commit('focusArtifactId', { focusArtifactId: artifact.id })
       } else if (artifactType) {
         console.log('artifactTypeSelected', artifactType)
       } else if (patch) {
@@ -98,7 +99,7 @@ export default {
                             patch => {
                               return {
                                 id: patch.id,
-                                name: patch.patchType.name,
+                                name: `${patch.number} - ${patch.patchType.name}`,
                                 children: []
                               }
                             }
