@@ -1166,13 +1166,13 @@ $function$
 		<entity schema="pde" name="pde_project" color="BFD4F5" x="432" y="64" />
 		<entity schema="pde" name="schema" color="C1D8EE" x="80" y="48" />
 		<entity schema="pde" name="artifact" color="BFD4F5" x="288" y="176" />
-		<entity schema="pde" name="artifact_type" color="BFD4F5" x="64" y="464" />
-		<entity schema="pde" name="patch_type" color="C1D8EE" x="64" y="656" />
-		<entity schema="pde" name="patch" color="BFD4F5" x="352" y="528" />
-		<entity schema="pde" name="minor" color="BFD4F5" x="640" y="416" />
-		<entity schema="pde" name="release" color="BFD4F5" x="704" y="48" />
 		<entity schema="pde" name="major" color="BFD4F5" x="592" y="176" />
 		<entity schema="pde" name="test" color="C1D8EE" x="688" y="672" />
 		<entity schema="pde" name="pde_app_state" color="C1D8EE" x="48" y="208" />
+		<entity schema="pde" name="release" color="BFD4F5" x="736" y="48" />
+		<entity schema="pde" name="minor" color="BFD4F5" x="640" y="416" />
+		<entity schema="pde" name="patch" color="BFD4F5" x="352" y="528" />
+		<entity schema="pde" name="artifact_type" color="BFD4F5" x="64" y="464" />
+		<entity schema="pde" name="patch_type" color="C1D8EE" x="64" y="656" />
 	</layout>
 </project>

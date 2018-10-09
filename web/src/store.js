@@ -8,7 +8,8 @@ export default new Vuex.Store({
   state: {
     selectedProjectId: '',
     focusReleaseId: '',
-    focusArtifactId: ''
+    focusArtifactId: '',
+    focusPatchId: ''
   },
   mutations: {
     selectedProjectId (state, payload) {
@@ -19,6 +20,9 @@ export default new Vuex.Store({
     },
     focusArtifactId (state, payload) {
       state.focusArtifactId = payload.focusArtifactId
+    },
+    focusPatchId (state, payload) {
+      state.focusPatchId = payload.focusPatchId
     }
   },
   actions: {

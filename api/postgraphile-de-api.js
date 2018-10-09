@@ -22,6 +22,7 @@ const extendedErrors = process.env.EXTENDED_ERRORS
 const disableDefaultMutations = process.env.DISABLE_DEFAULT_MUTATIONS === 'false'
 const enableApolloEngine = process.env.ENABLE_APOLLO_ENGINE === 'true'
 const apolloApiKey = process.env.APOLLO_ENGINE_API_KEY
+const watchPg = process.env.WATCH_PG === 'true'
 
 const app = express();
 const engine = new ApolloEngine({
@@ -40,6 +41,7 @@ app.use(postgraphile(
     ,extendedErrors: ['severity', 'code', 'detail', 'hint', 'positon', 'internalPosition', 'internalQuery', 'where', 'schema', 'table', 'column', 'dataType', 'constraint', 'file', 'line', 'routine']
     ,disableDefaultMutations: disableDefaultMutations
     ,appendPlugins: plugins
+    ,watchPg: watchPg
     // ,classicIds: true
   }
 ));

@@ -8,10 +8,12 @@
 			<column name="created_at" type="timestamp" length="29" decimal="6" jt="93" mandatory="y" >
 				<defo>now()</defo>
 			</column>
-			<column name="updated_at" type="timestamp" length="29" decimal="6" jt="93" mandatory="y" />
+			<column name="updated_at" type="timestamp" length="29" decimal="6" jt="93" mandatory="y" >
+				<comment><![CDATA[@omit create]]></comment>
+			</column>
 			<column name="name" type="text" decimal="0" jt="12" mandatory="y" />
 			<column name="artifact_type_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
-			<column name="schema_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="schema_id" type="bigint" length="19" decimal="0" jt="-5" />
 			<column name="description" type="text" decimal="0" jt="12" mandatory="y" >
 				<defo>&#039;&#039;::text</defo>
 			</column>
@@ -106,17 +108,13 @@
 			<column name="minor_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<column name="revision" type="integer" length="10" decimal="0" jt="4" />
 			<column name="artifact_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
-			<column name="number" type="text" decimal="0" jt="12" mandatory="y" />
+			<column name="number" type="text" decimal="0" jt="12" mandatory="y" >
+				<comment><![CDATA[@omit create]]></comment>
+			</column>
 			<column name="ddl_up" type="text" decimal="0" jt="12" mandatory="y" >
 				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
 			</column>
-			<column name="ddl_up_working" type="text" decimal="0" jt="12" mandatory="y" >
-				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
-			</column>
 			<column name="ddl_down" type="text" decimal="0" jt="12" mandatory="y" >
-				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
-			</column>
-			<column name="ddl_down_working" type="text" decimal="0" jt="12" mandatory="y" >
 				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
 			</column>
 			<column name="locked" type="bool" length="1" decimal="0" jt="-7" mandatory="y" >
@@ -174,6 +172,9 @@
 			<index name="pk_pde_app_state" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<index name="pde_app_state_key_key" unique="UNIQUE" >
+				<column name="key" />
+			</index>
 			<constraint name="pde_app_state_value_check" >
 				<string>value &lt;&gt;&#039;&#039;::text</string>
 			</constraint>
@@ -203,12 +204,6 @@
 				<defo>&#039;Development&#039;::pde.release_status</defo>
 			</column>
 			<column name="number" type="text" decimal="0" jt="12" mandatory="y" />
-			<column name="ddl_up" type="text" decimal="0" jt="12" mandatory="y" >
-				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
-			</column>
-			<column name="ddl_down" type="text" decimal="0" jt="12" mandatory="y" >
-				<defo>&#039;&lt;ddl&gt;&#039;::text</defo>
-			</column>
 			<column name="parent_release_id" type="bigint" length="19" decimal="0" jt="-5" />
 			<column name="locked" type="bool" length="1" decimal="0" jt="-7" mandatory="y" >
 				<defo>false</defo>
@@ -253,9 +248,6 @@
 			<column name="script" type="text" decimal="0" jt="12" mandatory="y" >
 				<defo>&#039;&lt;test ddl&gt;&#039;::text</defo>
 			</column>
-			<column name="script_working" type="text" decimal="0" jt="12" mandatory="y" >
-				<defo>&#039;&lt;test ddl&gt;&#039;::text</defo>
-			</column>
 			<column name="minor_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<index name="pk_pde_test" unique="PRIMARY_KEY" >
 				<column name="id" />
@@ -264,7 +256,7 @@
 				<fk_column name="minor_id" pk="id" />
 			</fk>
 		</table>
-		<procedure name="build_development_release" id="Procedure_466ad9e" isSystem="false" params_known="y" >
+		<procedure name="build_development_release" id="Procedure_546c2bf" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.build_development_release(_project_id bigint, _name text)
  RETURNS pde.release
  LANGUAGE plpgsql
@@ -288,8 +280,6 @@ BEGIN
     name
     ,number
     ,status
-    ,ddl_up
-    ,ddl_down
     ,project_id
     ,parent_release_id
     ,locked
@@ -298,8 +288,6 @@ BEGIN
     _name
     ,'N/A.development'
     ,'Development'
-    ,'<ddl_up>'
-    ,'<ddl_down>'
     ,_project_id
     ,null
     ,false
@@ -315,8 +303,6 @@ $function$
 			<input_param name="name" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="status" jt="1111" type="&quot;pde&quot;.&quot;release_status&quot;" />
-			<input_param name="ddl_up" jt="12" type="text" />
-			<input_param name="ddl_down" jt="12" type="text" />
 			<input_param name="parent_release_id" jt="-5" type="int8" />
 			<input_param name="locked" jt="-7" type="bool" />
 			<input_param name="_project_id" jt="-5" type="int8" />
@@ -352,7 +338,7 @@ BEGIN
   AND id = (SELECT max(id) from pde.major where project_id = _release.project_id)
   ;
   IF _current_major.id IS NULL THEN
-    RAISE EXCEPTION 'No major exists for this project';
+    INSERT INTO pde.major(project_id, revision, name) SELECT _release.project_id, 1, '0001' RETURNING * INTO _current_major;
   END IF;
   _revision := (SELECT count(*) FROM pde.minor WHERE major_id = _current_major.id and release_id = _release.id) + 1;
   INSERT INTO pde.minor(
@@ -386,8 +372,18 @@ $function$
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="_release_id" jt="-5" type="int8" />
 			<input_param name="_name" jt="12" type="text" />
+			<input_param name="id" jt="-5" type="int8" />
+			<input_param name="name" jt="12" type="text" />
+			<input_param name="major_id" jt="-5" type="int8" />
+			<input_param name="release_id" jt="-5" type="int8" />
+			<input_param name="project_id" jt="-5" type="int8" />
+			<input_param name="revision" jt="4" type="int4" />
+			<input_param name="locked" jt="-7" type="bool" />
+			<input_param name="number" jt="12" type="text" />
+			<input_param name="_release_id" jt="-5" type="int8" />
+			<input_param name="_name" jt="12" type="text" />
 		</procedure>
-		<procedure name="build_patch_existing_artifact" id="Procedure_211cb56" isSystem="false" params_known="y" >
+		<procedure name="build_patch_existing_artifact" id="Procedure_5c097bd" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.build_patch_existing_artifact(_minor_id bigint, _artifact_id bigint)
  RETURNS pde.patch
  LANGUAGE plpgsql
@@ -428,15 +424,13 @@ $function$
 			<input_param name="project_id" jt="-5" type="int8" />
 			<input_param name="revision" jt="4" type="int4" />
 			<input_param name="ddl_up" jt="12" type="text" />
-			<input_param name="ddl_up_working" jt="12" type="text" />
 			<input_param name="ddl_down" jt="12" type="text" />
-			<input_param name="ddl_down_working" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="locked" jt="-7" type="bool" />
 			<input_param name="_minor_id" jt="-5" type="int8" />
 			<input_param name="_artifact_id" jt="-5" type="int8" />
 		</procedure>
-		<procedure name="build_patch_new_artifact" id="Procedure_355c12e" isSystem="false" params_known="y" >
+		<procedure name="build_patch_new_artifact" id="Procedure_499f134" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.build_patch_new_artifact(_minor_id bigint, _artifact_type_id bigint, _schema_id bigint, _name text)
  RETURNS pde.patch
  LANGUAGE plpgsql
@@ -481,9 +475,7 @@ $function$
 			<input_param name="project_id" jt="-5" type="int8" />
 			<input_param name="revision" jt="4" type="int4" />
 			<input_param name="ddl_up" jt="12" type="text" />
-			<input_param name="ddl_up_working" jt="12" type="text" />
 			<input_param name="ddl_down" jt="12" type="text" />
-			<input_param name="ddl_down_working" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="locked" jt="-7" type="bool" />
 			<input_param name="_minor_id" jt="-5" type="int8" />
@@ -491,7 +483,7 @@ $function$
 			<input_param name="_schema_id" jt="-5" type="int8" />
 			<input_param name="_name" jt="12" type="text" />
 		</procedure>
-		<procedure name="build_patch_new_schema" id="Procedure_15fa3" isSystem="false" params_known="y" >
+		<procedure name="build_patch_new_schema" id="Procedure_43557e6" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.build_patch_new_schema(_minor_id bigint, _name text)
  RETURNS pde.patch
  LANGUAGE plpgsql
@@ -536,9 +528,7 @@ $function$
 			<input_param name="project_id" jt="-5" type="int8" />
 			<input_param name="revision" jt="4" type="int4" />
 			<input_param name="ddl_up" jt="12" type="text" />
-			<input_param name="ddl_up_working" jt="12" type="text" />
 			<input_param name="ddl_down" jt="12" type="text" />
-			<input_param name="ddl_down_working" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="locked" jt="-7" type="bool" />
 			<input_param name="_minor_id" jt="-5" type="int8" />
@@ -636,11 +626,20 @@ END; $function$
  RETURNS trigger
  LANGUAGE plpgsql
 AS $function$
+  DECLARE
+    _artifact_type pde.artifact_type;
+    _schema pde.schema;
   BEGIN
+    -- SELECT * INTO _artifact_type FROM pde.artifact_type WHERE id = NEW.artifact_type_id;
+    -- IF _artifact_type.name = 'schema' THEN
+    --   INSERT INTO pde.schema(project_id, name) SELECT NEW.project_id, NEW.name WHERE NOT EXISTS (select * from pde.schema where project_id = NEW.project_id and name = NEW.name) returning * into _schema;
+    --   NEW.schema_id = _schema.id;
+    -- END IF;
     NEW.updated_at = current_timestamp;
     RETURN NEW;
   END; $function$
 ]]></string>
+			<result_param name="returnValue" jt="1111" type="trigger" />
 			<result_param name="returnValue" jt="1111" type="trigger" />
 		</procedure>
 		<procedure name="fn_timestamp_update_minor" id="Procedure_2345ace" isSystem="false" params_known="y" >
@@ -661,10 +660,12 @@ END; $function$
  LANGUAGE plpgsql
 AS $function$
 BEGIN
+  NEW.revision := (select count(*) from pde.patch where minor_id = NEW.minor_id);
   NEW.number = (select mi.number || '.' || lpad(NEW.revision::text,4,'0') from pde.minor mi where mi.id = NEW.minor_id);
   RETURN NEW;
 END; $function$
 ]]></string>
+			<result_param name="returnValue" jt="1111" type="trigger" />
 			<result_param name="returnValue" jt="1111" type="trigger" />
 		</procedure>
 		<procedure name="fn_update_release_number" id="Procedure_23766b0" isSystem="false" params_known="y" >
@@ -767,6 +768,126 @@ $function$
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="minor_id" jt="-5" type="int8" />
 		</procedure>
+		<procedure name="release_ddl_down" id="Procedure_273f25f" isSystem="false" params_known="y" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.release_ddl_down(release pde.release)
+ RETURNS text
+ LANGUAGE plpgsql
+ STABLE
+AS $function$
+DECLARE
+  _ddl_down text;
+  _minor pde.minor;
+  _patch pde.patch;
+  _artifact pde.artifact;
+  _artifact_type pde.artifact_type;
+BEGIN
+  _ddl_down := '-- phile-de generated script
+  action:   down
+  release:' || release.number || '  
+  ';
+  
+  for _minor in
+    select * from pde.minor where release_id = release.id order by revision desc
+  loop
+    _ddl_down := _ddl_down || '
+===============================================================================
+    minor patch set: ' || _minor.name || ' - ' || _minor.number || '  
+===============================================================================
+';
+    for _patch in
+      select * from pde.patch where minor_id = _minor.id order by revision desc
+    loop
+      select * into _artifact from pde.artifact where id = _patch.artifact_id;
+      select * into _artifact_type from pde.artifact_type where id = _artifact.artifact_type_id;
+      _ddl_down := _ddl_down || '
+  -------------------------------------------------------------------------------
+      patch:             ' || _patch.number || '
+      artifact type:     ' || _artifact_type.name || '
+      artifact:          ' || _artifact.name || '
+  -------------------------------------------------------------------------------
+  ';
+      _ddl_down := _ddl_down || '
+    ' || _patch.ddl_down || '
+      ';
+      _ddl_down := _ddl_down || '
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      end patch: ' || _patch.number || '
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ';
+    end loop;
+    _ddl_down := _ddl_down || '
+*******************************************************************************
+    end minor patch set: ' || _minor.name || ' - ' || _minor.number || '  
+*******************************************************************************
+';
+  end loop;
+  return _ddl_down;
+END;
+$function$
+]]></string>
+			<input_param name="release" jt="1111" type="&quot;pde&quot;.&quot;release&quot;" />
+			<result_param name="returnValue" jt="12" type="text" />
+		</procedure>
+		<procedure name="release_ddl_up" id="Procedure_4d7dc72" isSystem="false" params_known="y" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.release_ddl_up(release pde.release)
+ RETURNS text
+ LANGUAGE plpgsql
+ STABLE
+AS $function$
+DECLARE
+  _ddl_up text;
+  _minor pde.minor;
+  _patch pde.patch;
+  _artifact pde.artifact;
+  _artifact_type pde.artifact_type;
+BEGIN
+  _ddl_up := '-- phile-de generated script
+  action:   up
+  release:' || release.number || '  
+  ';
+  
+  for _minor in
+    select * from pde.minor where release_id = release.id
+  loop
+    _ddl_up := _ddl_up || '
+===============================================================================
+    minor patch set: ' || _minor.name || ' - ' || _minor.number || '  
+===============================================================================
+';
+    for _patch in
+      select * from pde.patch where minor_id = _minor.id
+    loop
+      select * into _artifact from pde.artifact where id = _patch.artifact_id;
+      select * into _artifact_type from pde.artifact_type where id = _artifact.artifact_type_id;
+      _ddl_up := _ddl_up || '
+  -------------------------------------------------------------------------------
+      patch:             ' || _patch.number || '
+      artifact type:     ' || _artifact_type.name || '
+      artifact:          ' || _artifact.name || '
+  -------------------------------------------------------------------------------
+  ';
+      _ddl_up := _ddl_up || '
+    ' || _patch.ddl_up || '
+      ';
+      _ddl_up := _ddl_up || '
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      end patch: ' || _patch.number || '
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ';
+    end loop;
+    _ddl_up := _ddl_up || '
+*******************************************************************************
+    end minor patch set: ' || _minor.name || ' - ' || _minor.number || '  
+*******************************************************************************
+';
+  end loop;
+  return _ddl_up;
+END;
+$function$
+]]></string>
+			<input_param name="release" jt="1111" type="&quot;pde&quot;.&quot;release&quot;" />
+			<result_param name="returnValue" jt="12" type="text" />
+		</procedure>
 		<procedure name="release_display_name" id="Procedure_1128f31" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.release_display_name(release pde.release)
  RETURNS text
@@ -781,7 +902,7 @@ $function$
 			<input_param name="release" jt="1111" type="&quot;pde&quot;.&quot;release&quot;" />
 			<result_param name="returnValue" jt="12" type="text" />
 		</procedure>
-		<procedure name="release_to_current" id="Procedure_323b51d" isSystem="false" params_known="y" >
+		<procedure name="release_to_current" id="Procedure_4717019" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.release_to_current(_project_id bigint)
  RETURNS pde.release
  LANGUAGE plpgsql
@@ -831,13 +952,11 @@ $function$
 			<input_param name="name" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="status" jt="1111" type="&quot;pde&quot;.&quot;release_status&quot;" />
-			<input_param name="ddl_up" jt="12" type="text" />
-			<input_param name="ddl_down" jt="12" type="text" />
 			<input_param name="parent_release_id" jt="-5" type="int8" />
 			<input_param name="locked" jt="-7" type="bool" />
 			<input_param name="_project_id" jt="-5" type="int8" />
 		</procedure>
-		<procedure name="release_to_staging" id="Procedure_4cc6f8e" isSystem="false" params_known="y" >
+		<procedure name="release_to_staging" id="Procedure_4f60dd5" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.release_to_staging(_project_id bigint)
  RETURNS pde.release
  LANGUAGE plpgsql
@@ -884,13 +1003,11 @@ $function$
 			<input_param name="name" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="status" jt="1111" type="&quot;pde&quot;.&quot;release_status&quot;" />
-			<input_param name="ddl_up" jt="12" type="text" />
-			<input_param name="ddl_down" jt="12" type="text" />
 			<input_param name="parent_release_id" jt="-5" type="int8" />
 			<input_param name="locked" jt="-7" type="bool" />
 			<input_param name="_project_id" jt="-5" type="int8" />
 		</procedure>
-		<procedure name="release_to_testing" id="Procedure_4eecec7" isSystem="false" params_known="y" >
+		<procedure name="release_to_testing" id="Procedure_457353c" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.release_to_testing(_project_id bigint)
  RETURNS pde.release
  LANGUAGE plpgsql
@@ -919,8 +1036,6 @@ BEGIN
     name
     ,number
     ,status
-    ,ddl_up
-    ,ddl_down
     ,project_id
     ,parent_release_id
     ,locked
@@ -929,8 +1044,6 @@ BEGIN
     _development_release.name
     ,(replace(_development_release.number, 'development', 'testing')||'.'||(_testing_release_count+1)::text)
     ,'Testing'
-    ,_development_release.ddl_up
-    ,_development_release.ddl_down
     ,_project_id
     ,_development_release.id
     ,true
@@ -963,9 +1076,7 @@ BEGIN
     ,artifact_id
     ,number
     ,ddl_up
-    ,ddl_up_working
     ,ddl_down
-    ,ddl_down_working
     ,patch_type_id
     ,locked
     ,project_id
@@ -976,9 +1087,7 @@ BEGIN
     ,p.artifact_id
     ,p.number
     ,p.ddl_up
-    ,p.ddl_up_working
     ,p.ddl_down
-    ,p.ddl_down_working
     ,p.patch_type_id
     ,true
     ,_testing_release.project_id
@@ -995,23 +1104,11 @@ $function$
 			<input_param name="name" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="status" jt="1111" type="&quot;pde&quot;.&quot;release_status&quot;" />
-			<input_param name="ddl_up" jt="12" type="text" />
-			<input_param name="ddl_down" jt="12" type="text" />
-			<input_param name="parent_release_id" jt="-5" type="int8" />
-			<input_param name="locked" jt="-7" type="bool" />
-			<input_param name="_project_id" jt="-5" type="int8" />
-			<input_param name="id" jt="-5" type="int8" />
-			<input_param name="project_id" jt="-5" type="int8" />
-			<input_param name="name" jt="12" type="text" />
-			<input_param name="number" jt="12" type="text" />
-			<input_param name="status" jt="1111" type="&quot;pde&quot;.&quot;release_status&quot;" />
-			<input_param name="ddl_up" jt="12" type="text" />
-			<input_param name="ddl_down" jt="12" type="text" />
 			<input_param name="parent_release_id" jt="-5" type="int8" />
 			<input_param name="locked" jt="-7" type="bool" />
 			<input_param name="_project_id" jt="-5" type="int8" />
 		</procedure>
-		<procedure name="stash" id="Procedure_cc1d4" isSystem="false" params_known="y" >
+		<procedure name="stash" id="Procedure_23a0d36" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.stash()
  RETURNS pde.release
  LANGUAGE plpgsql
@@ -1044,8 +1141,6 @@ $function$
 			<input_param name="name" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="status" jt="1111" type="&quot;pde&quot;.&quot;release_status&quot;" />
-			<input_param name="ddl_up" jt="12" type="text" />
-			<input_param name="ddl_down" jt="12" type="text" />
 			<input_param name="parent_release_id" jt="-5" type="int8" />
 			<input_param name="locked" jt="-7" type="bool" />
 		</procedure>
@@ -1056,7 +1151,7 @@ $function$
 			<string><![CDATA[CREATE TRIGGER tg_timestamp_after_update_patch AFTER INSERT OR UPDATE ON pde.patch FOR EACH ROW EXECUTE PROCEDURE pde.fn_update_release_number()]]></string>
 		</trigger>
 		<trigger name="tg_timestamp_before_update_patch" table="patch" id="Trigger_357f44c" isSystem="false" >
-			<string><![CDATA[CREATE TRIGGER tg_timestamp_before_update_patch BEFORE INSERT OR UPDATE ON pde.patch FOR EACH ROW EXECUTE PROCEDURE pde.fn_timestamp_update_patch()]]></string>
+			<string><![CDATA[CREATE TRIGGER tg_timestamp_before_update_patch BEFORE INSERT ON pde.patch FOR EACH ROW EXECUTE PROCEDURE pde.fn_timestamp_update_patch()]]></string>
 		</trigger>
 		<trigger name="tg_timestamp_update_artifact" table="artifact" id="Trigger_307b642" isSystem="false" >
 			<string><![CDATA[CREATE TRIGGER tg_timestamp_update_artifact BEFORE INSERT OR UPDATE ON pde.artifact FOR EACH ROW EXECUTE PROCEDURE pde.fn_timestamp_update_artifact()]]></string>
@@ -1068,16 +1163,16 @@ $function$
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<layout name="Default Layout" id="Layout_2d3ef4c" show_relation="columns" >
-		<entity schema="pde" name="pde_project" color="bfd4f5" x="435" y="60" />
-		<entity schema="pde" name="schema" color="c1d8ee" x="75" y="45" />
-		<entity schema="pde" name="artifact" color="bfd4f5" x="285" y="180" />
-		<entity schema="pde" name="artifact_type" color="bfd4f5" x="60" y="465" />
-		<entity schema="pde" name="patch_type" color="c1d8ee" x="60" y="660" />
-		<entity schema="pde" name="patch" color="bfd4f5" x="345" y="525" />
-		<entity schema="pde" name="minor" color="bfd4f5" x="645" y="420" />
-		<entity schema="pde" name="release" color="bfd4f5" x="705" y="45" />
-		<entity schema="pde" name="major" color="bfd4f5" x="585" y="180" />
-		<entity schema="pde" name="test" color="c1d8ee" x="690" y="675" />
-		<entity schema="pde" name="pde_app_state" color="c1d8ee" x="45" y="210" />
+		<entity schema="pde" name="pde_project" color="BFD4F5" x="432" y="64" />
+		<entity schema="pde" name="schema" color="C1D8EE" x="80" y="48" />
+		<entity schema="pde" name="artifact" color="BFD4F5" x="288" y="176" />
+		<entity schema="pde" name="artifact_type" color="BFD4F5" x="64" y="464" />
+		<entity schema="pde" name="patch_type" color="C1D8EE" x="64" y="656" />
+		<entity schema="pde" name="patch" color="BFD4F5" x="352" y="528" />
+		<entity schema="pde" name="minor" color="BFD4F5" x="640" y="416" />
+		<entity schema="pde" name="release" color="BFD4F5" x="704" y="48" />
+		<entity schema="pde" name="major" color="BFD4F5" x="592" y="176" />
+		<entity schema="pde" name="test" color="C1D8EE" x="688" y="672" />
+		<entity schema="pde" name="pde_app_state" color="C1D8EE" x="48" y="208" />
 	</layout>
 </project>

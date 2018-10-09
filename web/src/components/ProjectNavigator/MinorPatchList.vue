@@ -33,20 +33,19 @@ export default {
     newPatchDisabled () {
       return this.minor.locked
     },
-    focusArtifactId () {
-      return this.$store.state.focusArtifactId
+    focusPatchId () {
+      return this.$store.state.focusPatchId
     }
   },
   methods: {
     selected (patch) {
-      this.$store.commit('focusArtifactId', { focusArtifactId: patch.artifactId })
-      this.$eventHub.$emit('patchSelected')
+      this.$store.commit('focusPatchId', { focusPatchId: patch.id })
     },
     newPatch () {
       this.$eventHub.$emit('newPatch', this.minor)
     },
     getCssClass(patch) {
-      return (patch.artifactId === this.focusArtifactId) || (patch.arti) ? 'v-list__tile--active' : 'v-list__tile'
+      return (patch.id === this.focusPatchId) ? 'v-list__tile--active' : 'v-list__tile'
     }
   },
   props: {
@@ -66,12 +65,6 @@ export default {
         artifact: {}
       }
     }
-  },
-  created () {
-    this.$eventHub.$on('focusPatch', this.focusPatchChanged);
-  },
-  beforeDestroy() {
-    this.$eventHub.$off('focusPatch');
   }
 }
 </script>

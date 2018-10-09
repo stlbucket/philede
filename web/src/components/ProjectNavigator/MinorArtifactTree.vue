@@ -49,20 +49,23 @@ export default {
       const schema = this.schemas.find(s => s.id === id)
       const artifact = this.allArtifacts.find(a => a.id === id)
       const artifactType = this.allArtifactTypes.find(at => at.id === id)
+      const patch = this.patches.find(p => p.id === id)
       if (schema) {
-        this.$eventHub.$emit('schemaSelected', schema)
+        console.log('schemaSelected', schema)
       } else if (artifact) {
-        this.$eventHub.$emit('artifactSelected', artifact)
+        console.log('artifactSelected', artifact)
       } else if (artifactType) {
-        this.$eventHub.$emit('artifactTypeSelected', artifactType)
-      } else {
+        console.log('artifactTypeSelected', artifactType)
+      } else if (patch) {
+        console.log('patchSelected', patch)
+        this.$store.commit('focusPatchId', { focusPatchId: patch.id })
       }
     },
     getArtifactsForType (artifactType) {
       return this.allArtifacts.filter(a => a.artifactType.id === artifactType.id)
     },
-    getPatchesForArtifactType (artifactType) {
-      return this.minor.patches.nodes.filter(p => p.artifact.artifactType.id === artifactType.id)
+    getSchemaPatchesForArtifactType (artifactType, schema) {
+      return this.minor.patches.nodes.filter(p => p.artifact.artifactType.id === artifactType.id && p.artifact.schema.id === schema.id)
     }
   },
   computed: {
@@ -74,7 +77,7 @@ export default {
               name: schema.name,
               children: this.artifactTypes.map(
                 artifactType => {
-                  const patches = this.getPatchesForArtifactType(artifactType)
+                  const patches = this.getSchemaPatchesForArtifactType(artifactType, schema)
 
                   const artifacts = patches.reduce(
                     (acc, patch) => {
@@ -125,6 +128,9 @@ export default {
           return acc.find(s => s.id === schema.id) ? acc : acc.concat([schema])
         }, []
       )
+    },
+    patches () {
+      return this.minor.patches.nodes
     },
     allArtifacts () {
       return this.minor.patches.nodes.reduce(

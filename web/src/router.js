@@ -21,6 +21,7 @@ import TestGraphQL from "./components/Routes/TestGraphQL.vue"
 import TestPgTap from "./components/Routes/TestPgTap.vue"
 
 import PatchCreate from "./components/Patch/PatchCreate.vue"
+import PatchDetail from "./components/Patch/PatchDetail.vue"
 import PgTapTest from "./components/PgTapTest/PgTapTest.vue"
 import PsqlQuery from "./components/PsqlQuery/PsqlQuery.vue"
 
@@ -138,6 +139,12 @@ export default new Router({
       name: "newPatch",
       component: PatchCreate,
       props: true
+    },
+    {
+      path: "/patchDetail",
+      name: "patchDetail",
+      component: PatchDetail,
+      props: false
     },
     {
       path: "/newSchema/:releaseId",

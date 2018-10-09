@@ -227,7 +227,6 @@ export default {
         variables: variables
       })
       .then(result => {
-        console.log('artifact result', result)
         return result.data.createArtifact.artifact
       })
       .catch(error => {
@@ -248,7 +247,6 @@ export default {
         }
       })
       .then(result => {
-        this.$store.commit('focusArtifactId', { focusArtifactId: result.data.createPatch.patch.artifactId })
         return result.data.createPatch.patch
       })
       .catch(error => {
@@ -266,7 +264,7 @@ export default {
             return this.createPatch(artifact)
           })
           .then(patch => {
-            this.$eventHub.$emit('patchCreated', patch)
+            this.$store.commit('focusPatchId', { focusPatchId: result.data.createPatch.patch.id })
           })
           .catch(error => {
             alert ('ERROR')
@@ -278,7 +276,7 @@ export default {
             return this.createPatch(artifact)
           })
           .then(patch => {
-            this.$eventHub.$emit('patchCreated', patch)
+            this.$store.commit('focusPatchId', { focusPatchId: result.data.createPatch.patch.id })
           })
           .catch(error => {
             alert ('ERROR')

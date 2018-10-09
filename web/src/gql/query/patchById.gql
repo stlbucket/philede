@@ -1,0 +1,37 @@
+query PatchById(
+  $id: BigInt!
+) {
+  patchById (id: $id){
+    id
+    number
+    ddlUp
+    ddlDown
+    artifact: artifactByArtifactId {
+      id
+      name
+      artifactType: artifactTypeByArtifactTypeId {
+        id
+        name
+      }
+    }
+    patchType: patchTypeByPatchTypeId {
+      id
+      name
+    }
+    minor: minorByMinorId {
+      id
+      number
+      name
+      major: majorByMajorId {
+        id
+        name
+        revision
+      }
+      release: releaseByReleaseId {
+        id
+        name
+        number
+      }
+    }
+  }
+}

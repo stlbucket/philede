@@ -22,6 +22,9 @@ export default {
     },
     focusArtifactId () {
       return this.$store.state.focusArtifactId
+    },
+    focusPatchId () {
+      return this.$store.state.focusPatchId
     }
   },
   watch: {  // todo - convert as many watchers as possible
@@ -31,6 +34,10 @@ export default {
     },
     focusArtifactId () {
       this.$router.push({ name: 'artifact', params: { id: this.focusArtifactId }})
+    },
+    focusPatchId: {
+      handler: 'patchDetail',
+      immediate: true
     }
   },
   methods: {  // todo: get rid of as many events as possible
@@ -48,6 +55,9 @@ export default {
     },
     manageProject () {
       this.$router.push({ name: 'projectDetail'})
+    },
+    patchDetail () {
+      this.$router.push({ name: 'patchDetail'})
     },
     graphQLSchema () {
       this.$router.push({ name: 'graphQLSchema' })
