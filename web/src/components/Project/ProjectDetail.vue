@@ -45,19 +45,21 @@ export default {
       query: pdeProjectById,
       variables () {
         return {
-          id: this.$store.state.selectedProjectId
+          id: this.$store.state.focusProjectId
         }
       },
       fetchPolicy: 'network-only',
       skip () {
-        return this.id === ''
+        return this.$store.state.focusProjectId === ''
       },
       update (result) {
         this.project = result.pdeProjectById || {
-        releases: {
-          nodes: []
+          releases: {
+            nodes: []
+          }
         }
-      }
+        console.log('this.project', this.project)
+        this.$store.commit('focusReleaseId', { focusReleaseId: (this.project.releases.nodes[0] || {id: ''}).id })
         this.$eventHub.$emit('projectFocus', this.project.id)
       }
     }

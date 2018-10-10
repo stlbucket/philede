@@ -16,7 +16,7 @@ INSERT INTO pde.minor(
 SELECT
   (SELECT id from pde.major where revision = 1)
   ,1
-  ,(SELECT id from pde.release where status = 'Development')
+  ,(SELECT id from pde.release where status = 'DEVELOPMENT')
   ,'Todo Schema'
   ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
@@ -30,7 +30,7 @@ INSERT INTO pde.minor(
 SELECT
   (SELECT id from pde.major where revision = 1)
   ,2
-  ,(SELECT id from pde.release where status = 'Development')
+  ,(SELECT id from pde.release where status = 'DEVELOPMENT')
   ,'First Feature'
   ,(SELECT id from pde.pde_project where name = 'Todo')
 ;
@@ -44,7 +44,7 @@ INSERT INTO pde.minor(
 SELECT
   (SELECT id from pde.major where revision = 1)
   ,3
-  ,(SELECT id from pde.release where status = 'Development')
+  ,(SELECT id from pde.release where status = 'DEVELOPMENT')
   ,'Second Feature'
   ,(SELECT id from pde.pde_project where name = 'Todo')
 ;

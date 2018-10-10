@@ -26,7 +26,7 @@ export default {
       this.$apollo.mutate({
         mutation: buildDevelopmentRelease,
         variables: {
-          projectId: this.$store.state.selectedProjectId  ,
+          projectId: this.$store.state.focusProjectId  ,
           name: this.releaseName
         }
       })
@@ -52,7 +52,7 @@ export default {
       query: pdeProjectById,
       variables () {
         return {
-          id: this.$store.state.selectedProjectId
+          id: this.$store.state.focusProjectId
         }
       },
       update (result) {

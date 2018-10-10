@@ -42,7 +42,7 @@ export default {
       return this.focusRelease.id ? this.focusRelease.locked === true : true
     },
     selectedProjectId () {
-      return this.$store.state.selectedProjectId
+      return this.$store.state.focusProjectId
     }
   },
   watch: {
@@ -50,7 +50,7 @@ export default {
       this.$apollo.queries.init.refetch()
     }
   },
-  apollo: {
+  apollo: { 
     init: {
       query: pdeProjectById,
       variables () {

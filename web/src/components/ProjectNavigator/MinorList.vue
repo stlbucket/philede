@@ -37,12 +37,13 @@ export default {
   watch: {
     focusReleaseId () {
       this.queryRelease()
-    }
+    },
   },
   apollo: {
     init: {
       query: releasePatchTree,
       variables () {
+        console.log('store', this.$store.state)
         return {
           id: this.focusReleaseId
         }

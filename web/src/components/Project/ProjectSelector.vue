@@ -6,8 +6,7 @@
         :items="projects"
         item-text="name"
         item-value="id"
-        :value="selectedProjectId"
-        @change="projectSelected"
+        v-model="selectedProjectId"
       ></v-select>
       <v-btn @click="manageProject">Manage</v-btn>
       <v-btn @click="exportProject">Export</v-btn>
@@ -30,26 +29,25 @@ export default {
       networkPolicy: 'fetch-only',
       update (result) {
         this.projects = result.allPdeProjects.nodes
+        this.selectedProjectId = this.focusProjectId
       }
     }
   },
   computed: {
-    selectedProjectId () {
-      return this.$store.state.selectedProjectId
+    focusProjectId () {
+      return this.$store.state.focusProjectId
     }
   },
   watch: {
-    selectedProjectId () {
+    focusProjectId () {
       this.$apollo.queries.init.refetch()
+    },
+    selectedProjectId () {
+      this.$store.commit('focusProjectId', { focusProjectId: this.selectedProjectId})
+      // this.$eventHub.$emit('projectSelected', this.pdeProjectId)
     }
   },
   methods: {
-    projectSelected (pdeProjectId) {
-      if (pdeProjectId) {
-        this.$store.commit('selectedProjectId', { projectId: pdeProjectId})
-        this.$eventHub.$emit('projectSelected', pdeProjectId)
-      }
-    },
     newProject () {
       this.$eventHub.$emit('newProject')
     },
@@ -61,13 +59,24 @@ export default {
     },
     importProject () {
       this.$eventHub.$emit('importProject')
-    }
-  },
+    },
+    projectImported (projectId) {
+      this.$apollo.queries.init.refetch()
+      this.$store.commit('focusProjectId', projectId)
+    },
+   },
   data () {
     return {
       projects: [],
-      pdeProjectId: ''
+      pdeProjectId: '',
+      selectedProjectId: ''
     }
   },
+  created () {
+    this.$eventHub.$on('projectImported', this.projectImported)
+  },
+  beforeDestroy() {
+    this.$eventHub.$off('projectImported')
+  }
 }
 </script>

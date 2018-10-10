@@ -1,6 +1,5 @@
 <template>
   <div>
-    <v-btn :disabled="newArtifactDisabled">New Patch</v-btn>
     <v-treeview
       :items="items"
       key-field="id"
@@ -18,47 +17,22 @@
 export default {
   name: "MinorArtifactTree",
   methods: {
-    newArtifact() {
-      alert('new')
-    },
-    findArtifact (id) {
-      // const artifact = this.pdeProject.schemas.nodes.
-    },
-    focusPatchChanged (focusPatch) {
-      // console.log('FOCUS DANIELSON', focusPatch)
-      this.focusPatch = focusPatch
-      switch (focusPatch.__typename) {
-        case 'Schema':
-          this.selectedItems = [ focusPatch.id ]
-        break
-        case 'Artifact':
-          this.selectedItems = [ focusPatch.id ]
-        break
-        case 'ArtifactType':
-          this.selectedItems = [ focusPatch.id ]
-        break
-        case 'Patch':
-          this.selectedItems = [ focusPatch.artifact.id ]
-        break
-        default:
-          this.selectedItems = []
-      }
-    },
     treeSelect (id) {
-      // console.log('treeSelect', id)
       const schema = this.schemas.find(s => s.id === id)
       const artifact = this.allArtifacts.find(a => a.id === id)
       const artifactType = this.allArtifactTypes.find(at => at.id === id)
       const patch = this.patches.find(p => p.id === id)
       if (schema) {
-        console.log('schemaSelected', schema)
+        this.selectedItems = [ schema.id ]
+        this.$store.commit('focusSchemaId', { focusSchemaId: schema.id })
       } else if (artifact) {
-        console.log('artifactSelected', artifact)
+        this.selectedItems = [ artifact.id ]
         this.$store.commit('focusArtifactId', { focusArtifactId: artifact.id })
       } else if (artifactType) {
-        console.log('artifactTypeSelected', artifactType)
+        this.selectedItems = [ artifactType.id ]
+        this.$store.commit('focusArtifactTypeId', { focusArtifactTypeId: artifactType.id })
       } else if (patch) {
-        console.log('patchSelected', patch)
+        this.selectedItems = [ patch.id ]
         this.$store.commit('focusPatchId', { focusPatchId: patch.id })
       }
     },
@@ -86,7 +60,6 @@ export default {
                       return existing ? acc : acc.concat([patch.artifact])
                     }, []
                   )
-
                   return {
                     id: artifactType.id,
                     name: artifactType.name,
@@ -109,7 +82,7 @@ export default {
                     )
                   }
                 }
-              )
+              ).filter(at => at.children.length > 0)
             }
           }
         )
@@ -143,9 +116,15 @@ export default {
     },
     newArtifactDisabled () {
       return (this.focusPatch.__typename || 'NONE') !== 'ArtifactType'
+    },
+    focusPatchId () {
+      return this.$store.state.focusPatchId
     }
   },
   watch: {
+    focusPatchId () {
+      if (this.focusPatchId !== '') this.selectedItems = [ this.focusPatchId ]
+    }
   },
   props: {
     minor: {
@@ -165,11 +144,11 @@ export default {
     }
   },
   created () {
-    this.$eventHub.$on('focusPatch', this.focusPatchChanged);
+    // this.$eventHub.$on('focusPatch', this.focusPatchChanged);
     this.$eventHub.$on('treeSelect', this.treeSelect);
   },
   beforeDestroy() {
-    this.$eventHub.$off('focusPatch');
+    // this.$eventHub.$off('focusPatch');
     this.$eventHub.$off('treeSelect');
   }
 }

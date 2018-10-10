@@ -1,8 +1,8 @@
 mutation ImportProject(
-  $project: JSON!
+  $projectInfo: JSON!
 ){
   importProject(input: {
-    _project: $project
+    _projectInfo: $projectInfo
   }) {
     json
   }

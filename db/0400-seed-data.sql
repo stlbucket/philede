@@ -1,17 +1,17 @@
 ------------------------------------------------
 -- seed data
 ------------------------------------------------
--- INSERT INTO pde.artifact_type(name, execution_order) SELECT 'extension', 1; 
+-- INSERT INTO pde.artifact_type(name) SELECT 'extension'; 
 -- INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, ddl_down_template, documentation_url) SELECT 'install extension', (SELECT id FROM pde.artifact_type WHERE NAME = 'extension'), 1, 'extension-install', '{}', 'Create';
 
-INSERT INTO pde.artifact_type(name, execution_order, requires_schema) SELECT 'schema', 2, false; 
+INSERT INTO pde.artifact_type(name, requires_schema) SELECT 'schema', false; 
 INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, ddl_down_template, documentation_url) SELECT 'create schema', (SELECT id FROM pde.artifact_type WHERE NAME = 'schema'), 20, 'schema-create', '{}', 'Create'
  ,'CREATE SCHEMA {{schemaName}};'
  ,'DROP SCHEMA {{schemaName}} CASCADE;'
  ,'https://www.graphile.org/postgraphile/namespaces/'
  ;
 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'type', 3; 
+INSERT INTO pde.artifact_type(name) SELECT 'type'; 
 INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, ddl_down_template, documentation_url) SELECT 'create type', (SELECT id FROM pde.artifact_type WHERE NAME = 'type'), 30, 'type-create', '{}', 'Create'
  ,'CREATE TYPE {{schemaName}}.{{typeName}} AS ENUM
 (
@@ -28,7 +28,7 @@ INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, propert
  ,''
 ;
 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'table', 4; 
+INSERT INTO pde.artifact_type(name) SELECT 'table'; 
 INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, ddl_down_template, documentation_url) SELECT 'create table', (SELECT id FROM pde.artifact_type WHERE NAME = 'table'), 40, 'table-create', '{}', 'Create'
   ,'
 CREATE TABLE {{schemaName}}.{{tableName}} (
@@ -117,7 +117,7 @@ DROP FUNCTION {{triggerSchemaName}}.{{functionName}}();
 ;
 
 
-INSERT INTO pde.artifact_type(name, execution_order) SELECT 'function', 8;
+INSERT INTO pde.artifact_type(name) SELECT 'function';
 INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, ddl_down_template, documentation_url) SELECT 'create function', (SELECT id FROM pde.artifact_type WHERE NAME = 'function'), 130, 'function-create', '{}', 'Create'
  ,'
 create or replace function {{schemaName}}.{{functionName}}(
@@ -162,7 +162,7 @@ REVOKE EXECUTE ON FUNCTION {{schemaName}}.{{functionName}}() FROM {{roleName}};
 ,'https://www.graphile.org/postgraphile/security/'
 ;
 
-INSERT INTO pde.artifact_type(name, execution_order, requires_schema) SELECT 'custom script', 8, false; 
+INSERT INTO pde.artifact_type(name) SELECT 'custom script'; 
 INSERT INTO pde.patch_type(name, artifact_type_id, execution_order, key, properties, action, ddl_up_template, ddl_down_template, documentation_url) SELECT 'create custom script', (SELECT id FROM pde.artifact_type WHERE NAME = 'custom script'), 170, 'custom-script', '{}', 'Create'
  ,'-- do anything you want here'
  ,'-- undo anything you want here'

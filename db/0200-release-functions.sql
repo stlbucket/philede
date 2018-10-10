@@ -231,7 +231,7 @@ BEGIN
   INTO _development_release
   FROM pde.release
   WHERE project_id = _project_id
-  AND status = 'Development';
+  AND status = 'DEVELOPMENT';
 
   IF _development_release.id IS NOT NULL THEN
     RAISE EXCEPTION 'This project already has a development release';
@@ -248,7 +248,7 @@ BEGIN
   SELECT
     _name
     ,'N/A.development'
-    ,'Development'
+    ,'DEVELOPMENT'
     ,_project_id
     ,null
     ,false
@@ -278,7 +278,7 @@ BEGIN
   INTO _staging_release
   FROM pde.release
   WHERE project_id = _project_id
-  AND status = 'Staging';
+  AND status = 'STAGING';
 
   IF _staging_release.id IS NULL THEN
     RAISE EXCEPTION 'NO STAGING RELEASE FOR PROJECT ID: %', _project_id;
@@ -290,13 +290,13 @@ BEGIN
   WHERE id = _staging_release.parent_release_id;
 
   UPDATE pde.release SET
-    status = 'Historic'
-  WHERE status = 'Current'
+    status = 'HISTORIC'
+  WHERE status = 'CURRENT'
   AND project_id = _project_id
   ;
 
   UPDATE pde.release SET
-    status = 'Current'
+    status = 'CURRENT'
     ,number = replace(_parent_release.number, '.development', '')
     ,locked = true
   WHERE id = _staging_release.id
@@ -305,7 +305,7 @@ BEGIN
   ;
 
   UPDATE pde.release SET
-    status = 'Archived'
+    status = 'ARCHIVED'
   WHERE id = _parent_release.id
   ;
 
@@ -333,7 +333,7 @@ BEGIN
   INTO _testing_release
   FROM pde.release
   WHERE project_id = _project_id
-  AND status = 'Testing';
+  AND status = 'TESTING';
 
   IF _testing_release.id IS NULL THEN
     RAISE EXCEPTION 'NO TESTING RELEASE FOR PROJECT ID: %', _project_id;
@@ -345,16 +345,16 @@ BEGIN
   WHERE id = _testing_release.parent_release_id;
 
   UPDATE pde.release SET
-    status = 'StagingDeprecated'
+    status = 'STAGING_DEPRECATED'
     ,locked = true
-  WHERE status = 'Staging'
+  WHERE status = 'STAGING'
   AND project_id = _project_id
   ;
 
-  _staging_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _parent_release.id); -- AND status = 'StagingDeprecated');
+  _staging_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _parent_release.id); -- AND status = 'STAGING_DEPRECATED');
 
   UPDATE pde.release SET
-    status = 'Staging'
+    status = 'STAGING'
     ,number = replace (_testing_release.number, 'testing', 'staging')
   WHERE id = _testing_release.id
   RETURNING *
@@ -379,8 +379,8 @@ DECLARE
   _testing_release_count integer;
 BEGIN
   UPDATE pde.release SET
-    status = 'TestingDeprecated'
-  WHERE status = 'Testing'
+    status = 'TESTING_DEPRECATED'
+  WHERE status = 'TESTING'
   AND project_id = _project_id
   ;
 
@@ -388,13 +388,13 @@ BEGIN
   INTO _development_release
   FROM pde.release
   WHERE project_id = _project_id
-  AND status = 'Development';
+  AND status = 'DEVELOPMENT';
 
   IF _development_release.id IS NULL THEN
     RAISE EXCEPTION 'NO DEVELOPMENT RELEASE FOR PROJECT ID: %', _project_id;
   END IF;
 
-  _testing_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _development_release.id); -- AND status = 'TestingDeprecated');
+  _testing_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _development_release.id); -- AND status = 'TESTING_DEPRECATED');
 
   INSERT INTO pde.release(
     name
@@ -407,7 +407,7 @@ BEGIN
   SELECT
     _development_release.name
     ,(replace(_development_release.number, 'development', 'testing')||'.'||(_testing_release_count+1)::text)
-    ,'Testing'
+    ,'TESTING'
     ,_project_id
     ,_development_release.id
     ,true
@@ -480,7 +480,7 @@ BEGIN
   SELECT *
   INTO _release
   FROM pde.release
-  WHERE status = 'Development'
+  WHERE status = 'DEVELOPMENT'
   ;
 
   IF _release.id IS NULL THEN
@@ -488,7 +488,7 @@ BEGIN
   END IF;
   
   UPDATE pde.release SET
-    status = 'Stashed'
+    status = 'STASHED'
   WHERE id = minor_id
   RETURNING *
   INTO _release

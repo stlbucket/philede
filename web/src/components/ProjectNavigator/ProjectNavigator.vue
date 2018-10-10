@@ -18,13 +18,22 @@ export default {
   },
   computed: {
     currentProjectId () {
-      return this.$store.state.selectedProjectId
+      return this.$store.state.focusProjectId
+    },
+    focusSchemaId () {
+      return this.$store.state.focusSchemaId
+    },
+    focusArtifactTypeId () {
+      return this.$store.state.focusArtifactTypeId
     },
     focusArtifactId () {
       return this.$store.state.focusArtifactId
     },
     focusPatchId () {
       return this.$store.state.focusPatchId
+    },
+    focusArtifactTypeId () {
+      return this.$store.state.focusArtifactTypeId
     }
   },
   watch: {  // todo - convert as many watchers as possible
@@ -32,8 +41,17 @@ export default {
       handler: 'manageProject',
       immediate: true
     },
-    focusArtifactId () {
-      this.$router.push({ name: 'artifact', params: { id: this.focusArtifactId }})
+    focusSchemaId: {
+      handler: 'schemaDetail',
+      immediate: true
+    },
+    focusArtifactId: {
+      handler: 'artifactDetail',
+      immediate: true
+    },
+    focusArtifactTypeId: {
+      handler: 'artifactTypeDetail',
+      immediate: true
     },
     focusPatchId: {
       handler: 'patchDetail',
@@ -41,6 +59,26 @@ export default {
     }
   },
   methods: {  // todo: get rid of as many events as possible
+    schemaDetail () {
+      if (this.focusSchemaId !== '') {
+        this.$router.push({ name: 'schemaDetail', params: { id: this.focusSchemaId }})
+      }
+    },
+    artifactDetail () {
+      if (this.focusArtifactId !== '') {
+        this.$router.push({ name: 'artifactDetail', params: { id: this.focusArtifactId }})
+      }
+    },
+    artifactTypeDetail () {
+      if (this.focusArtifactTypeId !== '') {
+        this.$router.push({ name: 'artifactTypeDetail', params: { id: this.focusArtifactTypeId }})
+      }
+    },
+    patchDetail () {
+      if (this.focusPatchId !== '') {
+        this.$router.push({ name: 'patchDetail', params: { id: this.focusPatchId }})
+      }
+    },
     newProject () {
       this.$router.push({ name: 'newProject' })
     },
@@ -55,9 +93,6 @@ export default {
     },
     manageProject () {
       this.$router.push({ name: 'projectDetail'})
-    },
-    patchDetail () {
-      this.$router.push({ name: 'patchDetail'})
     },
     graphQLSchema () {
       this.$router.push({ name: 'graphQLSchema' })
@@ -81,7 +116,7 @@ export default {
       this.$router.push({ name: 'newMinor', params: { releaseId: release.id }})
     },
     newMinorCreated (minor) {
-      this.$store.commit('focusReleaseId', { releaseId: minor.releaseId})
+      this.$store.commit('focusReleaseId', { focusReleaseId: minor.releaseId})
       this.$router.push({ name: 'releaseDetail', params: { id: minor.releaseId }})
     },
     artifactTypeSelected (artifactType) {
@@ -112,7 +147,7 @@ export default {
       this.$router.push({ name: 'test-graph-ql', params: { id: test.id }})
     },
     exploreRelease (release) {
-      this.$store.commit('focusReleaseId', { releaseId: release.id })
+      this.$store.commit('focusReleaseId', { focusReleaseId: release.id })
       this.$router.push({ name: 'releaseDetail', params: { id: release.id }})
     },
     newDevelopmentRelease () {

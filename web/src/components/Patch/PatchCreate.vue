@@ -264,7 +264,7 @@ export default {
             return this.createPatch(artifact)
           })
           .then(patch => {
-            this.$store.commit('focusPatchId', { focusPatchId: result.data.createPatch.patch.id })
+            this.$store.commit('focusPatchId', { focusPatchId: patch.id })
           })
           .catch(error => {
             alert ('ERROR')
@@ -276,7 +276,7 @@ export default {
             return this.createPatch(artifact)
           })
           .then(patch => {
-            this.$store.commit('focusPatchId', { focusPatchId: result.data.createPatch.patch.id })
+            this.$store.commit('focusPatchId', { focusPatchId: patch.id })
           })
           .catch(error => {
             alert ('ERROR')
@@ -310,23 +310,20 @@ export default {
         require('brace/mode/pgsql')
         require('brace/theme/tomorrow_night_bright')
     },
-    calculateDdlUp () {
-      this.ddlUp = this.templateFields.reduce(
+    applyTemplate (template) {
+      return this.templateFields.reduce(
         (template, fieldName) => {
-          const enteredValue = this.templateFieldValues[fieldName]
-          const value = enteredValue === enteredValue.toLowerCase() ? enteredValue : `"${enteredValue}"`
+          const enteredValue = this.templateFieldValues[fieldName] || fieldName
+          const value = (enteredValue === enteredValue.toLowerCase()) ? enteredValue : `"${enteredValue}"`
           return template.split(`{{${fieldName}}}`).join(value)
-        }, this.selectedPatchType.ddlUpTemplate
+        }, template
       ) 
     },
+    calculateDdlUp () {
+      this.ddlUp = this.applyTemplate(this.selectedPatchType.ddlUpTemplate)
+    },
     calculateDdlDown () {
-      this.ddlDown = this.templateFields.reduce(
-        (template, fieldName) => {
-          const enteredValue = this.templateFieldValues[fieldName]
-          const value = enteredValue === enteredValue.toLowerCase() ? enteredValue : `"${enteredValue}"`
-          return template.split(`{{${fieldName}}}`).join(value)
-        }, this.selectedPatchType.ddlDownTemplate
-      ) 
+      this.ddlDown = this.applyTemplate(this.selectedPatchType.ddlDownTemplate)
     },
     calculateDdl () {
       this.calculateDdlUp()

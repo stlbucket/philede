@@ -6,22 +6,42 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    selectedProjectId: '',
+    focusProjectId: '',
     focusReleaseId: '',
+    focusSchemaId: '',
+    focusArtifactTypeId: '',
     focusArtifactId: '',
     focusPatchId: ''
   },
   mutations: {
-    selectedProjectId (state, payload) {
-      state.selectedProjectId = payload.projectId
+    focusProjectId (state, payload) {
+      state.focusProjectId = payload.focusProjectId
     },
     focusReleaseId (state, payload) {
-      state.focusReleaseId = payload.releaseId
+      console.log('focus', payload)
+      state.focusReleaseId = payload.focusReleaseId
+    },
+    focusSchemaId (state, payload) {
+      state.focusSchemaId = payload.focusSchemaId
+      state.focusArtifactTypeId = ''
+      state.focusArtifactId = ''
+      state.focusPatchId = ''
+    },
+    focusArtifactTypeId (state, payload) {
+      state.focusArtifactId = ''
+      state.focusPatchId = ''
+      state.focusArtifactTypeId = payload.focusArtifactTypeId
     },
     focusArtifactId (state, payload) {
+      state.focusSchemaId = ''
+      state.focusArtifactTypeId = ''
+      state.focusPatchId = ''
       state.focusArtifactId = payload.focusArtifactId
     },
     focusPatchId (state, payload) {
+      state.focusSchemaId = ''
+      state.focusArtifactTypeId = ''
+      state.focusArtifactId = ''
       state.focusPatchId = payload.focusPatchId
     }
   },

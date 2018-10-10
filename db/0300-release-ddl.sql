@@ -152,9 +152,9 @@ limit 1
 
 select *
 from pde.release release 
-where status = 'Development'
+where status = 'DEVELOPMENT'
 ;
 
 select pde.release_ddl_down(release)
-from pde.release release where status = 'Development'
+from pde.release release where status = 'DEVELOPMENT'
 ;

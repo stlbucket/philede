@@ -105,6 +105,33 @@
                     </v-card-actions>
                   </v-card>
                 </v-tab-item>
+                <v-tab
+                  key="dependencies"
+                  ripple
+                >
+                  Dependencies
+                </v-tab>
+                <v-tab-item
+                  key="dependencies"
+                >
+                  <v-card>
+                    <h1>NOT IMPLEMENTED</h1>
+                    <h2>Dependencies: </h2>
+                    <h2>Dependent On: </h2>
+                    <v-card-actions><fieldset></fieldset>
+                      <v-spacer></v-spacer>
+                      <v-btn icon>
+                        <v-icon>favorite</v-icon>
+                      </v-btn>
+                      <v-btn icon>
+                        <v-icon>bookmark</v-icon>
+                      </v-btn>
+                      <v-btn icon>
+                        <v-icon>share</v-icon>
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-tab-item>
               </v-tabs>
             </v-flex>
           </v-layout>
@@ -195,8 +222,8 @@ export default {
         return this.focusPatchId === ''
       },
       update (data) {
-        this.patch = data.patchById
-        this.artifact = this.patch.artifact
+        this.patch = data.patchById || {}
+        this.artifact = this.patch.artifact || {}
         this.artifactName = this.artifact.name
         this.ddlUp = this.patch.ddlUp || 'N/A'
         this.ddlDown = this.patch.ddlDown || 'N/A'
@@ -251,9 +278,9 @@ export default {
         line: true,
         // more codemirror options, 更多 codemirror 的高级配置...
       },
+      patch: {},
       artifact: {},
-      artifactName: '',
-      patch: {}
+      artifactName: ''
     }
   }
 }

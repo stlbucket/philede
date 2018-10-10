@@ -7,7 +7,6 @@ query ExportPdeProjectById(
       name
       properties
       requiresSchema
-      executionOrder
       patchTypes: patchTypesByArtifactTypeId {
         nodes {
           id
@@ -70,6 +69,8 @@ query ExportPdeProjectById(
                 id
                 number
                 revision
+                ddlUp
+                ddlDown
                 locked
                 artifactId
                 patchTypeId

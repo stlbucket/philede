@@ -65,15 +65,15 @@ BEGIN
   VALUES
     (
       NEW.id
-      ,'Future'
+      ,'FUTURE'
       ,'9999.9999.9999'
-      ,'Future'
+      ,'FUTURE'
     ),
     (
       NEW.id
       ,'Next'
-      ,'Development'
-      ,'Development'
+      ,'DEVELOPMENT'
+      ,'DEVELOPMENT'
     )
   ;
   RETURN NEW;
@@ -90,17 +90,17 @@ CREATE TRIGGER tg_after_insert_pde_project
 ------------------------------------------------
 CREATE TYPE pde.release_status AS ENUM
   (
-    'Current',           -- singleton.  release to staging will move to Historic any current Staging release and clone current Testing release
-    'Staging',           -- singleton.  release to staging will move to Deprecated any current Staging release and clone current Testing release
-    'Testing',           -- singleton.  release to testing will move to Deprecated any current Testing release and clone current Development release
-    'Development',       -- singleton.  the current release being worked on
-    'Future',            -- singleton.  deferred items are placed in this bucket and later promoted to Development
-    'StagingLocked',     -- singleton.  when a staging release is created, the associated Development release becomes StagingLocked
-    'Stashed',           -- collection. a place to park releases to support hot-fixes, dev work while testing another release, etc.
-    'Archived',          -- collection. old Development releases
-    'Historic',          -- collection. old Current releasees.  should have 1:1 correspondence to Archived releases and they could be checksummed 
-    'TestingDeprecated', -- collection. releases discarded during Staging
-    'StagingDeprecated'  -- collection. releases discarded during Testing
+    'CURRENT',           -- singleton.  release to staging will move to HISTORIC any current STAGING release and clone current TESTING release
+    'STAGING',           -- singleton.  release to staging will move to Deprecated any current STAGING release and clone current TESTING release
+    'TESTING',           -- singleton.  release to testing will move to Deprecated any current TESTING release and clone current DEVELOPMENT release
+    'DEVELOPMENT',       -- singleton.  the current release being worked on
+    'FUTURE',            -- singleton.  deferred items are placed in this bucket and later promoted to DEVELOPMENT
+    'STAGINGLOCKED',     -- singleton.  when a staging release is created, the associated DEVELOPMENT release becomes STAGINGLOCKED
+    'STASHED',           -- collection. a place to park releases to support hot-fixes, dev work while testing another release, etc.
+    'ARCHIVED',          -- collection. old DEVELOPMENT releases
+    'HISTORIC',          -- collection. old CURRENT releasees.  should have 1:1 correspondence to ARCHIVED releases and they could be checksummed 
+    'TESTING_DEPRECATED', -- collection. releases discarded during STAGING
+    'STAGING_DEPRECATED'  -- collection. releases discarded during TESTING
   );
 
 CREATE TABLE pde.release (
@@ -108,7 +108,7 @@ CREATE TABLE pde.release (
   project_id bigint NOT NULL,
   name text NOT NULL,
   number text NOT NULL,
-  status pde.release_status NOT NULL DEFAULT 'Development',
+  status pde.release_status NOT NULL DEFAULT 'DEVELOPMENT',
   parent_release_id bigint NULL,
   locked boolean not null default false,
   CONSTRAINT pk_pde_release PRIMARY KEY (id),
@@ -169,7 +169,6 @@ CREATE TABLE pde.artifact_type (
   id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
   name text NOT NULL,
   requires_schema boolean NOT NULL DEFAULT true,
-  execution_order integer NOT NULL,
   properties jsonb NOT NULL DEFAULT '{}'::jsonb,
   CONSTRAINT pk_pde_artifact_ype PRIMARY KEY (id)
 );
@@ -311,7 +310,7 @@ BEGIN
   FROM max_patch_info mpi
   WHERE id = mpi.release_id
   AND locked = false
-  AND status = 'Development'
+  AND status = 'DEVELOPMENT'
   ;
 
   RETURN NEW;
@@ -389,7 +388,7 @@ BEGIN
   WHERE id = _minor.release_id
   ;
 
-  IF _release.status != 'Development' THEN
+  IF _release.status != 'DEVELOPMENT' THEN
     RAISE EXCEPTION 'Cannot defer because patch is not in development release: %', minor_id;
   END IF;
 
@@ -397,10 +396,10 @@ BEGIN
   INTO _release
   FROM pde.release
   WHERE project_id = _release.project_id
-  AND status = 'Future'
+  AND status = 'FUTURE'
   ;
 
-  IF _release.status != 'Future' THEN
+  IF _release.status != 'FUTURE' THEN
     RAISE EXCEPTION 'Cannot defer because future release does not exist: %', minor_id;
   END IF;
   
@@ -443,12 +442,12 @@ BEGIN
   WHERE id = _minor.release_id
   ;
 
-  IF _release.status != 'Future' THEN
+  IF _release.status != 'FUTURE' THEN
     RAISE EXCEPTION 'Cannot promote because patch is not in future release: %', _patch_id;
   END IF;
 
   UPDATE pde.minor SET
-    release_id = (SELECT id FROM pde.release WHERE project_id = _release.project_id AND status = 'Development')
+    release_id = (SELECT id FROM pde.release WHERE project_id = _release.project_id AND status = 'DEVELOPMENT')
   WHERE id = minor_id
   RETURNING *
   INTO _minor

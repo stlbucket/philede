@@ -41,11 +41,13 @@ export default {
       this.$apollo.mutate({
         mutation: importProject,
         variables: {
-          project: this.project
+          projectInfo: this.project
         }
       })
       .then(result => {
         console.log('import result', result.data.importProject.json)
+        this.$eventHub.$emit('projectImported', this.project.project.id)
+        this.$store.commit('focusProjectId', { focusProjectId: this.project.project.id})
       })
       .catch(error => {
         alert('ERROR')
@@ -71,7 +73,7 @@ export default {
   //     query: exportProjectById,
   //     variables () {
   //       return {
-  //         id: this.$store.state.selectedProjectId
+  //         id: this.$store.state.focusProjectId
   //       }
   //     },
   //     fetchPolicy: 'network-only',

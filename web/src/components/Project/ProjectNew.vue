@@ -33,8 +33,8 @@ export default {
         }
       })
       .then(result => {
-        this.$store.commit('selectedProjectId', { projectId: result.data.createPdeProject.pdeProject.id})
-        this.$store.commit('focusReleaseId', { releaseId: result.data.createPdeProject.pdeProject.releases.nodes.find(r => r.status === 'DEVELOPMENT').id })
+        this.$store.commit('focusProjectId', { focusProjectId: result.data.createPdeProject.pdeProject.id})
+        this.$store.commit('focusReleaseId', { focusReleaseId: result.data.createPdeProject.pdeProject.releases.nodes.find(r => r.status === 'DEVELOPMENT').id })
       })
       .catch(error => {
         alert ('ERROR')

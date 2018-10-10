@@ -50,7 +50,7 @@ export default {
       query: exportProjectById,
       variables () {
         return {
-          id: this.$store.state.selectedProjectId
+          id: this.$store.state.focusProjectId
         }
       },
       fetchPolicy: 'network-only',

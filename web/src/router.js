@@ -2,7 +2,9 @@ import Vue from "vue";
 import Router from "vue-router";
 import Home from "./views/Home.vue";
 // import Apollo from "./views/Apollo.vue";
-import Artifact from "./components/Artifact/Artifact.vue"
+// import Artifact from "./components/Artifact/Artifact.vue"
+import ArtifactDetail from "./components/Artifact/ArtifactDetail.vue"
+import ArtifactTypeDetail from "./components/ArtifactType/ArtifactTypeDetail.vue"
 
 import Graphileiql from "./components/Graphileiql/Graphileiql.vue"
 import GraphQLSchema from "./components/Graphileiql/GraphQLSchema.vue"
@@ -25,9 +27,11 @@ import PatchDetail from "./components/Patch/PatchDetail.vue"
 import PgTapTest from "./components/PgTapTest/PgTapTest.vue"
 import PsqlQuery from "./components/PsqlQuery/PsqlQuery.vue"
 
+
 import MinorCreate from "./components/Minor/MinorCreate.vue"
 
 import SchemaNew from "./components/Routes/SchemaNew.vue"
+import SchemaDetail from "./components/Schema/SchemaDetail.vue"
 
 Vue.use(Router);
 
@@ -39,9 +43,15 @@ export default new Router({
       component: Home
     },
     {
-      path: "/artifact/:id",
-      name: "artifact",
-      component: Artifact,
+      path: "/artifactDetail/:id",
+      name: "artifactDetail",
+      component: ArtifactDetail,
+      props: true
+    },
+    {
+      path: "/artifactTypeDetail/:id",
+      name: "artifactTypeDetail",
+      component: ArtifactTypeDetail,
       props: true
     },
     {
@@ -141,15 +151,21 @@ export default new Router({
       props: true
     },
     {
-      path: "/patchDetail",
+      path: "/patchDetail/:id",
       name: "patchDetail",
       component: PatchDetail,
-      props: false
+      props: true
     },
     {
       path: "/newSchema/:releaseId",
       name: "newSchema",
       component: SchemaNew,
+      props: true
+    },
+    {
+      path: "/schemaDetail/:id",
+      name: "schemaDetail",
+      component: SchemaDetail,
       props: true
     },
     {
