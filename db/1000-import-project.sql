@@ -6,7 +6,7 @@ DROP FUNCTION IF EXISTS pde.import_project(jsonb);
 CREATE OR REPLACE FUNCTION pde.import_project(
   _project_info jsonb
 )
-  RETURNS jsonb AS
+  RETURNS pde.pde_project AS
 $BODY$
 DECLARE
   _name text;
@@ -290,7 +290,7 @@ BEGIN
 
   -- patches
  
-  return _result;
+  return _project;
 END;
 $BODY$
   LANGUAGE plpgsql volatile

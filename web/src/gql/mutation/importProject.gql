@@ -4,6 +4,9 @@ mutation ImportProject(
   importProject(input: {
     _projectInfo: $projectInfo
   }) {
-    json
+    pdeProject {
+      id
+      name
+    }
   }
 }

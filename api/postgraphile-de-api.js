@@ -52,7 +52,7 @@ pm2.start(`../api-dev/server.js`, {
   cwd: '../api-dev',
   env: {
     APOLLO_ENGINE_API_KEY: "service:stlbucket-4863:E1JvHPJjVn04vWxTF9w2PQ",
-    POSTGRAPHILE_SCHEMAS: "tacos,cards",
+    POSTGRAPHILE_SCHEMAS: "cards",
     POSTRGRES_CONNECTION: "postgres://postgres:1234@0.0.0.0/dev_phile",
     DEFAULT_ROLE: "app_anonymous",
     JWT_SECRET: "SUPERSECRET",

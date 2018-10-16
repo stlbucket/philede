@@ -41,13 +41,12 @@ export default {
     },
     selectedProjectId () {
       this.$store.commit('focusProjectId', { focusProjectId: this.selectedProjectId})
-      // this.$eventHub.$emit('projectSelected', this.pdeProjectId)
     }
   },
   methods: {
     projectImported (projectId) {
+      this.selectedProjectId = projectId
       this.$apollo.queries.init.refetch()
-      this.$store.commit('focusProjectId', projectId)
     },
    },
   data () {

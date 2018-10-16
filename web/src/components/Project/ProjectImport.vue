@@ -45,9 +45,9 @@ export default {
         }
       })
       .then(result => {
-        console.log('import result', result.data.importProject.json)
-        this.$eventHub.$emit('projectImported', this.project.project.id)
-        this.$store.commit('focusProjectId', { focusProjectId: this.project.project.id})
+        console.log('result', result)
+        this.$eventHub.$emit('projectImported', result.data.importProject.pdeProject.id)
+        this.$router.push({ name: 'projectDetail', params: { id: result.data.importProject.pdeProject.id}})
       })
       .catch(error => {
         alert('ERROR')
@@ -59,7 +59,6 @@ export default {
     },
     handleFileUpload () {
       this.file = this.$refs.file.files[0];
-      console.log('this.file', this.file)
       const reader = new FileReader();
       reader.onload = this.useResults
       reader.readAsText(this.file);

@@ -40,6 +40,11 @@ export default {
       this.$apollo.queries.init.refetch()
     }
   },
+  watch: {
+    $route (to, from){
+        console.log('HEY ROUTE', to, from)
+    }
+  },
   apollo: {
     init: {
       query: pdeProjectById,
