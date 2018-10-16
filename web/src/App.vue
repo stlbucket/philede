@@ -18,13 +18,10 @@
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <project-selector></project-selector>
       <v-spacer></v-spacer>
-      <div id="title">
-        <v-toolbar-title v-text="title" @click="home"></v-toolbar-title>
+      <div selectable>
+        <v-toolbar-title selectable v-text="title" @click="home"></v-toolbar-title>
       </div>
       <v-spacer></v-spacer>
-      <v-btn @click="psql">psql</v-btn>
-      <v-btn @click="GraphiQl">GraphiQl</v-btn>
-      <v-btn @click="graphQLSchema">GraphQL Voyager</v-btn>
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>menu</v-icon>
       </v-btn>
@@ -68,15 +65,6 @@ export default {
     ProjectSelector
   },
   methods: {
-    psql () {
-      this.$eventHub.$emit('newPsqlQuery')
-    },
-    graphQLSchema () {
-      this.$eventHub.$emit('graphQLSchema')
-    },
-    GraphiQl () {
-      this.$eventHub.$emit('graphiql')
-    },
     home () {
       this.$router.push({ name: 'home' })
     }
@@ -99,7 +87,7 @@ export default {
 <style lang="css">
   .treeview-label { background-color: #494544; }
 
-  #title { cursor: pointer; }
+  .selectable { cursor: pointer; }
 
   .v-content .container { height: 100%; }
   .v-content .container > .layout { height: 100%; }

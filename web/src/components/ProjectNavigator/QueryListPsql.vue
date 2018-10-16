@@ -35,11 +35,11 @@ export default {
   },
   methods: {
     newQuery () {
-      this.$eventHub.$emit('newPsqlQuery')
+      this.$router.push({ name: 'new-psql-query' })
+    },
+    selected (test) {
+      // this.$router.push({ name: 'new-psql-query' })
     }
-    // selected (test) {
-    //   this.$eventHub.$emit('gqlTestSelected', test)
-    // }
   },
   computed: {
   },

@@ -1,5 +1,74 @@
 <template>
   <div>
+    <v-toolbar>
+      <v-tooltip bottom>
+        <v-icon 
+          selectable 
+          @click="config"
+          slot="activator"
+        >build</v-icon>
+        <span>config</span>
+      </v-tooltip>
+      <v-spacer></v-spacer>
+      <v-tooltip bottom>
+        <v-icon 
+          @click="importProject"
+          slot="activator"
+        >trending_up</v-icon>
+        <span>import project</span>
+      </v-tooltip>
+      <v-spacer></v-spacer>
+      <v-tooltip bottom>
+        <v-icon 
+          @click="newProject"
+          slot="activator"
+        >add_circle</v-icon>
+        <span>new project</span>
+      </v-tooltip>
+      <v-spacer></v-spacer>
+      <v-tooltip bottom>
+        <v-icon 
+          @click="exportProject"
+          slot="activator"
+        >trending_down</v-icon>
+        <span>export project</span>
+      </v-tooltip>
+      <v-spacer></v-spacer>
+      <v-tooltip bottom>
+        <v-icon 
+          @click="manageProject"
+          slot="activator"
+        >local_library</v-icon>
+        <span>manage project</span>
+      </v-tooltip>
+      <v-spacer></v-spacer>
+      <v-tooltip bottom>
+        <v-icon 
+          selectable 
+          @click="graphQLSchema"
+          slot="activator"
+        >border_clear</v-icon>
+        <span>graph view</span>
+      </v-tooltip>
+      <v-spacer></v-spacer>
+      <v-tooltip bottom>
+        <v-icon 
+          selectable
+          @click="newPsqlQuery"
+          slot="activator"
+        >call_to_action</v-icon>
+        <span>psql</span>
+      </v-tooltip>
+      <v-spacer></v-spacer>
+      <v-tooltip bottom>
+        <v-icon 
+          selectable 
+          @click="graphiql"
+          slot="activator"
+        >featured_video</v-icon>
+        <span>graphiql</span>
+      </v-tooltip>
+    </v-toolbar>
     <release-navigator 
       :pdeProjectId="pdeProjectId"
     ></release-navigator>
@@ -59,6 +128,9 @@ export default {
     }
   },
   methods: {  // todo: get rid of as many events as possible
+    config () {
+      this.$router.push({ name: 'config' })
+    },
     schemaDetail () {
       if (this.focusSchemaId !== '') {
         this.$router.push({ name: 'schemaDetail', params: { id: this.focusSchemaId }})
@@ -101,7 +173,7 @@ export default {
       this.$router.push({ name: 'graphileiql' })
     },
     newPsqlQuery () {
-      this.$router.push({ name: 'new-psql-query' })
+        this.$router.push({ name: 'new-psql-query' })
     },
     newGraphQLQuery () {
       this.$router.push({ name: 'graphileiql' })
@@ -119,23 +191,11 @@ export default {
       this.$store.commit('focusReleaseId', { focusReleaseId: minor.releaseId})
       this.$router.push({ name: 'releaseDetail', params: { id: minor.releaseId }})
     },
-    artifactTypeSelected (artifactType) {
-      this.$eventHub.$emit('focusPatch', artifactType)
-    },
-    artifactSelected (artifact) {
-      this.$router.push({ name: 'artifact', params: { id: artifact.id }})
-    },
-    patchSelected (patch) {
-      this.$router.push({ name: 'artifact', params: { id: this.focusArtifactId }})
-    },
     newPatch (minor) {
       this.$router.push({ name: 'newPatch', params: { minorId: minor.id }})
     },
     patchCreated (patch) {
       this.$router.push({ name: 'artifact', params: { id: patch.artifactId }})
-    },
-    pgtTestSelected (test) {
-       this.$router.push({ name: 'test-pg-tap', params: { id: test.id }})
     },
     newPgTapTest () {
       this.$router.push({ name: 'pg-tap-test', params: { id: 'N/A' }})
@@ -152,9 +212,6 @@ export default {
     },
     newDevelopmentRelease () {
       this.$router.push({ name: 'newDevelopmentRelease'})
-    },
-    boom (sha) {
-      console.log('boom', sha)
     }
   },
   data () {
@@ -165,12 +222,6 @@ export default {
     }
   },
   created () {
-    this.$eventHub.$on('pgtTestSelected', this.pgtTestSelected)
-    this.$eventHub.$on('gqlTestSelected', this.gqlTestSelected)
-    this.$eventHub.$on('schemaSelected', this.schemaSelected)
-    this.$eventHub.$on('artifactSelected', this.artifactSelected)
-    this.$eventHub.$on('artifactTypeSelected', this.artifactTypeSelected)  
-    this.$eventHub.$on('patchSelected', this.patchSelected)  
     this.$eventHub.$on('newPatch', this.newPatch)  
     this.$eventHub.$on('patchCreated', this.patchCreated)  
     this.$eventHub.$on('newSchema', this.newSchema)  
@@ -178,45 +229,25 @@ export default {
     this.$eventHub.$on('newDevelopmentRelease', this.newDevelopmentRelease)  
     this.$eventHub.$on('newMinor', this.newMinor)  
     this.$eventHub.$on('newGraphQLQuery', this.newGraphQLQuery)  
-    this.$eventHub.$on('newPsqlQuery', this.newPsqlQuery)  
     this.$eventHub.$on('newPgTapTest', this.newPgTapTest)  
     this.$eventHub.$on('newGraphQLTest', this.newGraphQLTest)
-    this.$eventHub.$on('graphQLSchema', this.graphQLSchema)
-    this.$eventHub.$on('graphiql', this.graphiql)
     this.$eventHub.$on('newDevelopmentReleaseCreated', this.exploreRelease)
-    this.$eventHub.$on('newProject', this.newProject)
-    this.$eventHub.$on('manageProject', this.manageProject)
     this.$eventHub.$on('newMinorCreated', this.newMinorCreated)
     this.$eventHub.$on('projectCreated', this.projectCreated)
-    this.$eventHub.$on('exportProject', this.exportProject)
-    this.$eventHub.$on('importProject', this.importProject)
   },
   beforeDestroy() {
-    this.$eventHub.$off('pgtTestSelected')
-    this.$eventHub.$off('gqlTestSelected')
-    this.$eventHub.$off('artifactSelected')
-    this.$eventHub.$off('artifactTypeSelected')
-    this.$eventHub.$off('patchSelected')
     this.$eventHub.$off('newPatch')
     this.$eventHub.$off('patchCreated')
-    this.$eventHub.$off('schemaSelected')
     this.$eventHub.$off('newSchema')
     this.$eventHub.$off('exploreRelease')
     this.$eventHub.$off('newDevelopmentRelease')
     this.$eventHub.$off('newMinor')
     this.$eventHub.$off('newGraphQLQuery')
-    this.$eventHub.$off('newPsqlQuery')
     this.$eventHub.$off('newPgTapTest')
     this.$eventHub.$off('newGraphQLTest')
-    this.$eventHub.$off('graphQLSchema')
-    this.$eventHub.$off('graphiql')
     this.$eventHub.$off('newDevelopmentReleaseCreated')
-    this.$eventHub.$off('newProject')
-    this.$eventHub.$off('manageProject')
     this.$eventHub.$off('newMinorCreated')
     this.$eventHub.$off('projectCreated')
-    this.$eventHub.$off('exportProject')
-    this.$eventHub.$off('importProject')
   }
 }
 </script>

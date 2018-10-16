@@ -12,4 +12,6 @@ Vue.use(Vuetify, {
 
 Vue.use(VTreeview)
 
+Vue.use(require('vue-shortkey'))
+
 Vue.use(VuePlugin)

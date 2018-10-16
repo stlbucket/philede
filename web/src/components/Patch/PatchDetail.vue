@@ -12,6 +12,8 @@
         <v-btn 
           @click="save"
           :disabled="disableCommit"
+          v-shortkey.once="['ctrl', 'd']" 
+          @shortkey="theAction()"
         >Keep Changes
         </v-btn>
         <v-btn 
@@ -151,6 +153,7 @@
 import patchById from '../../gql/query/patchById.gql'
 import updateArtifact from '../../gql/mutation/updateArtifact.gql'
 import updatePatch from '../../gql/mutation/updatePatch.gql'
+import devDeployRelease from '../../gql/mutation/devDeployRelease.gql'
 import gql from 'graphql-tag'
 import ace from 'brace'
 
@@ -163,6 +166,9 @@ export default {
     id: String
   },
   methods: {
+    theAction (event) {
+      console.log('theAction', event)
+    },
     editorInit: function () {
         require('brace/ext/language_tools') //language extension prerequsite...
         require('brace/mode/html')                
@@ -197,8 +203,21 @@ export default {
             fetchPolicy: 'no-cache'
           })
         .then(result => {
+          return this.$apollo.mutate({
+            mutation: devDeployRelease,
+            variables: {
+              releaseId: this.patch.minor.releaseId
+            },
+            fetchPolicy: 'no-cache'
+          })
+          .catch(error => {
+            return 'DEPLOY FAIL'
+          })
+        })
+        .then(result => {
           this.$refs.editorUp.focus()
           this.$eventHub.$emit('patchUpdated', this.patch)
+          this.$apollo.queries.loadPatch.refetch()
         })
         .catch(error => {
           alert('ERROR')

@@ -51,9 +51,16 @@ export default {
       return (patch.id === this.focusPatchId) ? 'v-list__tile--active' : 'v-list__tile'
     },
     patchStatusColor(patch) {
-      console.log('patch', patch)
       return patch.devDeployment ? (patch.devDeployment.status === 'DEPLOYED' ? 'green' : 'red') : 'yellow'
     }
+  },
+  watch: {
+    minor: {
+      handler (val) {
+        this.$forceUpdate()
+      },
+      deep: true
+    } 
   },
   props: {
     minor: {

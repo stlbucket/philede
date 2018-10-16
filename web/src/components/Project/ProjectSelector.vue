@@ -8,10 +8,7 @@
         item-value="id"
         v-model="selectedProjectId"
       ></v-select>
-      <v-btn @click="manageProject">Manage</v-btn>
-      <v-btn @click="exportProject">Export</v-btn>
-      <v-btn @click="importProject">Import</v-btn>
-      <v-btn @click="newProject">New</v-btn>
+      <v-spacer></v-spacer>
     </v-toolbar>
   </div>
 </template>
@@ -48,18 +45,6 @@ export default {
     }
   },
   methods: {
-    newProject () {
-      this.$eventHub.$emit('newProject')
-    },
-    manageProject () {
-      this.$eventHub.$emit('manageProject', this.pdeProjectId)
-    },
-    exportProject () {
-      this.$eventHub.$emit('exportProject')
-    },
-    importProject () {
-      this.$eventHub.$emit('importProject')
-    },
     projectImported (projectId) {
       this.$apollo.queries.init.refetch()
       this.$store.commit('focusProjectId', projectId)

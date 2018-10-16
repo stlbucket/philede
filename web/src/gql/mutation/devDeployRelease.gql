@@ -1,0 +1,14 @@
+mutation DevDeployRelease(
+  $releaseId: BigInt!
+) {
+  DevDeploy(input: {
+    releaseId: $releaseId
+  }) {
+    release {
+      id
+      name
+      number
+      projectId
+    }
+  }
+}

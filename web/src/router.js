@@ -6,6 +6,8 @@ import Home from "./views/Home.vue";
 import ArtifactDetail from "./components/Artifact/ArtifactDetail.vue"
 import ArtifactTypeDetail from "./components/ArtifactType/ArtifactTypeDetail.vue"
 
+import Config from "./components/Config/Config.vue"
+
 import Graphileiql from "./components/Graphileiql/Graphileiql.vue"
 import GraphQLSchema from "./components/Graphileiql/GraphQLSchema.vue"
 import GraphQLTest from "./components/GraphQLTest/GraphQLTest.vue"
@@ -130,6 +132,12 @@ export default new Router({
       path: "/newDevelopmentRelease",
       name: "newDevelopmentRelease",
       component: ReleaseCreate,
+      props: false
+    },
+    {
+      path: "/config",
+      name: "config",
+      component: Config,
       props: false
     },
     {

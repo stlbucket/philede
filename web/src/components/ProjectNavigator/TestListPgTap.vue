@@ -35,7 +35,7 @@ export default {
       this.$eventHub.$emit('newPgTapTest')
     },
     selected (test) {
-      this.$eventHub.$emit('pgtTestSelected', test)
+       this.$router.push({ name: 'test-pg-tap', params: { id: test.id }})
     }
   },
   computed: {

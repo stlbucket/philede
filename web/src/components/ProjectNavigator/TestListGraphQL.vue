@@ -35,7 +35,7 @@ export default {
       this.$eventHub.$emit('newGraphQLTest')
     },
     selected (test) {
-      this.$eventHub.$emit('gqlTestSelected', test)
+      this.$router.push({ name: 'test-graph-ql', params: { id: test.id }})
     }
   },
   computed: {

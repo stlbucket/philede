@@ -1,0 +1,21 @@
+query PatchTemplateInit{
+  allArtifactTypes {
+    nodes {
+      id
+      name
+      requiresSchema
+      properties
+      patchTypes: patchTypesByArtifactTypeId {
+        nodes {
+          id
+          name
+          key
+          action
+          ddlUpTemplate
+          ddlDownTemplate
+          documentationUrl
+        }
+      }
+    }
+  }
+}

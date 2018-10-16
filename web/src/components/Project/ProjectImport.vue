@@ -23,7 +23,7 @@
 import importProject from '../../gql/mutation/importProject.gql'
 
 export default {
-  name: "ExportProject",
+  name: "ImportProject",
   components: {
   },
   props: {
@@ -68,24 +68,6 @@ export default {
 
     }
   },
-  // apollo: {
-  //   init: {
-  //     query: exportProjectById,
-  //     variables () {
-  //       return {
-  //         id: this.$store.state.focusProjectId
-  //       }
-  //     },
-  //     fetchPolicy: 'network-only',
-  //     update (result) {
-  //       this.project = result.pdeProjectById || {
-  //       releases: {
-  //         nodes: []
-  //         }
-  //       }
-  //     }
-  //   }
-  // },
   data () {
     return {
       file: '',

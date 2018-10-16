@@ -16,6 +16,10 @@ mutation UpdatePatch(
       ddlDown
       number
       locked
+      minor: minorByMinorId {
+        id
+        releaseId
+      }
       artifact: artifactByArtifactId {
         id
         name

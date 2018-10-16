@@ -16,10 +16,17 @@ export default new Vuex.Store({
   mutations: {
     focusProjectId (state, payload) {
       state.focusProjectId = payload.focusProjectId
+      state.focusSchemaId = ''
+      state.focusArtifactTypeId = ''
+      state.focusArtifactId = ''
+      state.focusPatchId = ''
     },
     focusReleaseId (state, payload) {
-      console.log('focus', payload)
       state.focusReleaseId = payload.focusReleaseId
+      state.focusSchemaId = ''
+      state.focusArtifactTypeId = ''
+      state.focusArtifactId = ''
+      state.focusPatchId = ''
     },
     focusSchemaId (state, payload) {
       state.focusSchemaId = payload.focusSchemaId

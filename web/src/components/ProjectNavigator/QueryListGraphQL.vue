@@ -38,7 +38,6 @@ export default {
       this.$eventHub.$emit('newGraphQLQuery')
     }
     // selected (test) {
-    //   this.$eventHub.$emit('gqlTestSelected', test)
     // }
   },
   computed: {
