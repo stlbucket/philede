@@ -7,6 +7,7 @@ const {postgraphile} = require("postgraphile");
 
 const plugins = [
   require('./src/graphile-extensions/execSql'),
+  require('./src/graphile-extensions/execDDL'),
   require('postgraphile-plugin-connection-filter')
 ]
 

@@ -1,0 +1,8 @@
+query ArtifactTypeById(
+  $id: BigInt!
+) {
+  artifactTypeById (id: $id){
+    id
+    name
+  }
+}

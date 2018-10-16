@@ -18,6 +18,10 @@ query PatchById(
       id
       name
     }
+    devDeployment: devDeploymentByDevDeploymentId {
+      id
+      status
+    }
     minor: minorByMinorId {
       id
       number

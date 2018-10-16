@@ -250,6 +250,21 @@ CREATE TABLE pde.patch_type (
   CONSTRAINT pk_pde_patch_ype PRIMARY KEY (id)
 );
 ALTER TABLE pde.patch_type ADD CONSTRAINT fk_patch_type_artifact_type FOREIGN KEY (artifact_type_id) REFERENCES pde.artifact_type (id);
+------------------------------------------------
+-- dev_deployment
+------------------------------------------------
+CREATE TYPE pde.dev_deployment_status AS ENUM(
+  'DEPLOYED'
+  ,'ERROR'
+);
+
+CREATE TABLE pde.dev_deployment (
+  id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
+  ddl_down text,
+  status pde.dev_deployment_status not null default 'DEPLOYED',
+  deployed_at timestamp not null default current_timestamp,
+  CONSTRAINT pk_dev_deployment PRIMARY KEY (id)
+);
 
 ------------------------------------------------
 -- patch
@@ -265,6 +280,7 @@ CREATE TABLE pde.patch (
   ddl_down text NOT NULL DEFAULT '<ddl>',
   number text NOT NULL,
   locked boolean NOT NULL default false,
+  dev_deployment_id bigint NULL,
   CHECK (number <> ''),
   CONSTRAINT pk_pde_patch PRIMARY KEY (id)
 );
@@ -273,6 +289,7 @@ ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_minor FOREIGN KEY (minor_id) REFER
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_artifact FOREIGN KEY (artifact_id) REFERENCES pde.artifact (id);
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
 ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_patch_type FOREIGN KEY (patch_type_id) REFERENCES pde.patch_type (id);
+ALTER TABLE pde.patch ADD CONSTRAINT fk_patch_dev_deployment FOREIGN KEY (dev_deployment_id) REFERENCES pde.dev_deployment (id) ON DELETE SET NULL;
 --||--
 CREATE FUNCTION pde.fn_timestamp_update_patch() RETURNS trigger AS $$
 BEGIN

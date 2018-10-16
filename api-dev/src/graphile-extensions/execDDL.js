@@ -1,27 +1,27 @@
 const clog = require('fbkt-clog')
 const { makeExtendSchemaPlugin, gql } = require("graphile-utils");
 
-const ExecSqlPlugin = makeExtendSchemaPlugin(build => {
+const ExecDDLPlugin = makeExtendSchemaPlugin(build => {
   const { pgSql: sql } = build;
   return {
     typeDefs: gql`
-    input ExecSqlInput {
+    input ExecDDLInput {
       clientMutationId: String
       sql: String!
     }
 
-    type ExecSqlPayload {
+    type ExecDDLPayload {
       sql: String!
       result: JSON!
     }
 
     extend type Mutation {
-      ExecSql(input: ExecSqlInput!): ExecSqlPayload
+      ExecDDL(input: ExecDDLInput!): ExecDDLPayload
     }
   `,
   resolvers: {
       Mutation: {
-        ExecSql: async (
+        ExecDDL: async (
           _mutation,
           args,
           context,
@@ -30,14 +30,14 @@ const ExecSqlPlugin = makeExtendSchemaPlugin(build => {
         ) => {
           const { pgClient } = context;
           // Start a sub-transaction
-          await pgClient.query("SAVEPOINT graphql_mutation");
+          // await pgClient.query("SAVEPOINT graphql_mutation");
           try {
 
             const result = await pgClient.query(args.input.sql, []);
 
             clog('result', result)
 
-            await pgClient.query("RELEASE SAVEPOINT graphql_mutation");
+            // await pgClient.query("RELEASE SAVEPOINT graphql_mutation");
 
             return {
               sql: args.input.sql,
@@ -46,7 +46,7 @@ const ExecSqlPlugin = makeExtendSchemaPlugin(build => {
           } catch (e) {
             // Oh noes! If at first you don't succeed,
             // destroy all evidence you ever tried.
-            await pgClient.query("ROLLBACK TO SAVEPOINT graphql_mutation");
+            // await pgClient.query("ROLLBACK TO SAVEPOINT graphql_mutation");
             throw e;
           }
         },
@@ -55,7 +55,7 @@ const ExecSqlPlugin = makeExtendSchemaPlugin(build => {
   };
 });
 
-module.exports = ExecSqlPlugin
+module.exports = ExecDDLPlugin
 
 
 // the above was built from the below

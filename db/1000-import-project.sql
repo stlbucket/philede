@@ -117,6 +117,8 @@ BEGIN
   RETURNING * INTO _project
   ;
 
+  DELETE FROM pde.release WHERE project_id = _project.id;
+
   -- schemas
   for _schema_json in
     select jsonb_array_elements(((_project_info->'project')->'schemata')->'nodes')

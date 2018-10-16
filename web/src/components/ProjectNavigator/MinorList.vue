@@ -23,6 +23,7 @@ export default {
   },
   methods: {
     queryRelease () {
+      console.log('heyo')
       this.$apollo.queries.init.refetch()
     }
   },
@@ -30,34 +31,43 @@ export default {
     minors () {
       return this.release ? this.release.minors.nodes : []
     },
-    focusReleaseId () {      
-      return this.$store.state.focusReleaseId
-    }
+    // focusReleaseId () {
+    //   return this.$store.state.focusReleaseId
+    // }
   },
   watch: {
-    focusReleaseId () {
-      this.queryRelease()
-    },
+    // focusReleaseId () {
+    //   console.log('booya', this.$store.state.focusReleaseId)
+    //   this.queryRelease()
+    // },
   },
   apollo: {
     init: {
       query: releasePatchTree,
       variables () {
-        console.log('store', this.$store.state)
+        // console.log('store', this.$store.state, this.focusReleaseId)
         return {
           id: this.focusReleaseId
         }
       },
       skip () {
-        return this.focusReleaseId === ''
+        // console.log('this.frl', this.focusReleaseId)
+        return this.focusReleaseId === null || this.focusReleaseId === undefined || this.focusReleaseId === ''
       },
       fetchPolicy: 'network-only',
       update (result) {
+        // console.log('result')
         this.release = result.release
         this.allArtifactTypes = result.allArtifactTypes.nodes
       }
     }
 
+  },
+  props: {
+    focusReleaseId: {
+      type: String,
+      required: true
+    }
   },
   data () {
     return {

@@ -1,0 +1,8 @@
+query SchemaById(
+  $id: BigInt!
+){
+  schemaById(id: $id) {
+    id
+    name
+  }
+}

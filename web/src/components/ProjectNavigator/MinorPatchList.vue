@@ -13,7 +13,10 @@
           :class="getCssClass(patch)"
         >
           <v-list-tile-content>
-            <v-list-tile-sub-title class="text--primary">{{ `Patch: ${patch.number.split('.')[2]} - ${patch.patchType.name} - ${patch.artifact.name}` }}</v-list-tile-sub-title>
+            <v-list-tile-sub-title class="text--primary">
+              <v-icon :color="patchStatusColor(patch)" small>fiber_manual_record</v-icon>
+              {{ `Patch: ${patch.number.split('.')[2]} - ${patch.patchType.name} - ${patch.artifact.name}` }}
+            </v-list-tile-sub-title>
           </v-list-tile-content>
 
         </v-list-tile>
@@ -46,6 +49,10 @@ export default {
     },
     getCssClass(patch) {
       return (patch.id === this.focusPatchId) ? 'v-list__tile--active' : 'v-list__tile'
+    },
+    patchStatusColor(patch) {
+      console.log('patch', patch)
+      return patch.devDeployment ? (patch.devDeployment.status === 'DEPLOYED' ? 'green' : 'red') : 'yellow'
     }
   },
   props: {

@@ -37,6 +37,10 @@ query ReleaseById(
             revision
             locked
             artifactId
+            devDeployment: devDeploymentByDevDeploymentId {
+              id
+              status
+            }
             patchType: patchTypeByPatchTypeId {
               id
               name

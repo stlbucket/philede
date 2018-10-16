@@ -10,7 +10,7 @@
     <v-toolbar>
       <v-btn @click="newPatch" :disabled="newPatchSetDisabled">New Minor</v-btn>
     </v-toolbar>
-    <minor-list></minor-list>
+    <minor-list :focusReleaseId="focusReleaseId"></minor-list>
   </div>
 </template>
 
@@ -48,6 +48,9 @@ export default {
   watch: {
     selectedProjectId () {
       this.$apollo.queries.init.refetch()
+    },
+    focusRelease () {
+      this.focusReleaseId = this.focusRelease.id
     }
   },
   apollo: { 
@@ -89,7 +92,8 @@ export default {
       items:  [],
       selectedItems: [],
       releases: [],
-      pdeProject: null
+      pdeProject: null,
+      focusReleaseId: ''
     }
   }
 }

@@ -48,6 +48,7 @@
     "eslint-plugin-graphql": "^2.1.1",
     "flow-babel-webpack-plugin": "^1.1.1",
     "graphql-tag": "^2.9.0",
+    "material-design-icons-iconfont": "^3.0.3",
     "stylus": "^0.54.5",
     "vue-cli-plugin-apollo": "^0.16.3",
     "vue-cli-plugin-vuetify": "^0.1.6",

@@ -35,8 +35,6 @@ const ExecSqlPlugin = makeExtendSchemaPlugin(build => {
 
             const result = await pgClient.query(args.input.sql, []);
 
-            clog('result', result)
-
             await pgClient.query("RELEASE SAVEPOINT graphql_mutation");
 
             return {

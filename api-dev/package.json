@@ -16,7 +16,7 @@
     "fbkt-clog": "^1.0.5",
     "graphile-utils": "^4.0.0-rc.9",
     "pm2": "^3.0.4",
-    "postgraphile": "^4.0.0-rc.4",
+    "postgraphile": "postgraphile@next",
     "postgraphile-plugin-connection-filter": "^1.0.0-beta.15"
-  },
+  }
 }
