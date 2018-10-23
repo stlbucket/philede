@@ -77,7 +77,7 @@ export default {
   },
   methods: {
     fetcher (query) {
-      return fetch(window.location.origin + '/dev-graphql', {
+      return fetch(window.location.origin + '/graphql', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(query),
@@ -211,7 +211,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
-.graphiql-container {
+/* .graphiql-container {
   color: red
-}
+} */
 </style>

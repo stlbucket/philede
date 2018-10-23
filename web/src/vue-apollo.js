@@ -14,8 +14,8 @@ const AUTH_TOKEN_DEV = "apollo-token-dev";
 
 // Http endpoint
 const httpEndpoint =
-  process.env.VUE_APP_GRAPHQL_HTTP || "http://localhost:8080/graphql";
-  const httpDevEndpoint = "http://localhost:8080/dev-graphql";
+  process.env.VUE_APP_GRAPHQL_HTTP || "http://localhost:8080/dev-graphql";
+  const httpDevEndpoint = "http://localhost:8080/graphql";
 // Files URL root
 export const filesRoot =
   process.env.VUE_APP_FILES_ROOT ||
@@ -98,13 +98,13 @@ export function createProvider(options = {}) {
     ...options
   });
   apolloClient.wsClient = wsClient;
-  console.log('apolloClient for phile-de', apolloClient)
+  console.log('apolloClient for db under development', apolloClient)
 
   const apolloDevClient = createApolloClient({
     ...defaultDevOptions,
     ...options
   }).apolloClient;
-  console.log('apolloClient for db under development - uses proxy on phile-de server', apolloDevClient)
+  console.log('apolloClient for postgraphile-de - uses proxy thru dev-server', apolloDevClient)
 
   // Create vue apollo provider
   const apolloProvider = new VueApollo({

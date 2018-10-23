@@ -114,7 +114,6 @@ export default {
     },
     execSql () {
       this.$apollo.mutate({
-        client: 'b',
         mutation: execSql,
         variables: {
           sql: this.sql

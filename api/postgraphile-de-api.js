@@ -13,7 +13,7 @@ const plugins = [
 ]
 
 const port = process.env.PORT
-const connection = process.env.POSTRGRES_CONNECTION
+const connection = process.env.POSTGRES_CONNECTION
 const schemas = process.env.POSTGRAPHILE_SCHEMAS.split(',')
 const dynamicJson = process.env.DYNAMIC_JSON === 'true'
 // const pgDefaultRole = process.env.DEFAULT_ROLE
@@ -47,35 +47,35 @@ app.use(postgraphile(
   }
 ));
 
-pm2.start(`../api-dev/server.js`, {
-  name: 'pde-under-development',
-  cwd: '../api-dev',
-  env: {
-    APOLLO_ENGINE_API_KEY: "service:stlbucket-4863:E1JvHPJjVn04vWxTF9w2PQ",
-    POSTGRAPHILE_SCHEMAS: "cards",
-    POSTRGRES_CONNECTION: "postgres://postgres:1234@0.0.0.0/dev_phile",
-    DEFAULT_ROLE: "app_anonymous",
-    JWT_SECRET: "SUPERSECRET",
-    JWT_PG_TYPE_IDENTIFIER: "auth.jwt_token",
-    EXTENDED_ERRORS: "hint, detail, errcode",
-    DISABLE_DEFAULT_MUTATIONS: "true",
-    DYNAMIC_JSON: "true",
-    ENABLE_APOLLO_ENGINE: "false",
-    PORT: 5001
-  }
-}, function(error, result){
+// pm2.start(`../api-dev/server.js`, {
+//   name: 'pde-under-development',
+//   cwd: '../api-dev',
+//   env: {
+//     APOLLO_ENGINE_API_KEY: "service:stlbucket-4863:E1JvHPJjVn04vWxTF9w2PQ",
+//     POSTGRAPHILE_SCHEMAS: "cards",
+//     POSTGRES_CONNECTION: "postgres://postgres:1234@0.0.0.0/dev_phile",
+//     DEFAULT_ROLE: "app_anonymous",
+//     JWT_SECRET: "SUPERSECRET",
+//     JWT_PG_TYPE_IDENTIFIER: "auth.jwt_token",
+//     EXTENDED_ERRORS: "hint, detail, errcode",
+//     DISABLE_DEFAULT_MUTATIONS: "true",
+//     DYNAMIC_JSON: "true",
+//     ENABLE_APOLLO_ENGINE: "false",
+//     PORT: 5001
+//   }
+// }, function(error, result){
 
-  if (error) {
-    throw error
-  } else {
-    app.use('/dev-graphql', proxy({
-      target: 'http://localhost:5001',
-      changeOrigin: true,
-      logLevel: 'debug',
-      pathRewrite: {'/dev-graphql' : '/graphql'}
-    }));      
-  }
-})
+//   if (error) {
+//     throw error
+//   } else {
+//     app.use('/dev-graphql', proxy({
+//       target: 'http://localhost:5001',
+//       changeOrigin: true,
+//       logLevel: 'debug',
+//       pathRewrite: {'/dev-graphql' : '/graphql'}
+//     }));      
+//   }
+// })
 
 
 if (enableApolloEngine) {

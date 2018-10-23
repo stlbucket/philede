@@ -206,7 +206,7 @@ export default {
             fetchPolicy: 'no-cache'
           })
         .then(result => {
-          console.log('this.patch', this.patch)
+          console.log('this.patch', this.patch.minor.releaseId)
           return this.$apollo.mutate({
             mutation: devDeployRelease,
             variables: {
@@ -217,9 +217,6 @@ export default {
         })
         .then(result => {
           this.errorMessage = ''
-          this.$refs.editorUp.focus()
-          this.$eventHub.$emit('patchUpdated', this.patch)
-          this.$apollo.queries.loadPatch.refetch()
         })
         .catch(error => {
           const errObj = JSON.parse(error.toString().replace('Error: GraphQL error:', ''))
@@ -257,6 +254,11 @@ export default {
           console.log('errorLocation', errorLocation)
           this.errorMessage = errObj.message
         })
+        .finally(() => {
+          this.$refs.editorUp.focus()
+          this.$apollo.queries.loadPatch.refetch()
+          this.$eventHub.$emit('patchUpdated', this.patch)
+        })
       })
     },
     revert () {
@@ -287,9 +289,9 @@ export default {
     patch () {
       this.$store.commit('focusPatchId', {focusPatchId: this.patch.id})
     },
-    ddlUp () {
-      console.log(this.$refs.editorUp.getCursorPosition())
-    }
+    // ddlUp () {
+    //   console.log(this.$refs.editorUp.getCursorPosition())
+    // }
   },
   computed: {
     focusPatchId () {
