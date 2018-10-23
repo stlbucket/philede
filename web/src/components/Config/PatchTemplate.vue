@@ -32,34 +32,8 @@
       
     </div>
 
-    <div :hidden="schemataHidden">
-      <h2>Select a schema :</h2>
-      <v-radio-group 
-        v-model="selectedSchemaId"
-        :column="false"
-      >
-        <v-radio
-          v-for="schema in schemata"
-          :key="schema.id"
-          :label="`${schema.name}`"
-          :value="schema.id"
-        ></v-radio>
-      </v-radio-group>
-    </div>
-
-    <div :hidden="selectArtifactHidden">
-      <h2>Select existing {{ artifactTypeName }}:</h2>
-      <v-select
-        :label="selectArtifactLabel" 
-        :items="artifacts"
-        item-text="name"
-        item-value="id"
-        v-model="selectedArtifactId"
-      ></v-select>
-    </div>
-
     <v-toolbar>
-      <v-btn @click="create" :disabled="createDisabled">Create</v-btn>
+      <v-btn @click="save" :disabled="saveDisabled">Save</v-btn>
       <v-btn @click="cancel">Cancel</v-btn>
     </v-toolbar>
 
@@ -105,26 +79,20 @@ export default {
     }
   },
   computed: {
+    saveDisabled () {
+      return false
+    },
     selectedArtifactType() {
       return this.artifactTypes.find(at => at.id === this.selectedArtifactTypeId)
     },
-    selectedArtifact() {
-      return this.minor.project.artifacts.nodes.find(a => a.id === this.selectedArtifactId)
-    },
     selectedPatchType() {
       return this.selectedArtifactType ? this.selectedArtifactType.patchTypes.nodes.find(pt => pt.id === this.selectedPatchTypeId) : null
-    },
-    selectedSchema () {
-      return this.selectedSchemaId !== '' ? this.minor.project.schemata.nodes.find(s => s.id === this.selectedSchemaId) : { name: 'N/A' }
     },
     action () {
       return this.selectedPatchType ? this.selectedPatchType.action : 'NONE'
     },
     patchTypeHidden () {
       return this.selectedArtifactType === null || this.selectedArtifactType === undefined
-    },
-    schemataHidden () {
-      return this.selectedArtifactType ? this.selectedArtifactType.requiresSchema === false : true
     },
     selectArtifactHidden () {
       return this.selectedSchemaId === '' || this.selectedArtifactType.requiresSchema === false || this.selectedPatchType.action === 'CREATE'
@@ -140,25 +108,19 @@ export default {
     editorHidden() {
       return false // this.artifactName === ''
     },
-    specificPatchTypeHidden (patchType) {
-      return patchType.action === 'CREATE' ? false : this.artifacts.length === 0
-    },
     documentationLinkName () {
       return this.selectedPatchType ? `${this.selectedPatchType.name} documentation` : ''
     },
     documentationUrl () {
       return this.selectedPatchType ? this.selectedPatchType.documentationUrl : ''
-    },
-    artifactNameLabel () {
-      return this.selectedArtifactType ? `New ${this.selectedArtifactType.name} name` : ''
     }
   },
   methods: {
+    save () {
+
+    },
     cancel () {
       this.$router.go(-1)
-    },
-    filterforArtifactsInSchema () {
-      this.artifacts = this.minor.project.artifacts.nodes.filter(a => a.schema.id === this.selectedSchemaId && a.artifactType.id === this.selectedArtifactTypeId)
     },
     editorInit: function () {
         require('brace/ext/language_tools') //language extension prerequsite...
@@ -178,12 +140,8 @@ export default {
   watch: {
     selectedArtifactTypeId () {
       this.patchTypes = this.selectedArtifactType.patchTypes.nodes
-      this.artifacts = []
       this.selectedPatchTypeId = this.selectedArtifactType.patchTypes.nodes[0].id
-      this.selectedSchemaId = this.minor.project.schemata.nodes.length > 1 ? '' : (this.minor.project.schemata.nodes[0] || {}).id
       this.selectedArtifactId = ''
-      this.artifactName = ''
-      this.filterforArtifactsInSchema()
     },
     selectedArtifactId () {
       if (this.selectedArtifact) this.templateFieldValues[`${this.selectedArtifact.artifactType.name}Name`] = this.selectedArtifact.name
@@ -193,8 +151,6 @@ export default {
       this.calculateDdl()
     },
     selectedSchemaId () {
-      this.templateFieldValues[`schemaName`] = (this.selectedSchema || {name: 'N/A'}).name
-      this.filterforArtifactsInSchema()
       this.calculateDdl()
     }
   },

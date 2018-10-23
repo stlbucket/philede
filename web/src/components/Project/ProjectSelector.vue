@@ -27,6 +27,9 @@ export default {
       update (result) {
         this.projects = result.allPdeProjects.nodes
         this.selectedProjectId = this.focusProjectId
+        if (this.projects.length === 0) {
+          this.$router.push({ name: 'home' })
+        }
       }
     }
   },
@@ -37,6 +40,7 @@ export default {
   },
   watch: {
     focusProjectId () {
+          console.log('WTF')
       this.$apollo.queries.init.refetch()
     },
     selectedProjectId () {

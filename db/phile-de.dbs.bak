@@ -49,6 +49,21 @@
 				<column name="id" />
 			</index>
 		</table>
+		<table name="dev_deployment" >
+			<column name="id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" >
+				<defo>shard_1.id_generator()</defo>
+			</column>
+			<column name="ddl_down" type="text" decimal="0" jt="12" />
+			<column name="status" type="&quot;pde&quot;.&quot;dev_deployment_status&quot;" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;DEPLOYED&#039;::pde.dev_deployment_status</defo>
+			</column>
+			<column name="deployed_at" type="timestamp" length="29" decimal="6" jt="93" mandatory="y" >
+				<defo>now()</defo>
+			</column>
+			<index name="pk_dev_deployment" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+		</table>
 		<table name="major" >
 			<column name="id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" >
 				<defo>shard_1.id_generator()</defo>
@@ -119,8 +134,12 @@
 			</column>
 			<column name="project_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<column name="patch_type_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="dev_deployment_id" type="bigint" length="19" decimal="0" jt="-5" />
 			<index name="pk_pde_patch" unique="PRIMARY_KEY" >
 				<column name="id" />
+			</index>
+			<index name="patch_dev_deployment_id_key" unique="UNIQUE" >
+				<column name="dev_deployment_id" />
 			</index>
 			<constraint name="patch_number_check" >
 				<string>number &lt;&gt;&#039;&#039;::text</string>
@@ -136,6 +155,9 @@
 			</fk>
 			<fk name="fk_patch_patch_type" to_schema="pde" to_table="patch_type" >
 				<fk_column name="patch_type_id" pk="id" />
+			</fk>
+			<fk name="fk_patch_dev_deployment" to_schema="pde" to_table="dev_deployment" delete_action="setNull" >
+				<fk_column name="dev_deployment_id" pk="id" />
 			</fk>
 		</table>
 		<table name="patch_type" >
@@ -191,6 +213,32 @@
 				<string>name &lt;&gt;&#039;&#039;::text</string>
 			</constraint>
 		</table>
+		<table name="psql_query" >
+			<column name="id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" >
+				<defo>shard_1.id_generator()</defo>
+			</column>
+			<column name="name" type="text" decimal="0" jt="12" mandatory="y" />
+			<column name="description" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&#039;::text</defo>
+			</column>
+			<column name="sql" type="text" decimal="0" jt="12" mandatory="y" >
+				<defo>&#039;&#039;::text</defo>
+			</column>
+			<column name="minor_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<column name="project_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
+			<index name="pk_psql_query" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<constraint name="psql_query_name_check" >
+				<string>name &lt;&gt; &#039;&#039;::text</string>
+			</constraint>
+			<fk name="fk_psql_query_minor" to_schema="pde" to_table="minor" >
+				<fk_column name="minor_id" pk="id" />
+			</fk>
+			<fk name="fk_psql_query_project" to_schema="pde" to_table="pde_project" >
+				<fk_column name="project_id" pk="id" />
+			</fk>
+		</table>
 		<table name="release" >
 			<column name="id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" >
 				<defo>shard_1.id_generator()</defo>
@@ -198,7 +246,7 @@
 			<column name="project_id" type="bigint" length="19" decimal="0" jt="-5" mandatory="y" />
 			<column name="name" type="text" decimal="0" jt="12" mandatory="y" />
 			<column name="status" type="&quot;pde&quot;.&quot;release_status&quot;" decimal="0" jt="12" mandatory="y" >
-				<defo>&#039;Development&#039;::pde.release_status</defo>
+				<defo>&#039;DEVELOPMENT&#039;::pde.release_status</defo>
 			</column>
 			<column name="number" type="text" decimal="0" jt="12" mandatory="y" />
 			<column name="parent_release_id" type="bigint" length="19" decimal="0" jt="-5" />
@@ -253,7 +301,7 @@
 				<fk_column name="minor_id" pk="id" />
 			</fk>
 		</table>
-		<procedure name="build_development_release" id="Procedure_546c2bf" isSystem="false" params_known="y" >
+		<procedure name="build_development_release" id="Procedure_2d71de7" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.build_development_release(_project_id bigint, _name text)
  RETURNS pde.release
  LANGUAGE plpgsql
@@ -269,7 +317,7 @@ BEGIN
   INTO _development_release
   FROM pde.release
   WHERE project_id = _project_id
-  AND status = 'Development';
+  AND status = 'DEVELOPMENT';
   IF _development_release.id IS NOT NULL THEN
     RAISE EXCEPTION 'This project already has a development release';
   END IF;
@@ -284,7 +332,7 @@ BEGIN
   SELECT
     _name
     ,'N/A.development'
-    ,'Development'
+    ,'DEVELOPMENT'
     ,_project_id
     ,null
     ,false
@@ -370,7 +418,7 @@ $function$
 			<input_param name="_release_id" jt="-5" type="int8" />
 			<input_param name="_name" jt="12" type="text" />
 		</procedure>
-		<procedure name="build_patch_existing_artifact" id="Procedure_5c097bd" isSystem="false" params_known="y" >
+		<procedure name="build_patch_existing_artifact" id="Procedure_51a45fd" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.build_patch_existing_artifact(_minor_id bigint, _artifact_id bigint)
  RETURNS pde.patch
  LANGUAGE plpgsql
@@ -414,10 +462,11 @@ $function$
 			<input_param name="ddl_down" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="locked" jt="-7" type="bool" />
+			<input_param name="dev_deployment_id" jt="-5" type="int8" />
 			<input_param name="_minor_id" jt="-5" type="int8" />
 			<input_param name="_artifact_id" jt="-5" type="int8" />
 		</procedure>
-		<procedure name="build_patch_new_artifact" id="Procedure_499f134" isSystem="false" params_known="y" >
+		<procedure name="build_patch_new_artifact" id="Procedure_5a5a588" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.build_patch_new_artifact(_minor_id bigint, _artifact_type_id bigint, _schema_id bigint, _name text)
  RETURNS pde.patch
  LANGUAGE plpgsql
@@ -465,12 +514,13 @@ $function$
 			<input_param name="ddl_down" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="locked" jt="-7" type="bool" />
+			<input_param name="dev_deployment_id" jt="-5" type="int8" />
 			<input_param name="_minor_id" jt="-5" type="int8" />
 			<input_param name="_artifact_type_id" jt="-5" type="int8" />
 			<input_param name="_schema_id" jt="-5" type="int8" />
 			<input_param name="_name" jt="12" type="text" />
 		</procedure>
-		<procedure name="build_patch_new_schema" id="Procedure_43557e6" isSystem="false" params_known="y" >
+		<procedure name="build_patch_new_schema" id="Procedure_173e0d2" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.build_patch_new_schema(_minor_id bigint, _name text)
  RETURNS pde.patch
  LANGUAGE plpgsql
@@ -518,10 +568,11 @@ $function$
 			<input_param name="ddl_down" jt="12" type="text" />
 			<input_param name="number" jt="12" type="text" />
 			<input_param name="locked" jt="-7" type="bool" />
+			<input_param name="dev_deployment_id" jt="-5" type="int8" />
 			<input_param name="_minor_id" jt="-5" type="int8" />
 			<input_param name="_name" jt="12" type="text" />
 		</procedure>
-		<procedure name="defer_minor" id="Procedure_2169f47" isSystem="false" params_known="y" >
+		<procedure name="defer_minor" id="Procedure_dd642f" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.defer_minor(minor_id bigint)
  RETURNS pde.minor
  LANGUAGE plpgsql
@@ -544,16 +595,16 @@ BEGIN
   FROM pde.release
   WHERE id = _minor.release_id
   ;
-  IF _release.status != 'Development' THEN
+  IF _release.status != 'DEVELOPMENT' THEN
     RAISE EXCEPTION 'Cannot defer because patch is not in development release: %', minor_id;
   END IF;
   SELECT *
   INTO _release
   FROM pde.release
   WHERE project_id = _release.project_id
-  AND status = 'Future'
+  AND status = 'FUTURE'
   ;
-  IF _release.status != 'Future' THEN
+  IF _release.status != 'FUTURE' THEN
     RAISE EXCEPTION 'Cannot defer because future release does not exist: %', minor_id;
   END IF;
   
@@ -592,20 +643,21 @@ BEGIN
   VALUES
     (
       NEW.id
-      ,'Future'
+      ,'FUTURE'
       ,'9999.9999.9999'
-      ,'Future'
+      ,'FUTURE'
     ),
     (
       NEW.id
       ,'Next'
-      ,'Development'
-      ,'Development'
+      ,'DEVELOPMENT'
+      ,'DEVELOPMENT'
     )
   ;
   RETURN NEW;
 END; $function$
 ]]></string>
+			<result_param name="returnValue" jt="1111" type="trigger" />
 			<result_param name="returnValue" jt="1111" type="trigger" />
 		</procedure>
 		<procedure name="fn_timestamp_update_artifact" id="Procedure_15a900c" isSystem="false" params_known="y" >
@@ -683,16 +735,17 @@ BEGIN
   FROM max_patch_info mpi
   WHERE id = mpi.release_id
   AND locked = false
-  AND status = 'Development'
+  AND status = 'DEVELOPMENT'
   ;
   RETURN NEW;
 END; $function$
 ]]></string>
 			<result_param name="returnValue" jt="1111" type="trigger" />
+			<result_param name="returnValue" jt="1111" type="trigger" />
 		</procedure>
-		<procedure name="import_project" id="Procedure_2718d88" isSystem="false" params_known="y" >
+		<procedure name="import_project" id="Procedure_1c64e0d" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.import_project(_project_info jsonb)
- RETURNS jsonb
+ RETURNS pde.pde_project
  LANGUAGE plpgsql
 AS $function$
 DECLARE
@@ -701,6 +754,7 @@ DECLARE
   _artifact_type pde.artifact_type;
   _patch_type_json jsonb;
   _patch_type pde.patch_type;
+  _project pde.pde_project;
   _schema_json jsonb;
   _schema pde.schema;
   _artifact_json jsonb;
@@ -715,6 +769,8 @@ DECLARE
   _patch pde.patch;
   _artifact_type_mappings jsonb;
   _patch_type_mappings jsonb;
+  _artifact_type_id bigint;
+  _patch_type_id bigint;
   _mapping jsonb;
   _result jsonb;
 BEGIN
@@ -728,34 +784,113 @@ BEGIN
   loop
     _name := _artifact_type_json->>'name'::text;
     SELECT * INTO _artifact_type FROM pde.artifact_type WHERE name = _name;
-    IF _artifact_type.id IS NOT NULL THEN
-      _mapping := ('[{"old": ' || (_artifact_type_json->>'id') || ', "new": ' || (_artifact_type.id) || '}]');
-      _artifact_type_mappings := _artifact_type_mappings ||  (_mapping);
+    IF _artifact_type.id IS NULL THEN
+      INSERT INTO pde.artifact_type(id, name, properties) 
+        SELECT _artifact_type_json->>'id', _artifact_type_json->>'name', _artifact_type_json->>'properties' 
+        RETURNING * INTO _artifact_type;
     END IF;
+    _mapping := ('[{"old": ' || (_artifact_type_json->>'id') || ', "new": ' || (_artifact_type.id) || '}]');
+    _artifact_type_mappings := _artifact_type_mappings ||  (_mapping);
     for _patch_type_json in
       select jsonb_array_elements((_artifact_type_json->'patchTypes')->'nodes')
     loop
       RAISE NOTICE '  patch_type: %', _patch_type_json->'name';
       _name := _patch_type_json->>'name'::text;
       SELECT * INTO _patch_type FROM pde.patch_type WHERE name = _name;
-      IF _patch_type.id IS NOT NULL THEN
-        _mapping := ('[{"old": ' || (_patch_type_json->>'id') || ', "new": ' || (_patch_type.id) || '}]');
-        _patch_type_mappings := _patch_type_mappings ||  (_mapping);
+      IF _patch_type.id IS NULL THEN
+        -- _artifact_type_id := _patch_type_json->>'artifact_type_id';
+        _artifact_type_id := (
+          SELECT mapping->>'new'
+          FROM jsonb_array_elements(_artifact_type_mappings) mapping
+          WHERE mapping->>'old' = _patch_type_json->>'artifact_type_id'
+        );
+        INSERT INTO pde.patch(
+          id
+          ,name
+          ,key
+          ,ddl_up_template
+          ,ddl_down_template
+          ,properties
+          ,execution_order
+          ,artifact_type_id
+          ,action
+          ,documentation_url
+        ) 
+          SELECT 
+            _patch_type_json->>'id'
+            ,_patch_type_json->>'name'
+            ,_patch_type_json->>'key' 
+            ,_patch_type_json->>'ddl_up_template' 
+            ,_patch_type_json->>'ddl_down_template' 
+            ,_patch_type_json->>'properties' 
+            ,_patch_type_json->>'execution_order' 
+            ,_artifact_type_id 
+            ,_patch_type_json->>'action'
+            ,_patch_type_json->>'documentation_url'
+          RETURNING * INTO _patch_type;
       END IF;
+      _mapping := ('[{"old": ' || (_patch_type_json->>'id') || ', "new": ' || (_patch_type.id) || '}]');
+      _patch_type_mappings := _patch_type_mappings ||  (_mapping);
     end loop;
   end loop;
   -- project
-  RAISE NOTICE 'project name: %', (_project_info->'project')->'name';
+  RAISE NOTICE 'project name: %', (_project_info->'project')->>'name';
+  SELECT * INTO _project FROM pde.pde_project WHERE name = ((_project_info->'project')->>'name')::text;
+  IF _project.id IS NOT NULL THEN
+    RAISE EXCEPTION 'Project already exists: %', (_project_info->'project')->'name';
+  END IF;
+  INSERT INTO pde.pde_project(
+    id
+    ,name
+  )
+  SELECT
+    ((_project_info->'project')->>'id')::bigint
+    ,(_project_info->'project')->>'name'
+  RETURNING * INTO _project
+  ;
+  DELETE FROM pde.release WHERE project_id = _project.id;
   -- schemas
   for _schema_json in
     select jsonb_array_elements(((_project_info->'project')->'schemata')->'nodes')
   loop
     RAISE NOTICE 'schema: %', _schema_json->'name';
+    INSERT INTO pde.schema(
+      id
+      ,name
+      ,project_id
+    )
+    SELECT
+      (_schema_json->>'id')::bigint
+      ,_schema_json->>'name'
+      ,_project.id
+    RETURNING * INTO _schema
+    ;
     -- artifacts
     for _artifact_json in
       select jsonb_array_elements((_schema_json->'artifacts')->'nodes')
     loop
-      RAISE NOTICE '  artifact: %', _artifact_json->'name';
+      _artifact_type_id := (
+        SELECT mapping->>'new'
+        FROM jsonb_array_elements(_artifact_type_mappings) mapping
+        WHERE mapping->>'old' = _artifact_json->>'artifactTypeId'
+      );
+      INSERT INTO pde.artifact(
+        id
+        ,name
+        ,project_id
+        ,schema_id
+        ,artifact_type_id
+        ,description
+      )
+      SELECT
+        (_artifact_json->>'id')::bigint
+        ,_artifact_json->>'name'
+        ,_project.id
+        ,_schema.id
+        ,_artifact_type_id
+        ,_artifact_json->>'description'
+      RETURNING * INTO _artifact
+      ;      
     end loop;
   end loop;
 
@@ -763,19 +898,111 @@ BEGIN
   for _release_json in
     select jsonb_array_elements(((_project_info->'project')->'releases')->'nodes')
   loop
-    RAISE NOTICE 'release: % - %', _release_json->'name', _release_json->'number';
+    -- RAISE NOTICE 'release: %', jsonb_pretty(_release_json);
+    -- RAISE NOTICE 'release: % - %', _release_json->>'id', _release_json->>'name';
+    -- RAISE NOTICE '_project: %', _project.id;
+    RAISE NOTICE 'parent: %', _release_json->>'parent_release_id';
+    INSERT INTO pde.release(
+      id
+      ,project_id
+      ,name
+      ,status
+      ,number
+      ,parent_release_id
+      ,locked
+    )
+    SELECT
+      (_release_json->>'id')::bigint
+      ,_project.id::bigint
+      ,_release_json->>'name'
+      ,(_release_json->>'status')::pde.release_status
+      ,_release_json->>'number'
+      ,(_release_json->>'parent_release_id')::bigint
+      ,(_release_json->>'locked')::boolean
+    RETURNING * INTO _release
+    ;
     -- minors
     for _minor_json in
       select jsonb_array_elements((_release_json->'minors')->'nodes')
     loop
       _major_json := _minor_json->'major';
-      RAISE NOTICE '  major: % - %', _major_json->'name', _major_json->'revision';
-      RAISE NOTICE '  minor: % - %', _minor_json->'name', _minor_json->'number';
+      SELECT * INTO _major FROM pde.major WHERE id = (_major_json->>'id')::bigint;
+      IF _major.id IS NULL THEN
+        INSERT INTO pde.major(
+          id
+          ,project_id
+          ,name
+          ,revision
+        )
+        SELECT
+          (_major_json->>'id')::bigint
+          ,_project.id::bigint
+          ,_major_json->>'name'
+          ,(_major_json->>'revision')::integer
+        RETURNING * INTO _major
+        ;
+      END IF;
+      SELECT * INTO _minor FROM pde.minor WHERE id = (_minor_json->>'id')::bigint;
+      IF _minor.id IS NULL THEN
+        INSERT INTO pde.minor(
+          id
+          ,major_id
+          ,release_id
+          ,project_id
+          ,number
+          ,name
+          ,revision
+          ,locked
+        )
+        SELECT
+          (_minor_json->>'id')::bigint
+          ,_major.id::bigint
+          ,_release.id::bigint
+          ,_project.id::bigint
+          ,_minor_json->>'number'
+          ,_minor_json->>'name'
+          ,(_minor_json->>'revision')::integer
+          ,(_minor_json->>'locked')::boolean
+        RETURNING * INTO _minor
+        ;
+      END IF;
       -- patches
       for _patch_json in
         select jsonb_array_elements((_minor_json->'patches')->'nodes')
       loop
         RAISE NOTICE '  patch: %', _patch_json->'number';
+        RAISE NOTICE '  patch: %', jsonb_pretty(_patch_json);
+        _patch_type_id := (
+          SELECT mapping->>'new'
+          FROM jsonb_array_elements(_patch_type_mappings) mapping
+          WHERE mapping->>'old' = _patch_json->>'patchTypeId'
+        );
+        INSERT INTO pde.patch(
+          id
+          ,minor_id
+          ,artifact_id
+          ,revision
+          ,number
+          ,ddl_up
+          ,ddl_down
+          ,locked
+          ,project_id
+          ,patch_type_id
+        )
+        SELECT
+          (_patch_json->>'id')::bigint
+          ,_minor.id
+          ,(_patch_json->>'artifactId')::bigint
+          ,(_patch_json->>'revision')::bigInt
+          ,_patch_json->>'number'
+          ,_patch_json->>'ddlUp'
+          ,_patch_json->>'ddlDown'
+          ,(_patch_json->>'locked')::boolean
+          ,_project.id
+          ,_patch_type_id
+        RETURNING *
+        INTO _patch
+        ;
       end loop;
     end loop;
   end loop;
@@ -783,12 +1010,13 @@ BEGIN
   -- minor
   -- patches
  
-  return _result;
+  return _project;
 END;
 $function$
 ]]></string>
+			<input_param name="id" jt="-5" type="int8" />
+			<input_param name="name" jt="12" type="text" />
 			<input_param name="_project_info" jt="1111" type="jsonb" />
-			<result_param name="returnValue" jt="1111" type="jsonb" />
 		</procedure>
 		<procedure name="minor_schemas" id="Procedure_42ad462" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.minor_schemas(minor pde.minor)
@@ -809,7 +1037,7 @@ $function$
 			<input_param name="name" jt="12" type="text" />
 			<input_param name="minor" jt="1111" type="&quot;pde&quot;.&quot;minor&quot;" />
 		</procedure>
-		<procedure name="promote_minor" id="Procedure_49fd958" isSystem="false" params_known="y" >
+		<procedure name="promote_minor" id="Procedure_59378c2" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.promote_minor(minor_id bigint)
  RETURNS pde.minor
  LANGUAGE plpgsql
@@ -832,11 +1060,11 @@ BEGIN
   FROM pde.release
   WHERE id = _minor.release_id
   ;
-  IF _release.status != 'Future' THEN
+  IF _release.status != 'FUTURE' THEN
     RAISE EXCEPTION 'Cannot promote because patch is not in future release: %', _patch_id;
   END IF;
   UPDATE pde.minor SET
-    release_id = (SELECT id FROM pde.release WHERE project_id = _release.project_id AND status = 'Development')
+    release_id = (SELECT id FROM pde.release WHERE project_id = _release.project_id AND status = 'DEVELOPMENT')
   WHERE id = minor_id
   RETURNING *
   INTO _minor
@@ -997,7 +1225,7 @@ $function$
 			<input_param name="release" jt="1111" type="&quot;pde&quot;.&quot;release&quot;" />
 			<result_param name="returnValue" jt="12" type="text" />
 		</procedure>
-		<procedure name="release_to_current" id="Procedure_4717019" isSystem="false" params_known="y" >
+		<procedure name="release_to_current" id="Procedure_5a3fe10" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.release_to_current(_project_id bigint)
  RETURNS pde.release
  LANGUAGE plpgsql
@@ -1012,7 +1240,7 @@ BEGIN
   INTO _staging_release
   FROM pde.release
   WHERE project_id = _project_id
-  AND status = 'Staging';
+  AND status = 'STAGING';
   IF _staging_release.id IS NULL THEN
     RAISE EXCEPTION 'NO STAGING RELEASE FOR PROJECT ID: %', _project_id;
   END IF;
@@ -1021,12 +1249,12 @@ BEGIN
   FROM pde.release
   WHERE id = _staging_release.parent_release_id;
   UPDATE pde.release SET
-    status = 'Historic'
-  WHERE status = 'Current'
+    status = 'HISTORIC'
+  WHERE status = 'CURRENT'
   AND project_id = _project_id
   ;
   UPDATE pde.release SET
-    status = 'Current'
+    status = 'CURRENT'
     ,number = replace(_parent_release.number, '.development', '')
     ,locked = true
   WHERE id = _staging_release.id
@@ -1034,7 +1262,7 @@ BEGIN
   INTO _current_release
   ;
   UPDATE pde.release SET
-    status = 'Archived'
+    status = 'ARCHIVED'
   WHERE id = _parent_release.id
   ;
 --  PERFORM pde.build_development_release(_project_id);
@@ -1051,7 +1279,7 @@ $function$
 			<input_param name="locked" jt="-7" type="bool" />
 			<input_param name="_project_id" jt="-5" type="int8" />
 		</procedure>
-		<procedure name="release_to_staging" id="Procedure_4f60dd5" isSystem="false" params_known="y" >
+		<procedure name="release_to_staging" id="Procedure_758067" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.release_to_staging(_project_id bigint)
  RETURNS pde.release
  LANGUAGE plpgsql
@@ -1067,7 +1295,7 @@ BEGIN
   INTO _testing_release
   FROM pde.release
   WHERE project_id = _project_id
-  AND status = 'Testing';
+  AND status = 'TESTING';
   IF _testing_release.id IS NULL THEN
     RAISE EXCEPTION 'NO TESTING RELEASE FOR PROJECT ID: %', _project_id;
   END IF;
@@ -1076,14 +1304,14 @@ BEGIN
   FROM pde.release
   WHERE id = _testing_release.parent_release_id;
   UPDATE pde.release SET
-    status = 'StagingDeprecated'
+    status = 'STAGING_DEPRECATED'
     ,locked = true
-  WHERE status = 'Staging'
+  WHERE status = 'STAGING'
   AND project_id = _project_id
   ;
-  _staging_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _parent_release.id); -- AND status = 'StagingDeprecated');
+  _staging_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _parent_release.id); -- AND status = 'STAGING_DEPRECATED');
   UPDATE pde.release SET
-    status = 'Staging'
+    status = 'STAGING'
     ,number = replace (_testing_release.number, 'testing', 'staging')
   WHERE id = _testing_release.id
   RETURNING *
@@ -1102,7 +1330,7 @@ $function$
 			<input_param name="locked" jt="-7" type="bool" />
 			<input_param name="_project_id" jt="-5" type="int8" />
 		</procedure>
-		<procedure name="release_to_testing" id="Procedure_457353c" isSystem="false" params_known="y" >
+		<procedure name="release_to_testing" id="Procedure_15378fe" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.release_to_testing(_project_id bigint)
  RETURNS pde.release
  LANGUAGE plpgsql
@@ -1114,19 +1342,19 @@ DECLARE
   _testing_release_count integer;
 BEGIN
   UPDATE pde.release SET
-    status = 'TestingDeprecated'
-  WHERE status = 'Testing'
+    status = 'TESTING_DEPRECATED'
+  WHERE status = 'TESTING'
   AND project_id = _project_id
   ;
   SELECT *
   INTO _development_release
   FROM pde.release
   WHERE project_id = _project_id
-  AND status = 'Development';
+  AND status = 'DEVELOPMENT';
   IF _development_release.id IS NULL THEN
     RAISE EXCEPTION 'NO DEVELOPMENT RELEASE FOR PROJECT ID: %', _project_id;
   END IF;
-  _testing_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _development_release.id); -- AND status = 'TestingDeprecated');
+  _testing_release_count := (SELECT count(*) FROM pde.release WHERE parent_release_id = _development_release.id); -- AND status = 'TESTING_DEPRECATED');
   INSERT INTO pde.release(
     name
     ,number
@@ -1138,7 +1366,7 @@ BEGIN
   SELECT
     _development_release.name
     ,(replace(_development_release.number, 'development', 'testing')||'.'||(_testing_release_count+1)::text)
-    ,'Testing'
+    ,'TESTING'
     ,_project_id
     ,_development_release.id
     ,true
@@ -1203,7 +1431,7 @@ $function$
 			<input_param name="locked" jt="-7" type="bool" />
 			<input_param name="_project_id" jt="-5" type="int8" />
 		</procedure>
-		<procedure name="stash" id="Procedure_23a0d36" isSystem="false" params_known="y" >
+		<procedure name="stash" id="Procedure_50560fc" isSystem="false" params_known="y" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION pde.stash()
  RETURNS pde.release
  LANGUAGE plpgsql
@@ -1215,14 +1443,14 @@ BEGIN
   SELECT *
   INTO _release
   FROM pde.release
-  WHERE status = 'Development'
+  WHERE status = 'DEVELOPMENT'
   ;
   IF _release.id IS NULL THEN
     RAISE EXCEPTION 'Cannot stash because there is no development release';
   END IF;
   
   UPDATE pde.release SET
-    status = 'Stashed'
+    status = 'STASHED'
   WHERE id = minor_id
   RETURNING *
   INTO _release
@@ -1258,16 +1486,17 @@ $function$
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<connector name="soro-sales" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.2.2.jar" driver_desc="Standard" host="0.0.0.0" port="5432" instance="phile" user="soro" passwd="c29ybyRTZWNyZXQ=" />
 	<layout name="Default Layout" id="Layout_2d3ef4c" show_relation="columns" >
-		<entity schema="pde" name="pde_project" color="BFD4F5" x="432" y="64" />
-		<entity schema="pde" name="schema" color="C1D8EE" x="80" y="48" />
-		<entity schema="pde" name="artifact" color="BFD4F5" x="288" y="176" />
-		<entity schema="pde" name="major" color="BFD4F5" x="592" y="176" />
-		<entity schema="pde" name="test" color="C1D8EE" x="688" y="672" />
-		<entity schema="pde" name="pde_app_state" color="C1D8EE" x="48" y="208" />
-		<entity schema="pde" name="release" color="BFD4F5" x="736" y="48" />
-		<entity schema="pde" name="minor" color="BFD4F5" x="640" y="416" />
-		<entity schema="pde" name="patch" color="BFD4F5" x="352" y="528" />
-		<entity schema="pde" name="artifact_type" color="BFD4F5" x="64" y="464" />
-		<entity schema="pde" name="patch_type" color="C1D8EE" x="64" y="656" />
+		<entity schema="pde" name="artifact" color="BFD4F5" x="288" y="656" />
+		<entity schema="pde" name="test" color="C1D8EE" x="1296" y="736" />
+		<entity schema="pde" name="minor" color="BFD4F5" x="960" y="128" />
+		<entity schema="pde" name="patch" color="BFD4F5" x="896" y="576" />
+		<entity schema="pde" name="pde_project" color="BFD4F5" x="368" y="432" />
+		<entity schema="pde" name="schema" color="C1D8EE" x="80" y="480" />
+		<entity schema="pde" name="artifact_type" color="BFD4F5" x="48" y="688" />
+		<entity schema="pde" name="patch_type" color="C1D8EE" x="208" y="928" />
+		<entity schema="pde" name="dev_deployment" color="3986C1" x="1040" y="896" />
+		<entity schema="pde" name="major" color="BFD4F5" x="800" y="432" />
+		<entity schema="pde" name="psql_query" color="3986C1" x="640" y="256" />
+		<entity schema="pde" name="release" color="BFD4F5" x="480" y="48" />
 	</layout>
 </project>

@@ -35,6 +35,8 @@ export default {
   },
   methods: {
     newQuery () {
+      console.log('this.minorId', this.minorId)
+      this.$store.commit('focusMinorId', this.minorId)
       this.$router.push({ name: 'new-psql-query' })
     },
     selected (test) {
@@ -46,6 +48,11 @@ export default {
   watch: {
   },
   props: {
+    minorId: {
+      type: String,
+      required: false,
+      default: ''
+    }
     // tests: {
     //   type: Array,
     //   required: true

@@ -4,7 +4,16 @@
       <h1>PSQL Query</h1>
       <v-toolbar color="indigo" dark>
         <v-toolbar-side-icon></v-toolbar-side-icon>
+        <v-text-field
+          label="Name"
+          v-model="name"
+        ></v-text-field>
         <v-spacer></v-spacer>
+        <v-btn 
+          @click="saveQuery"
+          :disabled="saveQueryDisabled"
+        >Save Query
+        </v-btn>
         <v-btn 
           @click="execSql"
         >Exec Sql
@@ -67,6 +76,8 @@
 <script>
 import ace from 'brace'
 import execSql from '../../gql/mutation/execSql.gql'
+import psqlQueryById from '../../gql/query/psqlQueryById.gql'
+import createPsqlQuery from '../../gql/mutation/createPsqlQuery.gql'
 
 export default {
   name: "PsqlQuery",
@@ -77,6 +88,17 @@ export default {
     id: {
       type: String,
       required: false
+    }
+  },
+  apollo: {
+
+  },
+  computed: {
+    saveQueryDisabled () {
+      return this.focusMinorId === '' || this.sql === ''
+    },
+    focusMinorId () {
+      return this.$store.state.focusMinorId
     }
   },
   methods: {
@@ -108,12 +130,17 @@ export default {
         console.log(error)
       })
     },
+    saveQuery () {
+      alert(`NOT IMPLEMENTED: ${this.focusMinorId}`)
+    }
   },
   data () {
+    this.$store.commit('clearFocus')
     return {
       sql: `drop schema cards cascade;
       `,
-      results: 'results'
+      results: 'results',
+      name: ''
     }
   }
 }

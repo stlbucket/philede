@@ -9,6 +9,7 @@
     </v-toolbar>
     <v-toolbar>
       <v-btn @click="newPatch" :disabled="newPatchSetDisabled">New Minor</v-btn>
+      <v-btn @click="devDeployRelease" :disabled="newPatchSetDisabled">Redeploy</v-btn>
     </v-toolbar>
     <minor-list :focusReleaseId="focusReleaseId"></minor-list>
   </div>
@@ -17,6 +18,7 @@
 <script>
 import MinorList from './MinorList'
 import pdeProjectById from '../../gql/query/pdeProjectById.gql'
+import devDeployRelease from '../../gql/mutation/devDeployRelease.gql'
 
 export default {
   name: "ReleaseNavigator",
@@ -29,6 +31,24 @@ export default {
     },
     explore () {
       this.$eventHub.$emit('exploreRelease', this.focusRelease)
+    },
+    devDeployRelease () {
+      console.log('boowiojfe', this.focusReleaseId)
+      this.$apollo.mutate({
+        mutation: devDeployRelease,
+        variables: {
+          releaseId: this.focusReleaseId
+        },
+        fetchPolicy: 'no-cache'
+      })
+      .then(result => {
+        this.$eventHub.$emit('devDeployCompleted')
+      })
+      .catch(error => {
+        alert('ERROR')
+        console.log(error)
+        this.$eventHub.$emit('devDeployCompleted')
+      })
     }
   },
   computed: {

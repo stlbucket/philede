@@ -69,6 +69,7 @@ export default {
   //   })
   // },
   data () {
+    this.$store.commit('clearFocus')
     return {
       projectName: ''
     }

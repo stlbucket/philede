@@ -23,6 +23,7 @@ export default {
     introspectionProvider(query) {
       // return fetch('http://localhost:8080/graphql', {
       // console.log('query', query)
+      this.$store.commit('clearFocus')
       return fetch(window.location.origin + '/graphql', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },

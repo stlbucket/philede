@@ -2,7 +2,7 @@ const Promise = require('bluebird')
 const clog = require('fbkt-clog')
 const { makeExtendSchemaPlugin, gql } = require("graphile-utils");
 const camelCase = require('camelcase')
-const execSql = require('../gql/execSql')
+const execDDL = require('../gql/execDDL')
 
 async function rollbackDevDeployment(args, pgClient) {
   const sql = `
@@ -24,7 +24,7 @@ async function rollbackDevDeployment(args, pgClient) {
     try {
       const devDeployment = devDeployments.rows[i]
       console.log('devDeployment', devDeployment)
-      const devDeploymentResult = await execSql(devDeployment.ddl_down)
+      const devDeploymentResult = await execDDL(devDeployment.ddl_down)
       clog('devDeploymentResult', devDeploymentResult)
 
       const deleteSql = `
@@ -65,7 +65,9 @@ async function executeDevDeployment(args, pgClient) {
     for (let j = 0; j < patches.rows.length; j++) {
       const patch = patches.rows[j]
       try {
-        const patchResult = await execSql(patch.ddl_up)
+        clog('patch', patch)
+        const patchResult = await execDDL(patch.ddl_up)
+        clog('patchResult', patchResult)
         const devDeploymentSql = `
           WITH new_patch AS(
             insert into pde.dev_deployment(ddl_down, status)
@@ -78,8 +80,10 @@ async function executeDevDeployment(args, pgClient) {
           WHERE p.id = ${patch.id}
         `
         const ddlSqlResult = await pgClient.query(devDeploymentSql, []);
+        clog('ddlSqlResult', ddlSqlResult)
       }
       catch (e) {
+        clog('DDL ERROR', e)
         const devDeploymentSql = `
           WITH new_patch AS(
             insert into pde.dev_deployment(ddl_down, status)

@@ -3,7 +3,6 @@
     <v-tabs
       dark
       slider-color="yellow"
-      :hidden="hidden"
     >
       <v-tab
         key="dev-deployment-status"
@@ -14,7 +13,7 @@
       <v-tab-item
         key="dev-deployment-status"
       >
-      <v-toolbar>NOT IMPLEMENTED</v-toolbar>
+        <minor-deployment-list></minor-deployment-list>
       </v-tab-item>
       <v-tab
         key="patch-templates"
@@ -33,19 +32,17 @@
 
 <script>
 import PatchTemplate from './PatchTemplate'
+import MinorDeploymentList from './MinorDeploymentList'
 
 export default {
   name: "Config",
   components: {
-    PatchTemplate
+    PatchTemplate,
+    MinorDeploymentList
   },
   props: {
   },
   methods: {
-    save () {
-    },
-    revert () {
-    }
   },
   // apollo: {
   //   loadArtifact: {

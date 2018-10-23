@@ -81,12 +81,14 @@ export default {
     this.$eventHub.$on('patchCreated', this.queryRelease)
     this.$eventHub.$on('patchUpdated', this.queryRelease)
     this.$eventHub.$on('newMinorCreated', this.queryRelease)
+    this.$eventHub.$on('devDeployCompleted', this.queryRelease)
   },
   beforeDestroy() {
     this.$eventHub.$off('minorDeferredToggled')
     this.$eventHub.$off('patchCreated')
     this.$eventHub.$off('patchUpdated')
     this.$eventHub.$off('newMinorCreated')
+    this.$eventHub.$off('devDeployCompleted')
   }
 }
 </script>

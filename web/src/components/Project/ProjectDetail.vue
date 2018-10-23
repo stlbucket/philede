@@ -81,7 +81,6 @@ export default {
   created () {
     this.$eventHub.$on('releaseToTesting', this.releaseToTesting)  
     this.$eventHub.$on('releaseToStaging', this.releaseToStaging)  
-    this.$eventHub.$on('releaseToCurrent', this.releaseToCurrent)  
   },
   beforeDestroy() {
     this.$eventHub.$off('releaseToTesting')

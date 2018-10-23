@@ -280,7 +280,7 @@ CREATE TABLE pde.patch (
   ddl_down text NOT NULL DEFAULT '<ddl>',
   number text NOT NULL,
   locked boolean NOT NULL default false,
-  dev_deployment_id bigint NULL,
+  dev_deployment_id bigint UNIQUE NULL,
   CHECK (number <> ''),
   CONSTRAINT pk_pde_patch PRIMARY KEY (id)
 );
@@ -337,6 +337,21 @@ CREATE TRIGGER tg_timestamp_after_update_patch
   AFTER INSERT OR UPDATE ON pde.patch
   FOR EACH ROW
   EXECUTE PROCEDURE pde.fn_update_release_number();
+------------------------------------------------
+--psqlQuery
+------------------------------------------------
+CREATE TABLE pde.psql_query (
+  id bigint UNIQUE NOT NULL DEFAULT shard_1.id_generator(),
+  name text NOT NULL,
+  description text NOT NULL DEFAULT '',
+  sql text NOT NULL DEFAULT '',
+  minor_id bigint NOT NULL,
+  project_id bigint NOT NULL,
+  CHECK (name <> ''),
+  CONSTRAINT pk_psql_query PRIMARY KEY (id)
+);
+ALTER TABLE pde.psql_query ADD CONSTRAINT fk_psql_query_project FOREIGN KEY (project_id) REFERENCES pde.pde_project (id);
+ALTER TABLE pde.psql_query ADD CONSTRAINT fk_psql_query_minor FOREIGN KEY (minor_id) REFERENCES pde.minor (id);
 
 ------------------------------------------------
 -- test

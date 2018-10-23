@@ -1,8 +1,16 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import createPersistedState from 'vuex-persistedstate'
+import createPersistedFocus from 'vuex-persistedstate'
 
 Vue.use(Vuex)
+
+function doClearFocus(state){
+  state.focusSchemaId = ''
+  state.focusArtifactTypeId = ''
+  state.focusArtifactId = ''
+  state.focusMinorId = ''
+  state.focusPatchId = ''
+}
 
 export default new Vuex.Store({
   state: {
@@ -11,45 +19,40 @@ export default new Vuex.Store({
     focusSchemaId: '',
     focusArtifactTypeId: '',
     focusArtifactId: '',
-    focusPatchId: ''
+    focusPatchId: '',
+    focusMinorId: ''
   },
   mutations: {
+    clearFocus(state){
+      doClearFocus(state)
+    },
     focusProjectId (state, payload) {
+      doClearFocus(state)
       state.focusProjectId = payload.focusProjectId
-      state.focusSchemaId = ''
-      state.focusArtifactTypeId = ''
-      state.focusArtifactId = ''
-      state.focusPatchId = ''
     },
     focusReleaseId (state, payload) {
+      doClearFocus(state)
       state.focusReleaseId = payload.focusReleaseId
-      state.focusSchemaId = ''
-      state.focusArtifactTypeId = ''
-      state.focusArtifactId = ''
-      state.focusPatchId = ''
     },
     focusSchemaId (state, payload) {
+      doClearFocus(state)
       state.focusSchemaId = payload.focusSchemaId
-      state.focusArtifactTypeId = ''
-      state.focusArtifactId = ''
-      state.focusPatchId = ''
     },
     focusArtifactTypeId (state, payload) {
-      state.focusArtifactId = ''
-      state.focusPatchId = ''
+      doClearFocus(state)
       state.focusArtifactTypeId = payload.focusArtifactTypeId
     },
     focusArtifactId (state, payload) {
-      state.focusSchemaId = ''
-      state.focusArtifactTypeId = ''
-      state.focusPatchId = ''
+      doClearFocus(state)
       state.focusArtifactId = payload.focusArtifactId
     },
     focusPatchId (state, payload) {
-      state.focusSchemaId = ''
-      state.focusArtifactTypeId = ''
-      state.focusArtifactId = ''
+      doClearFocus(state)
       state.focusPatchId = payload.focusPatchId
+    },
+    focusMinorId (state, payload) {
+      doClearFocus(state)
+      state.focusMinorId = payload.focusMinorId
     }
   },
   actions: {
@@ -57,5 +60,5 @@ export default new Vuex.Store({
   },
   getters: {
   },
-  plugins: [createPersistedState()]
+  plugins: [createPersistedFocus()]
 })

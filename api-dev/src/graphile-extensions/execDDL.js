@@ -32,6 +32,7 @@ const ExecDDLPlugin = makeExtendSchemaPlugin(build => {
           // Start a sub-transaction
           // await pgClient.query("SAVEPOINT graphql_mutation");
           try {
+            clog('args.input', args.input)
 
             const result = await pgClient.query(args.input.sql, []);
 
@@ -47,7 +48,11 @@ const ExecDDLPlugin = makeExtendSchemaPlugin(build => {
             // Oh noes! If at first you don't succeed,
             // destroy all evidence you ever tried.
             // await pgClient.query("ROLLBACK TO SAVEPOINT graphql_mutation");
-            throw e;
+            clog('ERROR', e)
+            throw new Error(JSON.stringify({
+              message: e.toString(),
+              position: e.position
+            }));
           }
         },
       },

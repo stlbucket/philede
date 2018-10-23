@@ -26,6 +26,7 @@ query PatchById(
       id
       number
       name
+      releaseId
       major: majorByMajorId {
         id
         name

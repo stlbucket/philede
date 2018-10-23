@@ -14,6 +14,7 @@
         key="Psql"
       >
         <query-list-psql
+          :minorId="minor.id"
         ></query-list-psql>
       </v-tab-item>
       <v-tab

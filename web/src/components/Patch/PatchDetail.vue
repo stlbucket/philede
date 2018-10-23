@@ -22,7 +22,10 @@
         >Discard Changes
         </v-btn>
       </v-toolbar>
-
+      <v-toolbar :hidden="errorHidden" color="red">
+        {{ errorMessage }}
+        {{ cursorPosition }}
+      </v-toolbar>
       <v-card>
         <v-container
           fluid
@@ -203,6 +206,7 @@ export default {
             fetchPolicy: 'no-cache'
           })
         .then(result => {
+          console.log('this.patch', this.patch)
           return this.$apollo.mutate({
             mutation: devDeployRelease,
             variables: {
@@ -210,18 +214,48 @@ export default {
             },
             fetchPolicy: 'no-cache'
           })
-          .catch(error => {
-            return 'DEPLOY FAIL'
-          })
         })
         .then(result => {
+          this.errorMessage = ''
           this.$refs.editorUp.focus()
           this.$eventHub.$emit('patchUpdated', this.patch)
           this.$apollo.queries.loadPatch.refetch()
         })
         .catch(error => {
-          alert('ERROR')
-          console.log('error', error)
+          const errObj = JSON.parse(error.toString().replace('Error: GraphQL error:', ''))
+          console.log(errObj)
+          console.log('PATCH BITCH', this.patch.ddlUp.split('\n'))
+          const errorLocation = this.patch.ddlUp.split('\n').reduce(
+            (acc, line) => {
+              console.log('line', line.length)
+              if (acc.totalPosition >= errObj.position) {
+                console.log('case 1')
+                return acc
+              } else {
+                if ((acc.totalPosition + line.length) >= errObj.position) {
+                  console.log('case 2')
+                  return {
+                    row: acc.row + 1,
+                    position: errObj.position - acc.totalPosition,
+                    totalPosition: acc.totalPosition + line.length
+                  }
+                } else {
+                console.log('case 3')
+                return {
+                    row: acc.row + 1,
+                    position: 0,
+                    totalPosition: acc.totalPosition + line.length
+                  }
+                }
+              }
+            }, {
+              row: 0,
+              position: 0,
+              totalPosition: 0
+            }
+          )
+          console.log('errorLocation', errorLocation)
+          this.errorMessage = errObj.message
         })
       })
     },
@@ -249,6 +283,14 @@ export default {
       }
     }
   },
+  watch: {
+    patch () {
+      this.$store.commit('focusPatchId', {focusPatchId: this.patch.id})
+    },
+    ddlUp () {
+      console.log(this.$refs.editorUp.getCursorPosition())
+    }
+  },
   computed: {
     focusPatchId () {
       return this.$store.state.focusPatchId
@@ -269,6 +311,9 @@ export default {
     },
     readonly () {
       return false  // Todo: this
+    },
+    errorHidden () {
+      return this.errorMessage === ''
     }
   },
   // beforeRouteUpdate (to, from, next) {
@@ -299,7 +344,9 @@ export default {
       },
       patch: {},
       artifact: {},
-      artifactName: ''
+      artifactName: '',
+      errorMessage: '',
+      cursorPosition: {}
     }
   }
 }
