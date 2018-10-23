@@ -1,0 +1,24 @@
+query PsqlQueriesByMinorId(
+  $minorId: BigInt!
+){
+  allPsqlQueries (filter: {
+    minorId: { equalTo: $minorId }
+  }) {
+    nodes {
+      id
+      name
+      description
+      sql
+      minor: minorByMinorId {
+        id
+        name
+        number
+        revision
+      }
+      project: pdeProjectByProjectId {
+        id
+        name        
+      }
+    }
+  }
+}

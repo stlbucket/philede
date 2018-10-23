@@ -1,0 +1,14 @@
+query {
+  allDevDeployments {
+    nodes {
+      id
+      status
+      patch: patchByDevDeploymentId {
+        id
+        number
+        
+        revision 
+      }
+    }
+  }
+}

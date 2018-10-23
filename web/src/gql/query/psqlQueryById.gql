@@ -1,0 +1,12 @@
+query PsqlQueryById(
+  $id: BigInt!
+) {
+  psqlQueryById(id: $id) {
+    id
+    name
+    description
+    sql
+    projectId
+    minorId
+  }
+}

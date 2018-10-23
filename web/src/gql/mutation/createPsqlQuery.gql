@@ -1,0 +1,27 @@
+
+mutation CreatePsqlQuery(
+  $name: String!
+  $description: String!
+  $sql: String!
+  $minorId: BigInt!
+  $projectId: BigInt!
+) {
+  createPsqlQuery(input: {
+    psqlQuery: {
+      name: $name
+      description: $description
+      sql: $sql
+      minorId: $minorId
+      projectId: $projectId
+    }
+  }) {
+    psqlQuery {
+      id
+      name
+      description
+      sql
+      minorId
+      projectId
+    }
+  }
+}
